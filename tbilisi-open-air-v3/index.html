@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tbilisi Open Air 2026 — Trust DMC</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Russo+One&family=Oswald:wght@600;700&family=Montserrat:wght@300;400;600&family=Dancing+Script:wght@700&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../libs/splitting.min.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{width:100vw;height:100vh;background:#000;overflow:hidden;}
+
+.stage{
+  position:absolute;width:1080px;height:1920px;
+  transform-origin:top left;overflow:hidden;
+}
+
+/* ── BACKGROUND SCENES ── */
+.bg-layer{position:absolute;inset:0;z-index:1;}
+.bg-scene{position:absolute;inset:0;opacity:0;overflow:hidden;}
+.bg-scene img{
+  position:absolute;width:110%;height:110%;
+  top:-5%;left:-5%;object-fit:cover;object-position:center;
+}
+@keyframes kb-zo{from{transform:scale(1.10) translate(2%,1%);}  to{transform:scale(1.00) translate(0%,0%);}}
+@keyframes kb-zi{from{transform:scale(1.00) translate(0%,0%);}  to{transform:scale(1.10) translate(-2%,-1%);}}
+@keyframes kb-pr{from{transform:scale(1.06) translate(-3%,0%);} to{transform:scale(1.06) translate(3%,0%);}}
+@keyframes kb-pl{from{transform:scale(1.06) translate(3%,-1%);} to{transform:scale(1.06) translate(-2%,1%);}}
+.kb1{animation:kb-zo 12s linear forwards;}
+.kb2{animation:kb-zi 12s linear forwards;}
+.kb3{animation:kb-pr 12s linear forwards;}
+.kb4{animation:kb-pl 12s linear forwards;}
+/* Per-scene dark tint */
+.bg-scene:nth-child(1){background:radial-gradient(ellipse 120% 80% at 50% 100%,#0a1040 0%,#040818 40%,#010210 80%,#000 100%);}
+.bg-scene:nth-child(2){background:radial-gradient(ellipse 120% 80% at 50% 100%,#0a2010 0%,#050f08 40%,#010504 80%,#000 100%);}
+.bg-scene:nth-child(3){background:radial-gradient(ellipse 120% 80% at 50% 100%,#1a0535 0%,#0d0020 40%,#040010 80%,#000 100%);}
+.bg-scene:nth-child(4){background:radial-gradient(ellipse 120% 80% at 50% 100%,#201008 0%,#100804 40%,#050402 80%,#000 100%);}
+.bg-scene::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(0,0,0,.75) 0%,rgba(0,0,0,.28) 28%,rgba(0,0,0,.22) 55%,rgba(0,0,0,.52) 80%,rgba(0,0,0,.92) 100%);
+}
+
+/* ── SPARK CANVAS ── */
+#sparkCv{position:absolute;inset:0;z-index:4;pointer-events:none;}
+
+/* ── LIGHT BEAMS ── */
+.beam-layer{position:absolute;inset:0;z-index:3;pointer-events:none;}
+.beam{position:absolute;top:0;transform-origin:top center;opacity:0;}
+.b1{left:55px;width:260px;height:1200px;background:linear-gradient(180deg,rgba(180,0,255,.50) 0%,transparent 100%);clip-path:polygon(40% 0%,60% 0%,100% 100%,0% 100%);transform:rotate(-22deg);}
+.b2{left:268px;width:200px;height:1050px;background:linear-gradient(180deg,rgba(255,255,255,.18) 0%,transparent 100%);clip-path:polygon(38% 0%,62% 0%,100% 100%,0% 100%);transform:rotate(-10deg);}
+.b3{left:50%;margin-left:-115px;width:230px;height:1350px;background:linear-gradient(180deg,rgba(0,220,255,.58) 0%,transparent 100%);clip-path:polygon(36% 0%,64% 0%,100% 100%,0% 100%);transform:rotate(0deg);}
+.b4{right:268px;width:200px;height:1050px;background:linear-gradient(180deg,rgba(255,255,255,.18) 0%,transparent 100%);clip-path:polygon(38% 0%,62% 0%,100% 100%,0% 100%);transform:rotate(10deg);}
+.b5{right:55px;width:260px;height:1200px;background:linear-gradient(180deg,rgba(255,30,180,.50) 0%,transparent 100%);clip-path:polygon(40% 0%,60% 0%,100% 100%,0% 100%);transform:rotate(22deg);}
+
+/* ── CONTENT ── */
+.content{position:absolute;inset:0;z-index:6;pointer-events:none;}
+
+/* Top badge — Oswald 600 */
+.top-badge{position:absolute;top:72px;left:0;right:0;text-align:center;opacity:0;}
+.badge-inner{
+  display:inline-block;border:1px solid rgba(255,255,255,.28);padding:11px 42px;
+  font-family:'Oswald',sans-serif;font-size:15px;font-weight:600;
+  letter-spacing:7px;color:rgba(255,255,255,.72);text-transform:uppercase;
+}
+
+/* Year — Bebas Neue + CountUp.js */
+.year-wrap{position:absolute;top:138px;left:0;right:0;text-align:center;opacity:0;}
+#year-el{
+  font-family:'Bebas Neue',cursive;font-size:64px;letter-spacing:18px;
+  color:rgba(0,220,255,.92);
+  text-shadow:0 0 28px rgba(0,220,255,.68),0 0 56px rgba(0,220,255,.28);
+}
+
+/* TBILISI — Bebas Neue + Splitting.js chars */
+.t-tbilisi{
+  position:absolute;top:218px;left:0;right:0;text-align:center;
+  font-family:'Bebas Neue',cursive;font-size:206px;line-height:1;letter-spacing:5px;
+  color:#fff;
+  text-shadow:0 0 55px rgba(0,220,255,.42),0 0 110px rgba(0,220,255,.16),0 6px 0 rgba(0,0,0,.75);
+}
+.t-tbilisi .char{display:inline-block;}
+
+/* OPEN AIR — Russo One, two halves slide */
+.t-openair-wrap{
+  position:absolute;top:440px;left:0;right:0;
+  text-align:center;
+  font-family:'Russo One',sans-serif;font-size:118px;line-height:1;letter-spacing:16px;
+  color:transparent;
+  -webkit-text-stroke:2.5px rgba(0,220,255,.92);
+  text-shadow:0 0 38px rgba(0,220,255,.36);
+}
+.oar-l,.oar-r{display:inline-block;}
+.oar-l{margin-right:20px;}
+
+/* SVG ornaments */
+.ornament-wrap{position:absolute;left:0;right:0;text-align:center;}
+.ornament-top{top:588px;}
+.ornament-bot{top:668px;}
+.orn-svg{overflow:visible;}
+.orn-line{stroke:rgba(0,220,255,.42);stroke-width:1;fill:none;}
+.orn-star{fill:rgba(0,220,255,.62);font-size:11px;font-family:sans-serif;opacity:0;}
+
+/* Genres — Oswald 700 + Typed.js */
+.genres-wrap{
+  position:absolute;top:612px;left:0;right:0;text-align:center;
+  font-family:'Oswald',sans-serif;font-size:24px;font-weight:700;
+  letter-spacing:7px;color:rgba(255,255,255,.92);text-transform:uppercase;
+  min-height:36px;opacity:0;
+}
+
+/* Feature icons */
+.features{
+  position:absolute;top:714px;left:44px;right:44px;
+  display:flex;justify-content:space-around;align-items:flex-start;
+}
+.fi{display:flex;flex-direction:column;align-items:center;gap:10px;width:190px;opacity:0;}
+.fi-icon{font-size:38px;line-height:1;}
+.fi-lbl{
+  font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;
+  letter-spacing:2px;color:rgba(255,255,255,.72);text-transform:uppercase;
+  text-align:center;line-height:1.45;
+}
+
+/* Description — Space Mono + Typed.js */
+.desc-wrap{
+  position:absolute;top:884px;left:70px;right:70px;text-align:center;
+  font-family:'Space Mono',monospace;font-size:17px;line-height:1.82;
+  color:rgba(255,255,255,.58);min-height:62px;opacity:0;
+}
+
+/* Location — Bebas Neue gold */
+.location{position:absolute;top:1046px;left:0;right:0;text-align:center;opacity:0;}
+.loc-main{
+  font-family:'Bebas Neue',cursive;font-size:56px;letter-spacing:12px;
+  color:#ffca28;
+  text-shadow:0 0 26px rgba(255,202,40,.55),0 0 52px rgba(255,202,40,.22);
+}
+.loc-sub{
+  margin-top:10px;
+  font-family:'Montserrat',sans-serif;font-size:17px;letter-spacing:6px;
+  color:rgba(255,255,255,.48);text-transform:uppercase;
+}
+
+/* Dates */
+.dates{position:absolute;top:1194px;left:0;right:0;text-align:center;opacity:0;}
+.dates-inner{
+  display:inline-flex;align-items:center;gap:28px;
+  border:1px solid rgba(0,220,255,.32);padding:16px 54px;
+}
+.d-item{
+  font-family:'Bebas Neue',cursive;font-size:44px;letter-spacing:4px;
+  color:rgba(0,220,255,.90);text-shadow:0 0 18px rgba(0,220,255,.48);
+}
+.d-sep{font-family:'Montserrat',sans-serif;font-size:18px;color:rgba(255,255,255,.22);}
+
+/* Hashtag — Montserrat 300 with letter-spacing expand */
+.htag{
+  position:absolute;top:1342px;left:0;right:0;text-align:center;
+  font-family:'Montserrat',sans-serif;font-size:16px;font-weight:300;
+  letter-spacing:0px;color:rgba(255,255,255,.38);opacity:0;
+}
+
+/* Tagline — Dancing Script 700 + Splitting.js chars */
+.tagline{
+  position:absolute;top:1410px;left:0;right:0;text-align:center;
+  font-family:'Dancing Script',cursive;font-size:54px;font-weight:700;
+  color:rgba(255,255,255,.84);
+  text-shadow:0 2px 22px rgba(180,0,255,.38);
+}
+.tagline .char{display:inline-block;}
+
+/* Energy bar */
+.ebar{
+  position:absolute;top:1494px;left:110px;right:110px;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(180,0,255,.65),rgba(0,220,255,.90),rgba(255,30,180,.65),transparent);
+  opacity:0;transform-origin:center;
+}
+
+/* Pack line */
+.pack{
+  position:absolute;top:1526px;left:0;right:0;text-align:center;
+  font-family:'Oswald',sans-serif;font-size:20px;font-weight:600;
+  letter-spacing:12px;color:rgba(255,255,255,.28);text-transform:uppercase;
+  opacity:0;
+}
+
+/* Trust DMC */
+.bfade{position:absolute;bottom:0;left:0;right:0;height:244px;z-index:5;pointer-events:none;background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.75) 50%,#000 100%);}
+.presents{
+  position:absolute;bottom:234px;left:0;right:0;text-align:center;
+  font-family:'Montserrat',sans-serif;font-size:12px;font-weight:400;
+  letter-spacing:7px;color:rgba(255,255,255,.35);text-transform:uppercase;
+  z-index:8;opacity:0;
+}
+.trust-logo{
+  position:absolute;bottom:70px;left:50%;transform:translateX(-50%) scale(1);
+  width:290px;z-index:8;opacity:0;
+  filter:brightness(0) invert(1);
+}
+
+/* Vignette */
+.vignette{
+  position:absolute;inset:0;z-index:7;pointer-events:none;
+  background:radial-gradient(ellipse 90% 65% at 50% 48%,transparent 26%,rgba(0,0,0,.38) 68%,rgba(0,0,0,.80) 100%);
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <!-- BG Scenes -->
+  <div class="bg-layer">
+    <div class="bg-scene" id="sc0">
+      <img class="kb1" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Tbilisi_National_Gallery.JPG/1280px-Tbilisi_National_Gallery.JPG" alt="Tbilisi" onerror="this.style.display='none'">
+    </div>
+    <div class="bg-scene" id="sc1">
+      <img class="kb2" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Ushguli_Svaneti_Georgia.JPG/1280px-Ushguli_Svaneti_Georgia.JPG" alt="Georgia Mountains" onerror="this.style.display='none'">
+    </div>
+    <div class="bg-scene" id="sc2">
+      <img class="kb3" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Crowd_25dec09_3443.JPG/1280px-Crowd_25dec09_3443.JPG" alt="Concert Crowd" onerror="this.style.display='none'">
+    </div>
+    <div class="bg-scene" id="sc3">
+      <img class="kb4" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Zeena_Schreck_Wave-Gotik-Treffen_Music_festival_May_23,_2015_Leipzig.JPG/1280px-Zeena_Schreck_Wave-Gotik-Treffen_Music_festival_May_23,_2015_Leipzig.JPG" alt="Music Festival" onerror="this.style.display='none'">
+    </div>
+  </div>
+
+  <!-- Beams -->
+  <div class="beam-layer">
+    <div class="beam b1" id="bm1"></div>
+    <div class="beam b2" id="bm2"></div>
+    <div class="beam b3" id="bm3"></div>
+    <div class="beam b4" id="bm4"></div>
+    <div class="beam b5" id="bm5"></div>
+  </div>
+
+  <!-- Spark particles -->
+  <canvas id="sparkCv" width="1080" height="1920"></canvas>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Oswald 600: badge -->
+    <div class="top-badge" id="topBadge">
+      <div class="badge-inner">The Caucasus' Largest Music Festival</div>
+    </div>
+
+    <!-- CountUp.js: year -->
+    <div class="year-wrap" id="yearWrap">
+      <span id="year-el">2020</span>
+    </div>
+
+    <!-- Splitting.js chars drop: TBILISI -->
+    <div class="t-tbilisi" id="tTbilisi">TBILISI</div>
+
+    <!-- Russo One split halves: OPEN | AIR -->
+    <div class="t-openair-wrap">
+      <span class="oar-l" id="oarL">OPEN</span><span class="oar-r" id="oarR">AIR</span>
+    </div>
+
+    <!-- anime.js SVG stroke ornament -->
+    <div class="ornament-wrap ornament-top">
+      <svg class="orn-svg" width="420" height="14" viewBox="0 0 420 14">
+        <line class="orn-line" x1="0" y1="7" x2="188" y2="7"/>
+        <text class="orn-star" x="197" y="11">✦</text>
+        <line class="orn-line" x1="233" y1="7" x2="420" y2="7"/>
+      </svg>
+    </div>
+
+    <!-- Oswald 700 + Typed.js: genres -->
+    <div class="genres-wrap" id="genresWrap">
+      <span id="genres-typed"></span>
+    </div>
+
+    <!-- second ornament -->
+    <div class="ornament-wrap ornament-bot">
+      <svg class="orn-svg" width="420" height="14" viewBox="0 0 420 14">
+        <line class="orn-line" x1="0" y1="7" x2="188" y2="7"/>
+        <text class="orn-star" x="197" y="11">✦</text>
+        <line class="orn-line" x1="233" y1="7" x2="420" y2="7"/>
+      </svg>
+    </div>
+
+    <!-- Feature icons pop -->
+    <div class="features" id="features">
+      <div class="fi" id="fi0"><div class="fi-icon">🎤</div><div class="fi-lbl">Live Performances</div></div>
+      <div class="fi" id="fi1"><div class="fi-icon">🌄</div><div class="fi-lbl">Outdoor Festival</div></div>
+      <div class="fi" id="fi2"><div class="fi-icon">🎉</div><div class="fi-lbl">Thousands of Fans</div></div>
+      <div class="fi" id="fi3"><div class="fi-icon">🍔</div><div class="fi-lbl">Food &amp; Culture</div></div>
+    </div>
+
+    <!-- Space Mono + Typed.js: description -->
+    <div class="desc-wrap" id="descWrap">
+      <span id="desc-typed"></span>
+    </div>
+
+    <!-- Bebas Neue gold: location -->
+    <div class="location" id="locEl">
+      <div class="loc-main">📍 TBILISI, GEORGIA</div>
+      <div class="loc-sub">Multi-day summer festival experience</div>
+    </div>
+
+    <!-- Dates box -->
+    <div class="dates" id="datesEl">
+      <div class="dates-inner">
+        <div class="d-item">JULY</div>
+        <div class="d-sep">·</div>
+        <div class="d-item">AUG</div>
+        <div class="d-sep">·</div>
+        <div class="d-item">2026</div>
+      </div>
+    </div>
+
+    <!-- Montserrat 300: hashtags with letter-spacing expand -->
+    <div class="htag" id="htag">#TbilisiOpenAir · #SummerInGeorgia · #OpenAirFestival</div>
+
+    <!-- Dancing Script + Splitting.js + anime.js: tagline -->
+    <div class="tagline" id="tagline">Pack Your Festival Spirit</div>
+
+    <!-- Energy bar -->
+    <div class="ebar" id="ebar"></div>
+
+    <!-- Oswald sub line -->
+    <div class="pack" id="pack">Multi-day · International · Summer 2026</div>
+  </div>
+
+  <div class="bfade"></div>
+  <div class="presents" id="presents">Presented by</div>
+  <img class="trust-logo" id="trustLogo"
+       src="../New_logo_design/TRUST%20DMC%20WHITE%20PNG.png"
+       alt="Trust DMC">
+  <div class="vignette"></div>
+</div>
+
+<!-- LIBS -->
+<script src="../libs/gsap.min.js"></script>
+<script src="../libs/splitting.min.js"></script>
+<script src="../libs/anime.min.js"></script>
+<script src="../libs/typed.min.js"></script>
+<script src="../libs/mo.min.js"></script>
+<script src="../libs/countup.min.js"></script>
+
+<script>
+/* ── STAGE SCALE ── */
+const stageEl = document.getElementById('stage');
+function fitStage(){
+  const s = Math.min(window.innerWidth/1080, window.innerHeight/1920);
+  stageEl.style.transform = `scale(${s})`;
+  stageEl.style.left = Math.max(0,(window.innerWidth -1080*s)/2)+'px';
+  stageEl.style.top  = Math.max(0,(window.innerHeight-1920*s)/2)+'px';
+}
+fitStage(); window.addEventListener('resize', fitStage);
+
+/* ── SPLITTING.JS — run once, chars stay in DOM ── */
+Splitting({ target: '#tTbilisi', by: 'chars' });
+Splitting({ target: '#tagline',  by: 'chars' });
+
+/* ── SPARK PARTICLES ── */
+const sCv  = document.getElementById('sparkCv');
+const sCtx = sCv.getContext('2d');
+const SCOLS = [[180,0,255],[0,220,255],[255,30,180],[255,200,0],[255,255,255],[100,0,200]];
+class Spark{
+  constructor(init){ this.reset(init); }
+  reset(init){
+    this.x=Math.random()*1080; this.y=init?Math.random()*1920:1960+Math.random()*40;
+    this.r=0.5+Math.random()*2.2; this.gr=this.r*(4+Math.random()*7);
+    this.vx=(Math.random()-.5)*.55; this.vy=-(0.35+Math.random()*1.1);
+    this.wb=Math.random()*Math.PI*2; this.wbS=.014+Math.random()*.024; this.wbA=.28+Math.random()*.75;
+    this.life=0; this.ml=140+Math.random()*650; this.pk=.45+Math.random()*.55;
+    this.col=SCOLS[Math.floor(Math.random()*SCOLS.length)];
+  }
+  tick(){
+    this.life++; this.wb+=this.wbS;
+    this.x+=this.vx+Math.sin(this.wb)*this.wbA; this.y+=this.vy;
+    const t=this.life/this.ml;
+    this.a=(t<.12?t/.12:t>.65?(1-t)/.35:1)*this.pk;
+    if(this.life>=this.ml||this.y<-20) this.reset(false);
+  }
+  draw(){
+    if(this.a<.005) return;
+    const [r,g,b]=this.col;
+    const grd=sCtx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.gr);
+    grd.addColorStop(0,`rgba(${r},${g},${b},${(this.a*.6).toFixed(4)})`);
+    grd.addColorStop(.4,`rgba(${r},${g},${b},${(this.a*.1).toFixed(4)})`);
+    grd.addColorStop(1,'transparent');
+    sCtx.save(); sCtx.fillStyle=grd;
+    sCtx.beginPath(); sCtx.arc(this.x,this.y,this.gr,0,Math.PI*2); sCtx.fill();
+    sCtx.fillStyle=`rgba(${r},${g},${b},${Math.min(this.a*2.2,1).toFixed(4)})`;
+    sCtx.beginPath(); sCtx.arc(this.x,this.y,this.r,0,Math.PI*2); sCtx.fill();
+    sCtx.restore();
+  }
+}
+const sparks=Array.from({length:140},()=>new Spark(true));
+(function sparkLoop(){ sCtx.clearRect(0,0,1080,1920); sparks.forEach(s=>{s.tick();s.draw();}); requestAnimationFrame(sparkLoop); })();
+
+/* ── BACKGROUND SCENES ── */
+const scenes=[
+  document.getElementById('sc0'),document.getElementById('sc1'),
+  document.getElementById('sc2'),document.getElementById('sc3')
+];
+let currentScene=-1;
+function showScene(idx,dur){
+  const next=scenes[idx];
+  const prev=currentScene>=0?scenes[currentScene]:null;
+  gsap.to(next,{opacity:1,duration:dur||1.0,ease:'power1.inOut'});
+  if(prev&&prev!==next) gsap.to(prev,{opacity:0,duration:dur||1.0,ease:'power1.inOut'});
+  currentScene=idx;
+}
+function hideAllScenes(){
+  scenes.forEach(s=>gsap.set(s,{opacity:0}));
+  currentScene=-1;
+}
+
+/* ── MO.JS BURST — pre-generated, re-played each loop ── */
+const logoBurst = new mojs.Burst({
+  parent:   stageEl,
+  left:     540,
+  top:      1820,
+  radius:   { 0: 140 },
+  count:    12,
+  children: {
+    shape:    'circle',
+    fill:     ['#b400ff','#00dcff','#ff1eb4','#ffd700','#ffffff','#b400ff'],
+    radius:   { 9: 0 },
+    duration: 900,
+    easing:   'quad.out'
+  }
+});
+logoBurst.generate();
+
+/* ── TYPED.JS — tracked instances ── */
+let typedGenres = null;
+let typedDesc   = null;
+
+function destroyTyped(){
+  if(typedGenres){ typedGenres.destroy(); typedGenres=null; }
+  if(typedDesc)  { typedDesc.destroy();   typedDesc=null;   }
+  document.getElementById('genres-typed').innerHTML = '';
+  document.getElementById('desc-typed').innerHTML   = '';
+}
+
+/* ── COUNTUP ── */
+function startCountUp(){
+  const cu = new CountUp('year-el', 2026, {
+    startVal:     2020,
+    duration:     0.9,
+    useEasing:    true,
+    useGrouping:  false
+  });
+  if(!cu.error) cu.start();
+}
+
+/* ── ANIME.JS helpers ── */
+function drawOrnaments(){
+  /* Reset dashoffset */
+  document.querySelectorAll('.orn-line').forEach(el=>{
+    const len = el.getTotalLength ? el.getTotalLength() : 300;
+    el.style.strokeDasharray  = len;
+    el.style.strokeDashoffset = len;
+  });
+  anime({
+    targets:  '.orn-line',
+    strokeDashoffset: [anime.setDashoffset, 0],
+    easing:   'easeInOutSine',
+    duration: 580,
+    delay:    anime.stagger(130)
+  });
+}
+
+function animTagline(){
+  anime({
+    targets:      '#tagline .char',
+    opacity:      [0, 1],
+    translateY:   [10, 0],
+    easing:       'easeOutCubic',
+    duration:     340,
+    delay:        anime.stagger(50)
+  });
+}
+
+/* ── RESET ALL STATE ── */
+function resetAll(){
+  destroyTyped();
+  hideAllScenes();
+
+  gsap.set(['#bm1','#bm2','#bm3','#bm4','#bm5'], {opacity:0});
+  gsap.set('#topBadge',             {opacity:0, y:-22});
+  gsap.set('#yearWrap',             {opacity:0});
+  document.getElementById('year-el').textContent = '2020';
+  gsap.set('#tTbilisi .char',       {opacity:0, y:-80, rotation:-8});
+  gsap.set('#oarL',                 {opacity:0, x:-140});
+  gsap.set('#oarR',                 {opacity:0, x:140});
+  gsap.set('.orn-star',             {opacity:0});
+  document.querySelectorAll('.orn-line').forEach(el=>{
+    const len = el.getTotalLength ? el.getTotalLength() : 300;
+    el.style.strokeDasharray  = len;
+    el.style.strokeDashoffset = len;
+  });
+  gsap.set('#genresWrap',           {opacity:0});
+  gsap.set('.fi',                   {opacity:0, scale:0.55});
+  gsap.set('#descWrap',             {opacity:0});
+  gsap.set('#locEl',                {opacity:0, scale:0.82});
+  gsap.set('#datesEl',              {opacity:0, scale:0.88});
+  gsap.set('#htag',                 {opacity:0, letterSpacing:'0px'});
+  gsap.set('#tagline .char',        {opacity:0, translateY:10});
+  gsap.set('#ebar',                 {opacity:0, scaleX:0});
+  gsap.set('#pack',                 {opacity:0});
+  gsap.set('#presents',             {opacity:0});
+  gsap.set('#trustLogo',            {opacity:0, scale:0.80});
+
+  /* Reset Ken Burns */
+  scenes.forEach((sc,i)=>{
+    const img = sc.querySelector('img');
+    if(img){
+      const cls = ['kb1','kb2','kb3','kb4'][i];
+      img.className = '';
+      void img.offsetWidth;
+      img.className = cls;
+    }
+  });
+}
+resetAll();
+
+/* ── MASTER TIMELINE ── */
+function buildTL(){
+  const tl = gsap.timeline();
+
+  /* 0s — Scene 1: Tbilisi */
+  tl.add(()=>showScene(0,1.2), 0);
+
+  /* Beams sweep */
+  tl.to(['#bm1','#bm5'],{opacity:.76,duration:.70,ease:'power2.out',stagger:.08},0.22)
+    .to('#bm3',          {opacity:.86,duration:.55,ease:'power2.out'},0.34)
+    .to(['#bm2','#bm4'], {opacity:.60,duration:.75,ease:'power2.out',stagger:.08},0.44);
+
+  /* Badge — Oswald 600 slides down */
+  tl.to('#topBadge',{opacity:1,y:0,duration:.55,ease:'power2.out'},0.55);
+
+  /* Year — CountUp.js */
+  tl.to('#yearWrap',{opacity:1,duration:.30,ease:'power2.out',
+    onStart: startCountUp
+  },0.88);
+
+  /* TBILISI — Splitting.js chars drop one by one */
+  tl.to('#tTbilisi .char',{
+    opacity:1, y:0, rotation:0,
+    stagger:0.055, duration:.48, ease:'back.out(1.6)'
+  },1.18);
+
+  /* OPEN AIR — left half slides right, right half slides left */
+  tl.to('#oarL',{opacity:1,x:0,duration:.52,ease:'power3.out'},1.90)
+    .to('#oarR',{opacity:1,x:0,duration:.52,ease:'power3.out'},1.90);
+
+  /* SVG ornaments draw — anime.js strokeDashoffset */
+  tl.add(drawOrnaments, 2.30);
+  tl.to('.orn-star',{opacity:1,duration:.28,stagger:.05},2.52);
+
+  /* Scene 2: Georgia Mountains */
+  tl.add(()=>showScene(1,1.0), 2.60);
+
+  /* Genres — Typed.js */
+  tl.to('#genresWrap',{opacity:1,duration:.20},2.68);
+  tl.add(()=>{
+    typedGenres = new Typed('#genres-typed',{
+      strings:   ['Rock \u00B7 Indie \u00B7 Electronic \u00B7 Pop \u00B7 Alternative'],
+      typeSpeed: 26,
+      showCursor:false
+    });
+  }, 2.68);
+
+  /* Feature icons — GSAP stagger back.out pop */
+  tl.to('.fi',{
+    opacity:1, scale:1,
+    stagger:.12, duration:.42, ease:'back.out(2.0)'
+  },3.82);
+
+  /* Description — Space Mono + Typed.js */
+  tl.to('#descWrap',{opacity:1,duration:.22},4.44);
+  tl.add(()=>{
+    typedDesc = new Typed('#desc-typed',{
+      strings:   ['World-renowned artists \u0026 rising talents\u2002\u00B7\u2002Music lovers from across the globe'],
+      typeSpeed: 22,
+      showCursor:false
+    });
+  },4.44);
+
+  /* Scene 3: Concert crowd */
+  tl.add(()=>showScene(2,1.0), 5.02);
+
+  /* Location — scale in with glow */
+  tl.to('#locEl',{opacity:1,scale:1,duration:.55,ease:'back.out(1.4)'},5.04);
+
+  /* Dates box */
+  tl.to('#datesEl',{opacity:1,scale:1,duration:.48,ease:'back.out(1.5)'},5.62);
+
+  /* Hashtag — letter-spacing expands */
+  tl.to('#htag',{opacity:1,letterSpacing:'3px',duration:.65,ease:'power2.out'},6.20);
+
+  /* Tagline — Dancing Script + anime.js char stagger */
+  tl.add(animTagline, 6.65);
+
+  /* Energy bar */
+  tl.to('#ebar',{opacity:1,scaleX:1,duration:.55,ease:'power2.out',transformOrigin:'center'},6.92);
+
+  /* Pack line */
+  tl.to('#pack',{opacity:1,duration:.45,ease:'power2.out'},7.08);
+
+  /* Scene 4: Music Festival */
+  tl.add(()=>showScene(3,1.0), 7.02);
+
+  /* Trust DMC — stamp in + mo.js burst */
+  tl.to('#presents',{opacity:1,duration:.40,ease:'power2.out'},7.30);
+  tl.to('#trustLogo',{
+    opacity:1, scale:1, duration:.60, ease:'back.out(2.2)',
+    onComplete: ()=>{ logoBurst.replay(); }
+  },7.65);
+
+  /* Hold */
+  tl.to({},{duration:2.8},8.85);
+
+  /* Loop */
+  tl.eventCallback('onComplete',()=>{
+    gsap.delayedCall(0.9,()=>{ resetAll(); buildTL(); });
+  });
+
+  return tl;
+}
+buildTL();
+</script>
+</body>
+</html>
