@@ -180,17 +180,19 @@ body{width:100vw;height:100vh;background:#0a0608;overflow:hidden;}
 /* ── 11. "PRESENTED BY"  top:1740px  (52px Cinzel) ── */
 /* ── 12. TRUST LOGO      bottom:68px (top ~1812px)  ── */
 .bfade{position:absolute;bottom:0;left:0;right:0;height:320px;z-index:5;pointer-events:none;background:linear-gradient(180deg,transparent 0%,rgba(10,6,8,.76) 44%,rgba(10,6,8,.98) 100%);}
-/* "Presented by" — centred, sits ABOVE the logo */
-.presents{
-  position:absolute;bottom:182px;left:0;right:0;
-  text-align:center;
-  font-family:'Cinzel',serif;font-size:28px;font-weight:400;letter-spacing:6px;
-  color:rgba(232,184,100,.52);text-transform:uppercase;z-index:8;opacity:0;
+/* Flex column — "Presented by" then logo, guaranteed gap, no overlap */
+.bottom-block{
+  position:absolute;bottom:48px;left:0;right:0;
+  display:flex;flex-direction:column;align-items:center;gap:18px;
+  z-index:8;
 }
-/* Trust DMC logo — centred, below "Presented by" */
+.presents{
+  font-family:'Cinzel',serif;font-size:28px;font-weight:400;letter-spacing:6px;
+  color:rgba(232,184,100,.55);text-transform:uppercase;
+  opacity:0;
+}
 .trust-logo{
-  position:absolute;bottom:58px;left:50%;transform:translateX(-50%);
-  width:280px;z-index:8;opacity:0;filter:brightness(0) invert(1);
+  width:260px;opacity:0;filter:brightness(0) invert(1);
 }
 
 /* ── VIGNETTE ── */
@@ -264,8 +266,10 @@ body{width:100vw;height:100vh;background:#0a0608;overflow:hidden;}
   </div>
 
   <div class="bfade"></div>
-  <div class="presents" id="presents">Presented by</div>
-  <img class="trust-logo" id="trustLogo" src="../New_logo_design/TRUST%20DMC%20WHITE%20PNG.png" alt="Trust DMC">
+  <div class="bottom-block">
+    <div class="presents" id="presents">Presented by</div>
+    <img class="trust-logo" id="trustLogo" src="../New_logo_design/TRUST%20DMC%20WHITE%20PNG.png" alt="Trust DMC">
+  </div>
   <div class="vignette"></div>
 </div>
 
