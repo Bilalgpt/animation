@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tbilisi Open Air 2026 — Trust DMC</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Cinzel:wght@400;600&family=Rajdhani:wght@300;700&family=Lato:wght@100;300&family=Cormorant+Garamond:ital,wght@1,300;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../libs/splitting.min.css">
+
+<!--
+  LAYOUT MAP (no overlaps, 52px minimum font throughout):
+  ─────────────────────────────────────────────────────
+   55px  → badge           (52px Cinzel)        ends ~130px
+  160px  → TBILISI         (198px Playfair)     ends ~360px
+  382px  → OPEN AIR        (112px Rajdhani)     ends ~498px
+  526px  → year / rule     (56px Cinzel)        ends ~590px
+  608px  → genres          (56px Lato)          ends ~672px
+  ↕ 400px OPEN BACKGROUND (floating icons)
+ 1072px  → SVG divider                          ends ~1095px
+ 1118px  → 📍 TBILISI, GEORGIA (52px Cinzel)   ends ~1185px
+ 1202px  → loc-sub         (52px Lato)          ends ~1258px
+ ↕ 72px gap
+ 1330px  → tagline         (72px Cormorant)     ends ~1410px
+ ↕ 58px gap
+ 1468px  → dates           (54px Rajdhani)      ends ~1562px
+ ↕ 46px gap
+ 1608px  → hashtag         (52px Lato)          ends ~1670px
+ ↕ 70px gap
+ 1740px  → "Presented by"  (52px Cinzel)        ends ~1805px
+ 1812px  → Trust DMC logo  (bottom:68px)
+  ─────────────────────────────────────────────────────
+-->
+
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{width:100vw;height:100vh;background:#0a0608;overflow:hidden;}
+.stage{position:absolute;width:1080px;height:1920px;transform-origin:top left;overflow:hidden;}
+
+/* ── BACKGROUND ── */
+.bg-layer{position:absolute;inset:0;z-index:1;}
+.bg-scene{position:absolute;inset:0;opacity:0;overflow:hidden;}
+.bg-scene img{position:absolute;width:112%;height:112%;top:-6%;left:-6%;object-fit:cover;object-position:center;}
+@keyframes kb-zo{from{transform:scale(1.12) translate(2%,1%);} to{transform:scale(1.00) translate(0%,0%);}}
+@keyframes kb-zi{from{transform:scale(1.00) translate(0%,0%);} to{transform:scale(1.12) translate(-2%,-1%);}}
+@keyframes kb-pr{from{transform:scale(1.07) translate(-3%,0%);} to{transform:scale(1.07) translate(3%,0%);}}
+@keyframes kb-pl{from{transform:scale(1.07) translate(3%,-1%);} to{transform:scale(1.07) translate(-2%,1%);}}
+.kb1{animation:kb-zo 14s linear forwards;}
+.kb2{animation:kb-zi 14s linear forwards;}
+.kb3{animation:kb-pr 14s linear forwards;}
+.kb4{animation:kb-pl 14s linear forwards;}
+.bg-scene::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(
+    180deg,
+    rgba(10,6,8,.80) 0%,
+    rgba(0,0,0,.16) 15%,
+    rgba(0,0,0,.07) 38%,
+    rgba(0,0,0,.10) 64%,
+    rgba(10,6,8,.86) 87%,
+    rgba(10,6,8,.99) 100%
+  );
+}
+
+/* ── FLOATING MUSIC ICONS ── */
+.float-layer{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;}
+@keyframes float-up{
+  0%  {transform:translateY(0) rotate(0deg);   opacity:0;}
+  8%  {opacity:var(--fop);}
+  88% {opacity:var(--fop);}
+  100%{transform:translateY(-2020px) rotate(var(--frot)); opacity:0;}
+}
+.ficon{
+  position:absolute;font-size:var(--fsz);bottom:calc(-1 * var(--fsz));
+  animation:float-up var(--fdur) linear var(--fdel) infinite;
+  --fop:0.18;--frot:20deg;
+  filter:drop-shadow(0 0 10px rgba(255,200,100,.30));
+}
+
+/* ── SPARKS ── */
+#sparkCv{position:absolute;inset:0;z-index:4;pointer-events:none;}
+
+/* ── CONTENT ── */
+.content{position:absolute;inset:0;z-index:6;pointer-events:none;}
+
+/* ── 1. BADGE  top:55px  (52px Cinzel) ── */
+.top-badge{position:absolute;top:55px;left:0;right:0;text-align:center;opacity:0;}
+.badge-inner{
+  display:inline-block;
+  font-family:'Cinzel',serif;font-size:52px;font-weight:400;letter-spacing:4px;
+  color:rgba(232,200,140,.82);text-transform:uppercase;line-height:1.15;
+}
+.badge-dots{display:flex;align-items:center;justify-content:center;gap:28px;margin-top:8px;}
+.bdot{width:52px;height:1px;background:rgba(232,200,140,.36);}
+
+/* ── 2. TBILISI  top:160px  (198px Playfair) ── */
+.t-tbilisi{
+  position:absolute;top:160px;left:0;right:0;text-align:center;
+  font-family:'Playfair Display',serif;font-size:198px;font-weight:900;line-height:1;
+  color:#fff9f0;
+  text-shadow:0 4px 80px rgba(220,170,80,.22),0 0 140px rgba(220,170,80,.10);
+}
+.t-tbilisi .char{display:inline-block;}
+
+/* ── 3. OPEN AIR  top:382px  (112px Rajdhani) ── */
+.t-openair{
+  position:absolute;top:382px;left:0;right:0;text-align:center;
+  font-family:'Rajdhani',sans-serif;font-size:112px;font-weight:700;line-height:1;letter-spacing:22px;
+  color:transparent;
+  -webkit-text-stroke:1.8px rgba(232,184,100,.88);
+  text-shadow:0 0 60px rgba(220,160,60,.22);
+}
+
+/* ── 4. YEAR RULE  top:526px  (56px Cinzel) ── */
+.mid-rule{
+  position:absolute;top:526px;left:0;right:0;
+  display:flex;align-items:center;justify-content:center;gap:26px;opacity:0;
+}
+.rule-line{width:200px;height:1px;background:linear-gradient(90deg,transparent,rgba(232,184,100,.42),transparent);}
+.rule-year{font-family:'Cinzel',serif;font-size:56px;font-weight:600;letter-spacing:10px;color:rgba(232,184,100,.78);}
+
+/* ── 5. GENRES  top:608px  (56px Lato) ── */
+.genres{
+  position:absolute;top:608px;left:0;right:0;text-align:center;
+  font-family:'Lato',sans-serif;font-size:56px;font-weight:300;
+  letter-spacing:6px;text-transform:uppercase;line-height:1;
+}
+.gw{display:inline-block;opacity:0;color:rgba(255,255,255,.84);}
+.gsep{display:inline-block;color:rgba(232,184,100,.58);font-size:52px;margin:0 14px;line-height:1;}
+
+/* ── 400px OPEN BACKGROUND — floating icons visible ── */
+
+/* ── 6. SVG DIVIDER  top:1072px ── */
+.div-svg-wrap{position:absolute;top:1072px;left:0;right:0;text-align:center;opacity:0;}
+.div-line{stroke:rgba(232,184,100,.35);stroke-width:.8;fill:none;}
+.div-diamond{fill:rgba(232,184,100,.55);}
+
+/* ── 7. LOCATION  top:1118px  (52px Cinzel) ── */
+.location{position:absolute;top:1118px;left:0;right:0;text-align:center;opacity:0;}
+.loc-main{
+  font-family:'Cinzel',serif;font-size:52px;font-weight:600;letter-spacing:8px;
+  color:#e8b84b;
+  text-shadow:0 0 40px rgba(232,184,75,.50),0 0 80px rgba(232,184,75,.20);
+  text-transform:uppercase;
+}
+.loc-pin{font-size:46px;vertical-align:middle;margin-right:12px;}
+/* loc-sub sits 14px below loc-main (52px + 14px = 66px, starts ~1184px) */
+.loc-sub{
+  margin-top:14px;
+  font-family:'Lato',sans-serif;font-size:52px;font-weight:100;letter-spacing:12px;
+  color:rgba(255,255,255,.60);text-transform:uppercase;
+}
+
+/* ── 8. TAGLINE  top:1330px  (72px Cormorant, each word unique entry) ── */
+.tagline{
+  position:absolute;top:1330px;left:0;right:0;text-align:center;
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:72px;font-weight:300;
+  color:rgba(255,245,220,.92);letter-spacing:1px;
+  text-shadow:0 2px 44px rgba(180,120,255,.28);
+}
+.tagline .word{display:inline-block;opacity:0;}
+
+/* ── 9. DATES  top:1468px  (54px Rajdhani) ── */
+.dates{position:absolute;top:1468px;left:0;right:0;text-align:center;opacity:0;}
+.dates-row{
+  display:inline-flex;align-items:center;
+  border-top:1px solid rgba(232,184,100,.30);
+  border-bottom:1px solid rgba(232,184,100,.30);
+  padding:18px 64px;
+}
+.d-item{font-family:'Rajdhani',sans-serif;font-size:54px;font-weight:700;letter-spacing:6px;color:#fff9f0;text-shadow:0 0 28px rgba(232,184,100,.38);}
+.d-sep{font-family:'Lato',sans-serif;font-size:52px;font-weight:100;color:rgba(232,184,100,.58);margin:0 26px;line-height:1;}
+
+/* ── 10. HASHTAG  top:1608px  (52px Lato) ── */
+.htag{
+  position:absolute;top:1608px;left:0;right:0;text-align:center;
+  font-family:'Lato',sans-serif;font-size:52px;font-weight:300;letter-spacing:4px;
+  color:rgba(255,255,255,.48);opacity:0;
+}
+
+/* ── 11. "PRESENTED BY"  top:1740px  (52px Cinzel) ── */
+/* ── 12. TRUST LOGO      bottom:68px (top ~1812px)  ── */
+.bfade{position:absolute;bottom:0;left:0;right:0;height:320px;z-index:5;pointer-events:none;background:linear-gradient(180deg,transparent 0%,rgba(10,6,8,.76) 44%,rgba(10,6,8,.98) 100%);}
+/* Logo: 472x343px source, rendered 260x189px.
+   Occupies bottom:48px → bottom:237px from stage bottom.
+   "Presented by": bottom:260px (23px gap above logo top), left:60px.
+   Zero overlap, exact pixel math. */
+.presents{
+  position:absolute;bottom:260px;left:60px;
+  font-family:'Cinzel',serif;font-size:28px;font-weight:400;letter-spacing:6px;
+  color:rgba(232,184,100,.55);text-transform:uppercase;
+  z-index:8;opacity:0;
+}
+.trust-logo{
+  position:absolute;bottom:48px;left:50%;transform:translateX(-50%);
+  width:260px;z-index:8;opacity:0;filter:brightness(0) invert(1);
+}
+
+/* ── VIGNETTE ── */
+.vignette{
+  position:absolute;inset:0;z-index:7;pointer-events:none;
+  background:radial-gradient(ellipse 88% 62% at 50% 46%,transparent 28%,rgba(0,0,0,.28) 65%,rgba(0,0,0,.72) 100%);
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <div class="bg-layer">
+    <div class="bg-scene" id="sc0"><img class="kb1" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Tbilisi_National_Gallery.JPG/1280px-Tbilisi_National_Gallery.JPG" alt="" onerror="this.style.display='none'"></div>
+    <div class="bg-scene" id="sc1"><img class="kb2" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Ushguli_Svaneti_Georgia.JPG/1280px-Ushguli_Svaneti_Georgia.JPG" alt="" onerror="this.style.display='none'"></div>
+    <div class="bg-scene" id="sc2"><img class="kb3" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Crowd_25dec09_3443.JPG/1280px-Crowd_25dec09_3443.JPG" alt="" onerror="this.style.display='none'"></div>
+    <div class="bg-scene" id="sc3"><img class="kb4" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Zeena_Schreck_Wave-Gotik-Treffen_Music_festival_May_23,_2015_Leipzig.JPG/1280px-Zeena_Schreck_Wave-Gotik-Treffen_Music_festival_May_23,_2015_Leipzig.JPG" alt="" onerror="this.style.display='none'"></div>
+  </div>
+
+  <div class="float-layer" id="floatLayer"></div>
+  <canvas id="sparkCv" width="1080" height="1920"></canvas>
+
+  <div class="content">
+
+    <div class="top-badge" id="topBadge">
+      <div class="badge-inner">The Caucasus · Music Festival</div>
+      <div class="badge-dots"><div class="bdot"></div><div class="bdot"></div></div>
+    </div>
+
+    <div class="t-tbilisi" id="tTbilisi">TBILISI</div>
+
+    <div class="t-openair" id="tOpenair">OPEN AIR</div>
+
+    <div class="mid-rule" id="midRule">
+      <div class="rule-line"></div>
+      <div class="rule-year">2026</div>
+      <div class="rule-line"></div>
+    </div>
+
+    <div class="genres" id="genresEl">
+      <span class="gw" id="gw0">Rock</span><span class="gsep">·</span><span class="gw" id="gw1">Indie</span><span class="gsep">·</span><span class="gw" id="gw2">Electronic</span><span class="gsep">·</span><span class="gw" id="gw3">Pop</span>
+    </div>
+
+    <div class="div-svg-wrap" id="divSvg">
+      <svg width="340" height="22" viewBox="0 0 340 22" overflow="visible">
+        <line class="div-line" x1="0" y1="11" x2="152" y2="11"/>
+        <polygon class="div-diamond" points="170,4 178,11 170,18 162,11"/>
+        <line class="div-line" x1="188" y1="11" x2="340" y2="11"/>
+      </svg>
+    </div>
+
+    <div class="location" id="locEl">
+      <div class="loc-main"><span class="loc-pin">📍</span>TBILISI, GEORGIA</div>
+      <div class="loc-sub">Summer · Open Air · Multi-Stage</div>
+    </div>
+
+    <div class="tagline" id="tagline">Pack Your Festival Spirit</div>
+
+    <div class="dates" id="datesEl">
+      <div class="dates-row">
+        <div class="d-item">JULY</div>
+        <div class="d-sep">—</div>
+        <div class="d-item">AUGUST</div>
+        <div class="d-sep">—</div>
+        <div class="d-item">2026</div>
+      </div>
+    </div>
+
+    <div class="htag" id="htag">#TbilisiOpenAir &nbsp;·&nbsp; #SummerInGeorgia</div>
+
+  </div>
+
+  <div class="bfade"></div>
+  <div class="presents" id="presents">Presented by</div>
+  <img class="trust-logo" id="trustLogo" src="../New_logo_design/TRUST%20DMC%20WHITE%20PNG.png" alt="Trust DMC">
+  <div class="vignette"></div>
+</div>
+
+<script src="../libs/gsap.min.js"></script>
+<script src="../libs/splitting.min.js"></script>
+<script src="../libs/anime.min.js"></script>
+<script>
+/* ── STAGE SCALE ── */
+const stageEl = document.getElementById('stage');
+function fitStage(){
+  const s=Math.min(window.innerWidth/1080,window.innerHeight/1920);
+  stageEl.style.transform=`scale(${s})`;
+  stageEl.style.left=Math.max(0,(window.innerWidth-1080*s)/2)+'px';
+  stageEl.style.top =Math.max(0,(window.innerHeight-1920*s)/2)+'px';
+}
+fitStage(); window.addEventListener('resize',fitStage);
+
+/* ── SPLITTING ── */
+Splitting({target:'#tTbilisi',by:'chars'});
+Splitting({target:'#tagline', by:'words'});
+
+/* ── FLOATING ICONS ── */
+const ICONS=['🎵','🎶','🎸','🎹','🎺','🎻','🥁','🎷','🎤','🎧','🎼','🎙'];
+(function spawnIcons(){
+  const layer=document.getElementById('floatLayer');
+  layer.innerHTML='';
+  for(let i=0;i<20;i++){
+    const el=document.createElement('div');
+    el.className='ficon'; el.textContent=ICONS[i%ICONS.length];
+    const size=26+Math.random()*54,left=2+Math.random()*93,
+          dur=22+Math.random()*32,del=-(Math.random()*dur),
+          rot=(Math.random()-.5)*70,op=0.10+Math.random()*0.22;
+    el.style.cssText=`--fsz:${size}px;--fdur:${dur}s;--fdel:${del}s;--fop:${op.toFixed(2)};--frot:${rot.toFixed(1)}deg;left:${left.toFixed(1)}%;`;
+    layer.appendChild(el);
+  }
+})();
+
+/* ── SPARKS ── */
+const sCv=document.getElementById('sparkCv'),sCtx=sCv.getContext('2d');
+const SCOLS=[[220,170,80],[255,220,120],[180,140,60],[240,200,100],[255,255,200]];
+class Spark{
+  constructor(init){this.reset(init);}
+  reset(init){
+    this.x=Math.random()*1080;this.y=init?Math.random()*1920:1965+Math.random()*40;
+    this.r=.4+Math.random()*1.8;this.gr=this.r*(3+Math.random()*6);
+    this.vx=(Math.random()-.5)*.4;this.vy=-(0.25+Math.random()*.8);
+    this.wb=Math.random()*Math.PI*2;this.wbS=.01+Math.random()*.018;this.wbA=.22+Math.random()*.55;
+    this.life=0;this.ml=160+Math.random()*700;this.pk=.30+Math.random()*.42;
+    this.col=SCOLS[Math.floor(Math.random()*SCOLS.length)];
+  }
+  tick(){
+    this.life++;this.wb+=this.wbS;
+    this.x+=this.vx+Math.sin(this.wb)*this.wbA;this.y+=this.vy;
+    const t=this.life/this.ml;
+    this.a=(t<.10?t/.10:t>.70?(1-t)/.30:1)*this.pk;
+    if(this.life>=this.ml||this.y<-20)this.reset(false);
+  }
+  draw(){
+    if(this.a<.005)return;
+    const[r,g,b]=this.col;
+    const grd=sCtx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.gr);
+    grd.addColorStop(0,`rgba(${r},${g},${b},${(this.a*.5).toFixed(4)})`);
+    grd.addColorStop(.5,`rgba(${r},${g},${b},${(this.a*.08).toFixed(4)})`);
+    grd.addColorStop(1,'transparent');
+    sCtx.save();sCtx.fillStyle=grd;
+    sCtx.beginPath();sCtx.arc(this.x,this.y,this.gr,0,Math.PI*2);sCtx.fill();
+    sCtx.fillStyle=`rgba(${r},${g},${b},${Math.min(this.a*2,1).toFixed(4)})`;
+    sCtx.beginPath();sCtx.arc(this.x,this.y,this.r,0,Math.PI*2);sCtx.fill();
+    sCtx.restore();
+  }
+}
+const sparks=Array.from({length:70},()=>new Spark(true));
+(function loop(){sCtx.clearRect(0,0,1080,1920);sparks.forEach(s=>{s.tick();s.draw();});requestAnimationFrame(loop);})();
+
+/* ── SCENES ── */
+const scenes=[document.getElementById('sc0'),document.getElementById('sc1'),document.getElementById('sc2'),document.getElementById('sc3')];
+let currentScene=-1;
+function showScene(idx,dur){
+  const next=scenes[idx],prev=currentScene>=0?scenes[currentScene]:null;
+  gsap.to(next,{opacity:1,duration:dur||1.2,ease:'power1.inOut'});
+  if(prev&&prev!==next)gsap.to(prev,{opacity:0,duration:dur||1.2,ease:'power1.inOut'});
+  currentScene=idx;
+}
+function hideAllScenes(){scenes.forEach(s=>gsap.set(s,{opacity:0}));currentScene=-1;}
+
+/* ── SVG DIVIDER (anime.js) ── */
+function drawDivider(){
+  document.querySelectorAll('.div-line').forEach(l=>{
+    const len=l.getTotalLength?l.getTotalLength():160;
+    l.style.strokeDasharray=len;l.style.strokeDashoffset=len;
+  });
+  anime({targets:'.div-line',strokeDashoffset:[anime.setDashoffset,0],easing:'easeInOutSine',duration:700,delay:anime.stagger(120)});
+  anime({targets:'.div-diamond',opacity:[0,1],scale:[0.2,1],easing:'easeOutBack',duration:450,delay:380});
+}
+
+/* ── GENRES — 4 words, 4 entry styles ──
+   Rock       ← from LEFT
+   Indie      ← zoom+blur from background
+   Electronic ← from RIGHT
+   Pop        ← bounce up from below            */
+function animGenres(){
+  gsap.to('#gw0',{opacity:1,x:0,                       duration:.62,ease:'power3.out',   delay:0.00});
+  gsap.to('#gw1',{opacity:1,filter:'blur(0px)',scale:1, duration:.75,ease:'power2.out',   delay:0.18});
+  gsap.to('#gw2',{opacity:1,x:0,                       duration:.62,ease:'power3.out',   delay:0.36});
+  gsap.to('#gw3',{opacity:1,y:0,                       duration:.55,ease:'back.out(2.4)',delay:0.52});
+}
+
+/* ── TAGLINE — 4 words, 4 unique entry styles ──
+   "Pack"     ← zooms out from background (scale 2.4→1 + blur clears)
+   "Your"     ← slides from LEFT
+   "Festival" ← drops in with rotation tilt (-22°→0°)
+   "Spirit"   ← slides from RIGHT with bounce                         */
+function animTagline(){
+  const w=document.querySelectorAll('#tagline .word');
+  if(w[0])gsap.to(w[0],{opacity:1,scale:1,filter:'blur(0px)',duration:.72,ease:'power2.out',   delay:0.00});
+  if(w[1])gsap.to(w[1],{opacity:1,x:0,                       duration:.62,ease:'power3.out',   delay:0.22});
+  if(w[2])gsap.to(w[2],{opacity:1,rotation:0,y:0,            duration:.60,ease:'back.out(1.5)',delay:0.42});
+  if(w[3])gsap.to(w[3],{opacity:1,x:0,                       duration:.62,ease:'back.out(2.0)',delay:0.60});
+}
+
+/* ── RESET ── */
+function resetAll(){
+  hideAllScenes();
+  gsap.set('#topBadge',      {opacity:0,y:-28});
+  gsap.set('#tTbilisi .char',{opacity:0,y:30,filter:'blur(12px)'});
+  gsap.set('#tOpenair',      {opacity:0,filter:'blur(28px)'});
+  gsap.set('#midRule',       {opacity:0,y:14});
+  gsap.set('#gw0',{opacity:0,x:-180});
+  gsap.set('#gw1',{opacity:0,filter:'blur(30px)',scale:0.3});
+  gsap.set('#gw2',{opacity:0,x:180});
+  gsap.set('#gw3',{opacity:0,y:60});
+  gsap.set('.gsep',{opacity:1});
+  gsap.set('#divSvg',{opacity:0});
+  gsap.set('.div-diamond',{opacity:0,scale:0.2});
+  document.querySelectorAll('.div-line').forEach(l=>{
+    const len=l.getTotalLength?l.getTotalLength():160;
+    l.style.strokeDasharray=len;l.style.strokeDashoffset=len;
+  });
+  gsap.set('#locEl',{opacity:0,x:-50});
+  const w=document.querySelectorAll('#tagline .word');
+  if(w[0])gsap.set(w[0],{opacity:0,scale:2.4,filter:'blur(24px)'});
+  if(w[1])gsap.set(w[1],{opacity:0,x:-160});
+  if(w[2])gsap.set(w[2],{opacity:0,rotation:-22,y:44});
+  if(w[3])gsap.set(w[3],{opacity:0,x:160});
+  gsap.set('#datesEl', {opacity:0,x:50});
+  gsap.set('#htag',    {opacity:0,scale:0.80});
+  gsap.set('#presents',{opacity:0,x:-30});
+  gsap.set('#trustLogo',{opacity:0,scale:0.85});
+
+  scenes.forEach((sc,i)=>{
+    const img=sc.querySelector('img');
+    if(img){const cls=['kb1','kb2','kb3','kb4'][i];img.className='';void img.offsetWidth;img.className=cls;}
+  });
+}
+resetAll();
+
+/* ── MASTER TIMELINE ── */
+function buildTL(){
+  const tl=gsap.timeline();
+
+  tl.add(()=>showScene(0,1.4),0);
+  tl.to('#topBadge',{opacity:1,y:0,duration:.72,ease:'power2.out'},0.45);
+  tl.to('#tTbilisi .char',{opacity:1,y:0,filter:'blur(0px)',stagger:0.07,duration:.66,ease:'power2.out'},1.05);
+  tl.to('#tOpenair',{opacity:1,filter:'blur(0px)',duration:1.05,ease:'power2.out'},1.98);
+  tl.to('#midRule',{opacity:1,y:0,duration:.55,ease:'power2.out'},2.82);
+
+  tl.add(()=>showScene(1,1.2),3.05);
+  tl.add(animGenres,3.22);
+
+  tl.to('#divSvg',{opacity:1,duration:.10},4.58);
+  tl.add(drawDivider,4.60);
+  tl.to('#locEl',{opacity:1,x:0,duration:.68,ease:'power3.out'},5.08);
+
+  tl.add(()=>showScene(2,1.2),5.58);
+  tl.add(animTagline,5.98);
+
+  tl.to('#datesEl',{opacity:1,x:0,duration:.64,ease:'power3.out'},6.94);
+  tl.to('#htag',{opacity:1,scale:1,duration:.72,ease:'back.out(1.4)'},7.66);
+
+  tl.add(()=>showScene(3,1.2),7.88);
+  tl.to('#presents',{opacity:1,x:0,duration:.48,ease:'power2.out'},8.18);
+  tl.to('#trustLogo',{opacity:1,scale:1,duration:.66,ease:'back.out(1.8)'},8.68);
+
+  tl.to({},{duration:3.0},9.95);
+  tl.eventCallback('onComplete',()=>{gsap.delayedCall(0.8,()=>{resetAll();buildTL();});});
+  return tl;
+}
+buildTL();
+</script>
+</body>
+</html>
