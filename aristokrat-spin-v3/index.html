@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aristokrat Travel — Logo Reveal 9:16</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  width:100vw; height:100vh;
+  background:#000;
+  overflow:hidden;
+}
+
+/* ── 9:16 PORTRAIT STAGE 1080×1920 ─────────── */
+.stage {
+  position:absolute;
+  width:1080px; height:1920px;
+  transform-origin:top left;
+  overflow:hidden;
+  /* Same navy-black backdrop — now portrait-oriented */
+  background:
+    radial-gradient(ellipse 100% 55% at 50% 46%,
+      #0c1230 0%, #080d22 24%, #04061a 50%, #010210 74%, #000008 100%);
+}
+
+/* Golden ember canvas */
+#emberCv {
+  position:absolute; inset:0;
+  z-index:2; pointer-events:none;
+}
+
+
+/* Glow behind logo when settled */
+.logo-glow {
+  position:absolute; z-index:3; pointer-events:none;
+  left:50%; top:50%;
+  width:880px; height:520px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:radial-gradient(ellipse 55% 55% at 50% 50%,
+    rgba(200,215,255,0.065) 0%,
+    rgba(160,185,255,0.022) 48%,
+    transparent 72%);
+  filter:blur(32px);
+  opacity:0;
+}
+
+/* Logo — GSAP animates scale + rotationY + blur */
+.logo-wrap {
+  position:absolute; z-index:5; pointer-events:none;
+  left:50%; top:50%;
+}
+
+.logo-img {
+  width:860px;     /* wider in portrait so it fills frame nicely */
+  display:block;
+}
+
+/* Vignette — portrait shape */
+.vignette {
+  position:absolute; inset:0; z-index:10; pointer-events:none;
+  background:radial-gradient(ellipse 90% 65% at 50% 50%,
+    transparent 22%, rgba(0,0,10,0.45) 65%, rgba(0,0,6,0.90) 100%);
+}
+
+/* Credit — bottom of portrait frame */
+.credit {
+  position:absolute; bottom:80px; left:0; right:0;
+  z-index:16; pointer-events:none;
+  text-align:center;
+  font-family:'Cinzel',serif;
+  font-size:22px; font-weight:300;
+  letter-spacing:8px;
+  color:rgba(255,255,255,0.38);
+  text-transform:uppercase;
+  opacity:0;
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <canvas id="emberCv" width="1080" height="1920"></canvas>
+
+  <div class="logo-glow" id="logoGlow"></div>
+
+  <div class="logo-wrap" id="logoWrap">
+    <img class="logo-img" id="logoImg"
+         src="aristokrat_logo.png"
+         alt="Aristokrat Travel Azerbaijan">
+  </div>
+
+  <div class="vignette"></div>
+  <div class="credit" id="credit">Aristokrat Travel &nbsp;·&nbsp; Azerbaijan</div>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+/* ── Stage scale — fit 1080×1920 into viewport ── */
+(function(){
+  const s = document.getElementById('stage');
+  function fit(){
+    const scl = Math.min(window.innerWidth/1080, window.innerHeight/1920);
+    s.style.transform = `scale(${scl})`;
+    s.style.left = Math.max(0,(window.innerWidth -1080*scl)/2)+'px';
+    s.style.top  = Math.max(0,(window.innerHeight-1920*scl)/2)+'px';
+  }
+  fit(); window.addEventListener('resize',fit);
+})();
+
+/* ── Golden ember particles across 1080×1920 ─── */
+const eCv  = document.getElementById('emberCv');
+const eCtx = eCv.getContext('2d');
+
+const COLS = [
+  [255,215,  0],[255,190,  0],[255,160, 20],
+  [255,140, 30],[255,120, 40],[255,200, 80],[240,180,  0],
+];
+
+class Ember {
+  constructor(init){ this.reset(init); }
+  reset(init){
+    this.x  = 20 + Math.random()*1040;
+    this.y  = init ? Math.random()*1920 : 1940+Math.random()*60;
+    this.r  = 0.7+Math.random()*2.6;
+    this.gr = this.r*(3.5+Math.random()*5.0);
+    this.vx = (Math.random()-.5)*0.38;
+    this.vy = -(0.30+Math.random()*0.90);
+    this.wb = Math.random()*Math.PI*2;
+    this.wbS= 0.012+Math.random()*0.022;
+    this.wbA= 0.25 +Math.random()*0.70;
+    this.life=0; this.ml=200+Math.random()*800;
+    this.pk = 0.38+Math.random()*0.58;
+    this.col= COLS[Math.floor(Math.random()*COLS.length)];
+    if(Math.random()<0.08){ this.r*=2.2; this.gr*=1.8; this.pk*=0.7; }
+  }
+  tick(){
+    this.life++; this.wb+=this.wbS;
+    this.x+=this.vx+Math.sin(this.wb)*this.wbA; this.y+=this.vy;
+    const t=this.life/this.ml;
+    this.a=(t<.10?t/.10:t>.68?(1-t)/.32:1)*this.pk;
+    if(this.life>=this.ml||this.y<-20||this.x<-20||this.x>1100) this.reset(false);
+  }
+  draw(){
+    if(this.a<0.005) return;
+    const [r,g,b]=this.col;
+    const gr=eCtx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.gr);
+    gr.addColorStop(0,  `rgba(${r},${g},${b},${(this.a*.55).toFixed(4)})`);
+    gr.addColorStop(.35,`rgba(${r},${g},${b},${(this.a*.18).toFixed(4)})`);
+    gr.addColorStop(.70,`rgba(${r},${g},${b},${(this.a*.04).toFixed(4)})`);
+    gr.addColorStop(1,  'transparent');
+    eCtx.save();
+    eCtx.fillStyle=gr;
+    eCtx.beginPath(); eCtx.arc(this.x,this.y,this.gr,0,Math.PI*2); eCtx.fill();
+    const ca=Math.min(this.a*2.2,1);
+    eCtx.fillStyle=`rgba(${r},${g},${b},${ca.toFixed(4)})`;
+    eCtx.beginPath(); eCtx.arc(this.x,this.y,this.r,0,Math.PI*2); eCtx.fill();
+    eCtx.restore();
+  }
+}
+
+const pool = Array.from({length:120},()=>new Ember(true));
+
+(function loop(){
+  eCtx.clearRect(0,0,1080,1920);
+  pool.forEach(e=>{ e.tick(); e.draw(); });
+  requestAnimationFrame(loop);
+})();
+
+/* ── GSAP — same Y-axis spin-in, now portrait ─ */
+const tl = gsap.timeline();
+
+gsap.set('#logoWrap',{
+  xPercent:-50, yPercent:-50,
+  transformPerspective:1800,
+  rotationY:720,
+  scale:0.02,
+  filter:'blur(28px)',
+  opacity:1,
+});
+gsap.set('#logoGlow',{ opacity:0 });
+gsap.set('#credit',  { opacity:0, y:8 });
+
+/* Spin in: tiny+blurry from deep bg → sharp+full */
+tl.to('#logoWrap',{
+  scale:1,
+  rotationY:0,
+  filter:'blur(0px)',
+  duration:6.0,
+  ease:'power4.out',
+}, 0.4);
+
+/* Glow blooms as logo settles */
+tl.to('#logoGlow',{
+  opacity:1, duration:2.5, ease:'power2.out',
+}, 5.0);
+
+/* Credit fades in */
+tl.to('#credit',{
+  opacity:1, y:0, duration:1.4, ease:'power2.out',
+}, 7.2);
+
+tl.to({},{ duration:1.0 },9.8);
+
+tl.eventCallback('onComplete',()=>{
+  gsap.delayedCall(3.0,()=>{ tl.restart(); });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bukhara Indian Restoran</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: #050505;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: 'Montserrat', sans-serif;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════
+   SCENE  820 × 820
+═══════════════════════════════════════ */
+.scene {
+  position: relative;
+  width: 820px;
+  height: 820px;
+  overflow: hidden;
+  background: #050505;
+}
+
+/* ═══════════════════════════════════════
+   SCENE 0 — COLD OPEN  (0s – 2s)
+═══════════════════════════════════════ */
+.cold-hungry {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  font-family: 'Dancing Script', cursive;
+  font-size: 140px;
+  color: #fff;
+  white-space: nowrap;
+  text-shadow: 0 0 80px rgba(240,120,0,0.5), 3px 4px 20px rgba(0,0,0,0.9);
+  opacity: 0;
+  z-index: 10;
+  animation:
+    coldIn  1.5s 0.2s cubic-bezier(0.22,1,0.36,1) forwards,
+    coldOut 0.5s 1.6s ease-in forwards;
+}
+@keyframes coldIn  { to { opacity:1; transform:translate(-50%,-50%) scale(1); } }
+@keyframes coldOut { to { opacity:0; transform:translate(-50%,-50%) scale(1.1); } }
+
+/* ═══════════════════════════════════════
+   SCENES 1–3 — DISH SHOWCASE  (2s – 14s)
+   Dish comes from slightly small → zooms
+   right up to the camera → recedes
+═══════════════════════════════════════ */
+.dish {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  z-index: 2;
+  transform-origin: center center;
+  will-change: transform, opacity;
+}
+
+/*
+  dishZoom: starts pulled back (scale 0.80 → black bars visible),
+  zooms all the way in to scale 1.40 (clearly "filling the frame"),
+  then continues receding as it fades out.
+  Duration 4s each.
+*/
+@keyframes dishZoom {
+  0%   { transform: scale(0.80); opacity: 0;   }
+  10%  { transform: scale(0.83); opacity: 1;   }   /* dish appears, still small  */
+  55%  { transform: scale(1.28); opacity: 1;   }   /* PEAK — clearly zoomed in   */
+  78%  { transform: scale(1.38); opacity: 1;   }   /* holding close              */
+  90%  { transform: scale(1.44); opacity: 0.4; }   /* starting to recede         */
+  100% { transform: scale(1.48); opacity: 0;   }   /* gone                       */
+}
+
+.dish-1 { animation: dishZoom 4s  2s  ease-in-out forwards; }
+.dish-2 { animation: dishZoom 4s  6s  ease-in-out forwards; }
+.dish-3 { animation: dishZoom 4s  10s ease-in-out forwards; }
+
+/* Dark edge vignette */
+.dish::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center,
+    rgba(0,0,0,0) 30%,
+    rgba(0,0,0,0.55) 100%);
+  pointer-events: none;
+}
+
+/* ── DISH LABELS ─────────────────────────────────────────
+   Large, bottom-anchored, high-contrast band.
+   Appears midway through each dish's 4s cycle.
+──────────────────────────────────────────────────────── */
+.dish-label {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 90px 52px 52px;
+  background: linear-gradient(to top,
+    rgba(0,0,0,0.92) 0%,
+    rgba(0,0,0,0.72) 45%,
+    transparent 100%);
+  z-index: 6;
+  opacity: 0;
+  transform: translateY(24px);
+  pointer-events: none;
+}
+
+/* Each label: appears 1.2s into dish, visible for 2.4s */
+.dl-1 { animation: labelIn 2.4s 3.2s ease-out forwards; }
+.dl-2 { animation: labelIn 2.4s 7.2s ease-out forwards; }
+.dl-3 { animation: labelIn 2.4s 11.2s ease-out forwards; }
+
+@keyframes labelIn {
+  0%   { opacity: 0; transform: translateY(24px); }
+  18%  { opacity: 1; transform: translateY(0);    }
+  72%  { opacity: 1; transform: translateY(0);    }
+  100% { opacity: 0; transform: translateY(-6px); }
+}
+
+.dl-name {
+  font-size: 48px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-shadow: 0 3px 18px rgba(0,0,0,1);
+  line-height: 1;
+}
+.dl-line {
+  width: 60px; height: 3px;
+  background: #f07800;
+  margin: 14px 0 12px;
+  border-radius: 2px;
+}
+.dl-sub {
+  font-size: 16px;
+  font-weight: 300;
+  color: rgba(255,210,140,0.92);
+  letter-spacing: 3px;
+  text-shadow: 0 1px 10px rgba(0,0,0,0.9);
+}
+
+/* Orange progress bar at bottom */
+.dish-bar {
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 5px; width: 0;
+  background: linear-gradient(90deg, #c45e00, #f07800, #ffb347);
+  box-shadow: 0 0 12px rgba(240,120,0,0.7);
+  z-index: 7;
+}
+.db-1 { animation: barFill 3.8s 2s  linear forwards; }
+.db-2 { animation: barFill 3.8s 6s  linear forwards; }
+.db-3 { animation: barFill 3.8s 10s linear forwards; }
+@keyframes barFill {
+  0%   { width: 0;    opacity: 1; }
+  94%  { width: 100%; opacity: 1; }
+  100% { width: 100%; opacity: 0; }
+}
+
+/* "Hungry?" corner text — visible across whole dish phase */
+.dish-hungry {
+  position: absolute;
+  top: 52px; left: 46px;
+  font-family: 'Dancing Script', cursive;
+  font-size: 100px;
+  color: #fff;
+  line-height: 1;
+  text-shadow: 3px 4px 24px rgba(0,0,0,0.9), 0 0 40px rgba(240,120,0,0.2);
+  opacity: 0;
+  transform: translateX(-24px);
+  z-index: 5;
+  animation:
+    slideR  0.8s 2.3s cubic-bezier(0.34,1.2,0.64,1) forwards,
+    fadeOut 0.5s 13.5s ease-in forwards;
+}
+
+/* Small tagline under the corner "Hungry?" */
+.dish-tag {
+  position: absolute;
+  top: 168px; left: 46px;
+  font-size: 13px;
+  font-style: italic;
+  color: rgba(255,255,255,0.68);
+  letter-spacing: 1.5px;
+  text-shadow: 0 1px 10px rgba(0,0,0,0.8);
+  z-index: 5;
+  opacity: 0;
+  transform: translateY(8px);
+  animation:
+    fadeUp   0.7s 3.4s forwards,
+    fadeOut  0.5s 13.5s ease-in forwards;
+}
+
+/* ═══════════════════════════════════════
+   SCENE 4 — LOGO REVEAL  (14s – 20s)
+═══════════════════════════════════════ */
+
+.logo-bg {
+  position: absolute; inset: 0;
+  background-image: url('https://images.pexels.com/photos/8312083/pexels-photo-8312083.jpeg?auto=compress&cs=tinysrgb&w=1280');
+  background-size: cover;
+  background-position: center;
+  filter: blur(5px) brightness(0.75);
+  transform: scale(1.07);
+  opacity: 0;
+  z-index: 1;
+  animation:
+    fadeIn  1.8s 13.5s ease-out forwards,
+    kBurns 28s   15.0s ease-in-out infinite alternate;
+}
+@keyframes fadeIn  { to { opacity: 1; } }
+@keyframes kBurns  {
+  from { transform: scale(1.07); }
+  to   { transform: scale(1.15) translate(-14px, -5px); }
+}
+
+.logo-overlay {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 52% 52%, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.78) 100%),
+    linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.72) 100%);
+  opacity: 0;
+  z-index: 3;
+  animation: fadeIn 1.4s 14.0s forwards;
+}
+
+/* ── BLOBS ── */
+.blob { position: absolute; opacity: 0; z-index: 4; }
+
+.blob-tl {
+  top: -40px; left: -40px;
+  width: 280px; height: 230px;
+  background: #f07800;
+  border-radius: 52% 72% 38% 66% / 55% 42% 78% 46%;
+  transform: translate(-120%, -120%) rotate(-14deg);
+  animation: bTl 1.0s 14.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@keyframes bTl { to { opacity:1; transform:translate(0,0) rotate(0deg); } }
+
+.blob-br {
+  bottom: -40px; right: -40px;
+  width: 260px; height: 220px;
+  background: #f07800;
+  border-radius: 46% 64% 58% 38% / 58% 46% 54% 66%;
+  transform: translate(120%, 120%) rotate(14deg);
+  animation: bBr 1.0s 14.7s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@keyframes bBr { to { opacity:1; transform:translate(0,0) rotate(0deg); } }
+
+.blob-tr {
+  top: 4px; right: -22px;
+  width: 175px; height: 155px;
+  background: #000;
+  border-radius: 62% 38% 55% 45% / 42% 68% 32% 58%;
+  transform: translateX(140%) rotate(20deg);
+  animation: bTr 0.85s 14.9s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@keyframes bTr { to { opacity:1; transform:translateX(0) rotate(0deg); } }
+
+.blob-bl {
+  bottom: 4px; left: -22px;
+  width: 165px; height: 145px;
+  background: #000;
+  border-radius: 42% 58% 64% 36% / 58% 42% 68% 32%;
+  transform: translateX(-140%) rotate(-20deg);
+  animation: bBl 0.85s 14.9s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@keyframes bBl { to { opacity:1; transform:translateX(0) rotate(0deg); } }
+
+.blob-rc {
+  top: 36%; right: -16px;
+  width: 90px; height: 185px;
+  background: #f07800;
+  border-radius: 80% 20% 20% 80% / 50%;
+  transform: translateX(130%);
+  animation: bRc 0.75s 15.1s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@keyframes bRc { to { opacity:1; transform:translateX(0); } }
+
+/* ── MAIN LOGO BAR ── */
+.logo-center {
+  position: absolute;
+  bottom: 108px; left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  width: 620px;
+  z-index: 7;
+}
+.logo-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.halal-wrap {
+  flex-shrink: 0;
+  width: 78px; height: 78px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 4px 26px rgba(0,0,0,0.65);
+  border: 2.5px solid rgba(255,255,255,0.22);
+  opacity: 0;
+  transform: translateX(-65px) rotate(-210deg);
+  animation: hIn 1.0s 15.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+.halal-wrap img { width:100%; height:100%; object-fit:cover; display:block; }
+@keyframes hIn { to { opacity:1; transform:translateX(0) rotate(0deg); } }
+
+.brand-block { flex: 1; max-width: 380px; }
+
+.bukhara-name {
+  font-family: 'Dancing Script', cursive;
+  font-size: 88px;
+  color: #fff;
+  line-height: 1;
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+  text-shadow: 3px 3px 18px rgba(0,0,0,0.75);
+  animation: brushWipe 1.5s 15.8s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+@keyframes brushWipe {
+  0%   { opacity:0; clip-path:inset(0 100% 0 0); }
+  6%   { opacity:1; }
+  100% { opacity:1; clip-path:inset(0 0% 0 0); }
+}
+
+.indian-restoran {
+  font-size: 13px;
+  color: rgba(255,255,255,0.78);
+  letter-spacing: 5.5px;
+  text-transform: uppercase;
+  font-weight: 400;
+  margin-top: 5px;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: fadeUp 0.7s 17.0s forwards;
+}
+
+.pepsi-wrap {
+  flex-shrink: 0;
+  width: 68px; height: 68px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 4px 26px rgba(0,0,0,0.65);
+  border: 2.5px solid rgba(255,255,255,0.22);
+  opacity: 0;
+  transform: translateX(65px) scale(0.3);
+  animation: pIn 1.0s 15.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+.pepsi-wrap img {
+  width: 110%; height: 110%;
+  object-fit: cover; object-position: center;
+  display: block; margin: -5%;
+}
+@keyframes pIn { to { opacity:1; transform:translateX(0) scale(1); } }
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  justify-content: center;
+  margin: 16px 0 14px;
+  opacity: 0;
+  animation: fadeIn 0.5s 17.4s forwards;
+}
+.div-line {
+  height: 1px; width: 0;
+  background: linear-gradient(90deg, transparent, #f07800, transparent);
+  animation: lineGrow 1.0s 17.5s forwards;
+}
+.div-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%; background: #f07800;
+  flex-shrink: 0; transform: scale(0);
+  animation: dotPop 0.4s 17.8s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@keyframes lineGrow { to { width: 160px; } }
+@keyframes dotPop   { to { transform: scale(1); } }
+
+.tagline {
+  font-size: 12px;
+  color: rgba(255,210,120,0.88);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  font-weight: 300;
+  opacity: 0;
+  animation:
+    fadeIn  0.9s 17.9s forwards,
+    tagGlow 2.8s 19.2s infinite alternate ease-in-out;
+}
+@keyframes tagGlow {
+  from { text-shadow: 0 0 6px rgba(240,120,0,0.2); color: rgba(255,210,120,0.88); }
+  to   { text-shadow: 0 0 24px rgba(240,120,0,0.9), 0 0 48px rgba(240,120,0,0.35); color: rgba(255,232,162,1); }
+}
+
+/* "Hungry?" headline — top-left of logo scene */
+.lp-hungry {
+  position: absolute;
+  top: 128px; left: 46px;
+  font-family: 'Dancing Script', cursive;
+  font-size: 98px;
+  color: #fff;
+  line-height: 1;
+  text-shadow: 3px 4px 22px rgba(0,0,0,0.82);
+  opacity: 0;
+  transform: translateX(-28px);
+  z-index: 7;
+  animation: slideR 0.9s 18.5s cubic-bezier(0.34,1.2,0.64,1) forwards;
+}
+.lp-sub {
+  position: absolute;
+  top: 244px; left: 46px;
+  max-width: 340px;
+  z-index: 7;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: fadeUp 0.7s 19.1s forwards;
+}
+.lp-sub p {
+  font-size: 15px;
+  font-style: italic;
+  color: #fff;
+  line-height: 1.55;
+  text-shadow: 0 1px 10px rgba(0,0,0,0.8);
+}
+.lp-sub span {
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  font-style: italic;
+}
+
+/* CTA — bottom-right */
+.cta {
+  position: absolute;
+  bottom: 50px; right: 50px;
+  text-align: right;
+  z-index: 7;
+  opacity: 0;
+  transform: translateY(18px);
+  animation: fadeUp 0.8s 19.3s forwards;
+}
+.cta-eyebrow {
+  font-size: 10px;
+  color: rgba(255,255,255,0.50);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+}
+.cta-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 6px; height: 6px;
+  background: #f07800;
+  border-radius: 50%;
+}
+.cta-phone {
+  font-size: 22px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 1px;
+  margin-bottom: 11px;
+}
+.reserve-btn {
+  display: inline-block;
+  background: #f07800;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 11px 26px;
+  border-radius: 3px;
+  animation: btnPulse 2.2s 20s infinite alternate ease-in-out;
+}
+@keyframes btnPulse {
+  from { box-shadow: 0 4px 14px rgba(240,120,0,0.45); }
+  to   { box-shadow: 0 4px 36px rgba(240,120,0,0.98), 0 0 64px rgba(240,120,0,0.30); }
+}
+
+/* Particles */
+.particles {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 6; overflow: hidden;
+}
+
+/* ═══════════════════════════════════════
+   SHARED KEYFRAMES
+═══════════════════════════════════════ */
+@keyframes fadeUp   { to { opacity:1; transform:translateY(0); } }
+@keyframes slideR   { to { opacity:1; transform:translateX(0); } }
+@keyframes fadeOut  { to { opacity:0; } }
+</style>
+</head>
+<body>
+
+<div class="scene">
+
+  <!-- SCENE 0 — COLD OPEN (0–2s) -->
+  <div class="cold-hungry">Hungry?</div>
+
+  <!-- SCENE 1 — DUM BIRYANI (2s–6s) -->
+  <div class="dish dish-1"
+       style="background-image:url('https://images.pexels.com/photos/4224314/pexels-photo-4224314.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+  </div>
+  <div class="dish-bar db-1"></div>
+  <div class="dish-label dl-1">
+    <div class="dl-name">Dum Biryani</div>
+    <div class="dl-line"></div>
+    <div class="dl-sub">Fragrant basmati &nbsp;·&nbsp; Aromatic spices</div>
+  </div>
+
+  <!-- SCENE 2 — BUTTER CHICKEN (6s–10s) -->
+  <div class="dish dish-2"
+       style="background-image:url('https://images.pexels.com/photos/29685054/pexels-photo-29685054.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+  </div>
+  <div class="dish-bar db-2"></div>
+  <div class="dish-label dl-2">
+    <div class="dl-name">Butter Chicken</div>
+    <div class="dl-line"></div>
+    <div class="dl-sub">Murgh Makhani &nbsp;·&nbsp; India's favourite</div>
+  </div>
+
+  <!-- SCENE 3 — INDIAN FEAST (10s–14s) -->
+  <div class="dish dish-3"
+       style="background-image:url('https://images.pexels.com/photos/7129403/pexels-photo-7129403.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+  </div>
+  <div class="dish-bar db-3"></div>
+  <div class="dish-label dl-3">
+    <div class="dl-name">The Full Experience</div>
+    <div class="dl-line"></div>
+    <div class="dl-sub">Kebabs &nbsp;·&nbsp; Dal Makhani &nbsp;·&nbsp; Naan &amp; more</div>
+  </div>
+
+  <!-- Corner overlays during dish phase -->
+  <div class="dish-hungry">Hungry?</div>
+  <div class="dish-tag">Authentic Indian cuisine in Baku</div>
+
+  <!-- SCENE 4 — LOGO REVEAL (14s–20s) -->
+  <div class="logo-bg"></div>
+  <div class="logo-overlay"></div>
+
+  <div class="blob blob-tl"></div>
+  <div class="blob blob-br"></div>
+  <div class="blob blob-tr"></div>
+  <div class="blob blob-bl"></div>
+  <div class="blob blob-rc"></div>
+
+  <div class="particles" id="particles"></div>
+
+  <div class="lp-hungry">Hungry?</div>
+  <div class="lp-sub">
+    <p>Butter chicken, biryani, kebabs</p>
+    <span>and all your Indian favourites at Bukhara</span>
+  </div>
+
+  <div class="logo-center">
+    <div class="logo-bar">
+
+      <div class="halal-wrap">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c4/Halal_logo.svg"
+             alt="Halal" crossorigin="anonymous">
+      </div>
+
+      <div class="brand-block">
+        <div class="bukhara-name">Bukhara</div>
+        <div class="indian-restoran">Indian Restoran</div>
+      </div>
+
+      <div class="pepsi-wrap">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/0/0f/Pepsi_logo_2014.svg"
+             alt="Pepsi" crossorigin="anonymous">
+      </div>
+
+    </div>
+
+    <div class="divider">
+      <div class="div-line"></div>
+      <div class="div-dot"></div>
+      <div class="div-line"></div>
+    </div>
+
+    <div class="tagline">Authentic Indian Cuisine &nbsp;·&nbsp; Azerbaijan</div>
+  </div>
+
+  <div class="cta">
+    <div class="cta-eyebrow">Dine in today</div>
+    <div class="cta-phone">+994 7551913</div>
+    <div class="reserve-btn">Reserve Now</div>
+  </div>
+
+</div>
+
+<script>
+// Floating particles — logo phase (t ≥ 15s)
+const host   = document.getElementById('particles');
+const colors = ['rgba(240,120,0,0.72)', 'rgba(255,195,85,0.58)',
+                'rgba(255,255,255,0.26)', 'rgba(240,160,55,0.62)'];
+
+for (let i = 0; i < 40; i++) {
+  const el    = document.createElement('div');
+  const size  = (Math.random() * 4.5 + 2).toFixed(1);
+  const left  = (Math.random() * 90 + 5).toFixed(1);
+  const delay = (Math.random() * 5 + 15).toFixed(2);
+  const dur   = (Math.random() * 5 + 5).toFixed(2);
+  const drift = ((Math.random() - 0.5) * 100).toFixed(1);
+  const color = colors[Math.floor(Math.random() * colors.length)];
+
+  el.style.cssText = `
+    position:absolute; bottom:-8px; left:${left}%;
+    width:${size}px; height:${size}px;
+    border-radius:50%; background:${color};
+    animation:floatP ${dur}s ${delay}s infinite ease-in-out;
+    --drift:${drift}px;
+  `;
+  host.appendChild(el);
+}
+
+const sty = document.createElement('style');
+sty.textContent = `
+  @keyframes floatP {
+    0%   { transform:translateY(0) translateX(0) scale(1); opacity:0; }
+    10%  { opacity:1; }
+    80%  { opacity:0.4; }
+    100% { transform:translateY(-850px) translateX(var(--drift)) scale(0.1); opacity:0; }
+  }
+`;
+document.head.appendChild(sty);
+
+// ── AMBIENT MUSIC ─────────────────────────────────────────────────────────────
+// Indian restaurant mood: tanpura drone + slow pentatonic melody + soft reverb
+function startAmbient() {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+  // Master output with gentle fade-in
+  const master = ctx.createGain();
+  master.gain.setValueAtTime(0, ctx.currentTime);
+  master.gain.linearRampToValueAtTime(0.55, ctx.currentTime + 2.0);
+  master.connect(ctx.destination);
+
+  // Simple delay-based reverb
+  const delayNode = ctx.createDelay(2.0);
+  delayNode.delayTime.value = 0.38;
+  const fbGain = ctx.createGain();
+  fbGain.gain.value = 0.38;
+  const wetGain = ctx.createGain();
+  wetGain.gain.value = 0.28;
+  const lpFilter = ctx.createBiquadFilter();
+  lpFilter.type = 'lowpass';
+  lpFilter.frequency.value = 1800;
+  delayNode.connect(fbGain);
+  fbGain.connect(delayNode);
+  delayNode.connect(lpFilter);
+  lpFilter.connect(wetGain);
+  wetGain.connect(master);
+
+  function addDrone(freq, vol, type = 'sawtooth') {
+    const osc = ctx.createOscillator();
+    const g   = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    osc.detune.value = (Math.random() - 0.5) * 10;
+    g.gain.value = vol;
+    osc.connect(g);
+    g.connect(master);
+    g.connect(delayNode);
+    osc.start();
+  }
+
+  // Tanpura-style drone in D (Sa–Pa–Sa: D–A–D)
+  addDrone(73.42,  0.07);  // D1
+  addDrone(146.83, 0.09);  // D2
+  addDrone(220.00, 0.05);  // A2
+  addDrone(293.66, 0.07);  // D3
+  addDrone(440.00, 0.03);  // A3 (high shimmer)
+
+  // D minor pentatonic scale: D3 F3 G3 A3 C4 D4
+  const scale   = [293.66, 349.23, 392.00, 440.00, 523.25, 587.33];
+  // Slow, meditative melodic pattern
+  const pattern = [0, 2, 4, 3, 1, 3, 5, 4, 2, 0, 1, 2, 4, 3, 5, 2, 0];
+  const noteGap = 1.05; // seconds between notes
+  let t = ctx.currentTime + 1.2;
+
+  function playNote(freq, when, dur) {
+    const osc = ctx.createOscillator();
+    const env = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    env.gain.setValueAtTime(0, when);
+    env.gain.linearRampToValueAtTime(0.14, when + 0.07);
+    env.gain.setValueAtTime(0.11, when + dur * 0.55);
+    env.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+    osc.connect(env);
+    env.connect(master);
+    env.connect(delayNode);
+    osc.start(when);
+    osc.stop(when + dur + 0.08);
+  }
+
+  function scheduleChunk() {
+    pattern.forEach((idx, i) => playNote(scale[idx], t + i * noteGap, noteGap * 1.25));
+    t += pattern.length * noteGap;
+    setTimeout(scheduleChunk, Math.max(10, (t - ctx.currentTime - 2.5) * 1000));
+  }
+
+  scheduleChunk();
+}
+
+// Autoplay (works in headless Chrome; in regular browser a click is needed)
+try { startAmbient(); } catch(e) {}
+document.addEventListener('click', () => { try { startAmbient(); } catch(e) {} }, { once: true });
+
+// ── BACKGROUND MUSIC (online Indian sitar — Internet Archive, public domain) ─
+const bgMusic = document.createElement('audio');
+bgMusic.crossOrigin = 'anonymous';
+bgMusic.src = 'https://archive.org/download/IndianSitarInstrumentalMusic10Hours/Indian%20Sitar%20Instrumental%20Music%2010%20Hours.mp3';
+bgMusic.loop   = true;
+bgMusic.volume = 0.72;
+
+// Seek 3 minutes in — past any intro, into the rich melodic section
+bgMusic.addEventListener('canplay', () => {
+  if (bgMusic.currentTime < 1) bgMusic.currentTime = 180;
+}, { once: true });
+
+bgMusic.play().catch(() => {
+  document.addEventListener('click', () => bgMusic.play(), { once: true });
+});
+</script>
+
+</body>
+</html>

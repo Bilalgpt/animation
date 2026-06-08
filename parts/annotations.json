@@ -1,0 +1,121 @@
+{
+  "source_image": "SHEEDI RESTAURANT.jpeg",
+  "source_width": 326,
+  "source_height": 214,
+  "parts": [
+    {
+      "name": "top-mandala",
+      "type": "rect",
+      "file": "top-mandala.png",
+      "bbox": {
+        "x1": 0,
+        "y1": 0,
+        "x2": 326,
+        "y2": 91,
+        "width": 326,
+        "height": 91
+      },
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          326,
+          0
+        ],
+        [
+          326,
+          91
+        ],
+        [
+          0,
+          91
+        ]
+      ],
+      "pct": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 100.0,
+        "bottom": 42.52
+      },
+      "css_inset": "inset(0.00% 0.00% 57.48% 0.00%)"
+    },
+    {
+      "name": "banner",
+      "type": "rect",
+      "file": "banner.png",
+      "bbox": {
+        "x1": 0,
+        "y1": 83,
+        "x2": 326,
+        "y2": 131,
+        "width": 326,
+        "height": 48
+      },
+      "points": [
+        [
+          0,
+          83
+        ],
+        [
+          326,
+          83
+        ],
+        [
+          326,
+          131
+        ],
+        [
+          0,
+          131
+        ]
+      ],
+      "pct": {
+        "left": 0.0,
+        "top": 38.79,
+        "right": 100.0,
+        "bottom": 61.21
+      },
+      "css_inset": "inset(38.79% 0.00% 38.79% 0.00%)"
+    },
+    {
+      "name": "bottom-mandala",
+      "type": "rect",
+      "file": "bottom-mandala.png",
+      "bbox": {
+        "x1": 0,
+        "y1": 117,
+        "x2": 326,
+        "y2": 214,
+        "width": 326,
+        "height": 97
+      },
+      "points": [
+        [
+          0,
+          117
+        ],
+        [
+          326,
+          117
+        ],
+        [
+          326,
+          214
+        ],
+        [
+          0,
+          214
+        ]
+      ],
+      "pct": {
+        "left": 0.0,
+        "top": 54.67,
+        "right": 100.0,
+        "bottom": 100.0
+      },
+      "css_inset": "inset(54.67% 0.00% 0.00% 0.00%)"
+    }
+  ]
+}

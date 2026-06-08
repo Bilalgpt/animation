@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aristokrat İrove Azerbaijan — V3</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cinzel:wght@400;600;900&family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --deep:#030406;
+  --gold:#c9962c;
+  --gold-l:#f0d070;
+  --silver:#c4c0b8;
+  --cream:#f4efe5;
+}
+body{
+  background:var(--deep);
+  display:flex;align-items:center;justify-content:center;
+  width:100vw;height:100vh;overflow:hidden;
+}
+.stage{
+  position:relative;width:820px;height:820px;
+  overflow:hidden;background:#000;
+}
+canvas{
+  position:absolute;inset:0;width:100%;height:100%;
+  pointer-events:none;z-index:10;
+}
+
+/* ── Scenes ─────────────────────────────────── */
+.scene{position:absolute;inset:0;display:none;overflow:hidden}
+.scene.active{display:block}
+
+/* ── Shared overlays ─────────────────────────── */
+.overlay{
+  position:absolute;inset:0;z-index:2;
+  background:
+    radial-gradient(ellipse 80% 80% at 50% 45%,rgba(3,4,6,.04) 0%,rgba(3,4,6,.70) 100%),
+    linear-gradient(180deg,rgba(3,4,6,.78) 0%,rgba(3,4,6,.04) 38%,rgba(3,4,6,.90) 100%);
+}
+
+/* ── Text layer ───────────────────────────────── */
+.text-layer{
+  position:absolute;inset:0;z-index:5;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px;
+}
+
+/* ── Shared keyframes ─────────────────────────── */
+@keyframes fadeIn {from{opacity:0}to{opacity:1}}
+@keyframes fadeUp {from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%,100%{background-position:0% 60%}50%{background-position:100% 40%}}
+@keyframes draw   {to{stroke-dashoffset:0}}
+@keyframes gemP   {0%,100%{box-shadow:0 0 6px var(--gold)}50%{box-shadow:0 0 18px var(--gold-l),0 0 36px var(--gold)}}
+@keyframes sceneOut{to{opacity:0;transform:scale(1.02)}}
+@keyframes ruleExpand{to{width:280px}}
+
+/* ════════════════════════════════════════════════
+   3-D CARD DECK — the hero rotation effect
+   ════════════════════════════════════════════════
+
+   Each destination scene has three image cards
+   stacked in a 3-D perspective container:
+
+     ghost-left  (previous image, peeks from left)
+     ghost-right (next image, peeks from right)
+     main-card   (current image, sweeps to front)
+
+   The main card rotates in from behind one side;
+   ghost cards hold semi-transparent angles giving
+   the illusion of a real rotating photo deck.
+   ════════════════════════════════════════════════ */
+
+.card-deck{
+  position:absolute;inset:0;
+  transform-style:preserve-3d;
+  perspective:1500px;
+}
+
+.main-card{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  will-change:transform,opacity;
+}
+.ghost-card{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  pointer-events:none;
+  will-change:transform,opacity;
+}
+
+/* Main card sweeps in from left-back */
+@keyframes c3DLeft{
+  0%  {transform:perspective(1500px) rotateY(-82deg) translateX(-7%) scale(.86);opacity:0}
+  18% {opacity:1}
+  68% {transform:perspective(1500px) rotateY(5deg)  translateX(.6%) scale(1.025)}
+  100%{transform:perspective(1500px) rotateY(0deg)  translateX(0)   scale(1);opacity:1}
+}
+/* Main card sweeps in from right-back */
+@keyframes c3DRight{
+  0%  {transform:perspective(1500px) rotateY(82deg)  translateX(7%) scale(.86);opacity:0}
+  18% {opacity:1}
+  68% {transform:perspective(1500px) rotateY(-5deg)  translateX(-.6%) scale(1.025)}
+  100%{transform:perspective(1500px) rotateY(0deg)   translateX(0)   scale(1);opacity:1}
+}
+/* Ghost left card — lingers at rotated angle */
+@keyframes ghostL{
+  0%  {transform:perspective(1500px) rotateY(-90deg) translateX(-14%) scale(.72);opacity:0}
+  35% {opacity:.24}
+  100%{transform:perspective(1500px) rotateY(-55deg) translateX(-26%) scale(.80);opacity:.20}
+}
+/* Ghost right card */
+@keyframes ghostR{
+  0%  {transform:perspective(1500px) rotateY(90deg)  translateX(14%) scale(.72);opacity:0}
+  35% {opacity:.22}
+  100%{transform:perspective(1500px) rotateY(55deg)  translateX(26%) scale(.80);opacity:.18}
+}
+/* Subtle Ken Burns after landing */
+@keyframes kb{from{transform:scale(1)}to{transform:scale(1.08)}}
+
+/* Odd-numbered destination scenes come from left */
+#s2 .main-card,#s4 .main-card,#s6 .main-card{
+  animation:c3DLeft 1.35s .1s cubic-bezier(.22,1,.36,1) forwards,
+            kb 3.8s 1.6s ease-in-out forwards;
+}
+/* Even-numbered from right */
+#s3 .main-card,#s5 .main-card,#s7 .main-card{
+  animation:c3DRight 1.35s .1s cubic-bezier(.22,1,.36,1) forwards,
+            kb 3.8s 1.6s ease-in-out forwards;
+}
+/* Ghost cards always emerge from both sides */
+#s2 .gc-l,#s3 .gc-l,#s4 .gc-l,#s5 .gc-l,#s6 .gc-l,#s7 .gc-l{
+  animation:ghostL 1.5s .15s ease-out forwards;
+}
+#s2 .gc-r,#s3 .gc-r,#s4 .gc-r,#s5 .gc-r,#s6 .gc-r,#s7 .gc-r{
+  animation:ghostR 1.5s .15s ease-out forwards;
+}
+
+/* Text out at 4.2s (for 5s scenes) */
+#s2 .text-layer,#s3 .text-layer,#s4 .text-layer,
+#s5 .text-layer,#s6 .text-layer,#s7 .text-layer{
+  animation:sceneOut .7s 4.2s ease forwards;
+}
+
+/* ════════════════════════════════════════════════
+   S1 — INTRO (3D horizontal-axis flip-open)
+   ════════════════════════════════════════════════ */
+.s1-bg{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  animation:s1BgIn 1.5s ease forwards;
+}
+@keyframes s1BgIn{
+  0%  {opacity:0;transform:scale(1.14)}
+  100%{opacity:1;transform:scale(1.06)}
+}
+
+@keyframes flipOpen{
+  0%  {transform:perspective(1100px) rotateX(-90deg) translateY(-6%) scale(.92);opacity:0;filter:blur(8px)}
+  55% {transform:perspective(1100px) rotateX(7deg)   translateY(.8%)  scale(1.01);filter:blur(0)}
+  80% {transform:perspective(1100px) rotateX(-2deg)  scale(1)}
+  100%{transform:perspective(1100px) rotateX(0deg)   translateY(0)    scale(1);opacity:1}
+}
+@keyframes logoPulse{
+  0%,100%{filter:drop-shadow(0 0 22px rgba(201,150,44,.45))}
+  50%    {filter:drop-shadow(0 0 52px rgba(240,208,112,.80)) drop-shadow(0 0 90px rgba(201,150,44,.35))}
+}
+
+.s1-logo{
+  width:260px;
+  opacity:0;
+  animation:flipOpen 1.3s .4s cubic-bezier(.22,1,.36,1) forwards,
+            logoPulse 3.5s 2.0s ease-in-out infinite;
+  filter:drop-shadow(0 0 26px rgba(201,150,44,.5));
+}
+.s1-rule{
+  width:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  margin:18px auto 0;
+  animation:ruleExpand .9s 1.6s ease forwards;
+}
+.s1-tagline{
+  font-family:'Cormorant Garamond',serif;font-style:italic;font-size:21px;
+  color:rgba(244,239,229,.74);letter-spacing:1.5px;
+  text-align:center;line-height:1.65;
+  margin-top:16px;
+  opacity:0;animation:fadeUp .9s 1.9s ease forwards;
+}
+.s1-sub{
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:7px;
+  color:rgba(201,150,44,.55);text-transform:uppercase;
+  margin-top:12px;
+  opacity:0;animation:fadeUp .7s 2.6s ease forwards;
+}
+#s1 .text-layer{animation:sceneOut .7s 4.2s ease forwards}
+
+/* ════════════════════════════════════════════════
+   DESTINATION TEXT ELEMENTS (S2–S7)
+   ════════════════════════════════════════════════ */
+.d-eye{
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:8px;
+  color:rgba(201,150,44,.60);text-transform:uppercase;
+  margin-bottom:12px;
+  opacity:0;animation:fadeUp .6s .28s ease forwards;
+}
+.d-name{
+  font-family:'Great Vibes',cursive;font-size:108px;line-height:1;
+  background:linear-gradient(155deg,#fff8e7 0%,#f0d070 26%,#c9962c 48%,#f0d070 66%,#fff8e7 84%);
+  background-size:280% 280%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 38px rgba(201,150,44,.5));
+  opacity:0;
+  transform:perspective(900px) rotateX(-22deg) scale(.92) translateY(18px);
+  animation:dnIn 1s .38s cubic-bezier(.22,1,.36,1) forwards,
+            shimmer 5s 2s ease-in-out infinite;
+}
+@keyframes dnIn{
+  to{opacity:1;transform:perspective(900px) rotateX(0deg) scale(1) translateY(0)}
+}
+.d-orn{opacity:0;animation:fadeIn .7s .95s ease forwards;margin:4px 0 0}
+.d-orn-path{
+  stroke:var(--gold);stroke-width:.8;fill:none;opacity:.50;
+  stroke-dasharray:280;stroke-dashoffset:280;
+  animation:draw 1.2s .95s ease-out forwards;
+}
+.d-country{
+  font-family:'Cinzel',serif;font-size:18px;font-weight:600;letter-spacing:11px;
+  color:rgba(240,208,112,.80);text-transform:uppercase;
+  margin-top:4px;text-shadow:0 0 24px rgba(201,150,44,.35);
+  opacity:0;animation:fadeUp .7s 1.25s ease forwards;
+}
+.d-div{
+  width:1px;height:22px;
+  background:linear-gradient(to bottom,transparent,rgba(201,150,44,.44),transparent);
+  margin:16px auto;
+  opacity:0;animation:fadeIn .5s 1.75s ease forwards;
+}
+.d-tag{
+  font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17.5px;
+  color:rgba(244,239,229,.65);letter-spacing:1.5px;text-align:center;line-height:1.55;
+  text-shadow:0 0 28px rgba(201,150,44,.2);
+  opacity:0;animation:fadeUp .7s 1.85s ease forwards;
+}
+.d-gems{
+  display:flex;align-items:center;gap:8px;margin-top:22px;
+  opacity:0;animation:fadeUp .5s 2.4s ease forwards;
+}
+.d-gl{width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.d-gm{width:7px;height:7px;background:var(--gold-l);transform:rotate(45deg);animation:gemP 2.4s 2.8s ease-in-out infinite}
+.d-gs{width:4px;height:4px;background:var(--gold);transform:rotate(45deg);animation:gemP 2.4s 3.0s ease-in-out infinite}
+
+/* ════════════════════════════════════════════════
+   S8 — BRAND REVEAL (deep Z-axis emergence)
+   The logo rockets from deep 3-D space toward viewer
+   ════════════════════════════════════════════════ */
+.s8-bg{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  animation:s8BgIn 1.5s ease forwards;
+}
+@keyframes s8BgIn{
+  0%  {opacity:0;transform:scale(1.15)}
+  100%{opacity:1;transform:scale(1.05)}
+}
+
+@keyframes deepZ{
+  0%  {transform:perspective(2400px) translateZ(-1900px) scale(.12);
+       opacity:0;filter:blur(16px) drop-shadow(0 0 30px rgba(201,150,44,.6))}
+  40% {filter:blur(0)}
+  72% {transform:perspective(2400px) translateZ(65px) scale(1.07);
+       opacity:1;filter:drop-shadow(0 0 65px rgba(201,150,44,.75))}
+  100%{transform:perspective(2400px) translateZ(0) scale(1);
+       opacity:1;filter:drop-shadow(0 0 38px rgba(201,150,44,.52))}
+}
+@keyframes s8Pulse{
+  0%,100%{filter:drop-shadow(0 0 30px rgba(201,150,44,.48))}
+  50%    {filter:drop-shadow(0 0 65px rgba(240,208,112,.82)) drop-shadow(0 0 115px rgba(201,150,44,.38))}
+}
+
+.s8-logo{
+  width:280px;
+  opacity:0;
+  animation:deepZ 1.9s .5s cubic-bezier(.22,1,.36,1) forwards,
+            s8Pulse 3s 2.8s ease-in-out infinite;
+}
+.s8-orn{opacity:0;animation:fadeIn .9s 2.3s ease forwards;margin-bottom:4px}
+.s8-orn-path{
+  stroke:var(--gold);stroke-width:.9;fill:none;opacity:.55;
+  stroke-dasharray:340;stroke-dashoffset:340;
+  animation:draw 1.4s 2.3s ease-out forwards;
+}
+.s8-title{
+  font-family:'Cinzel',serif;font-size:26px;font-weight:600;letter-spacing:10px;
+  color:rgba(240,208,112,.85);text-transform:uppercase;
+  text-shadow:0 0 30px rgba(201,150,44,.4);
+  margin-top:4px;
+  opacity:0;animation:fadeUp .8s 2.9s ease forwards;
+}
+.s8-sub{
+  font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;
+  color:rgba(244,239,229,.65);letter-spacing:2px;text-align:center;line-height:1.55;
+  margin-top:10px;
+  opacity:0;animation:fadeUp .7s 3.3s ease forwards;
+}
+.s8-div{
+  width:1px;height:28px;
+  background:linear-gradient(to bottom,transparent,rgba(201,150,44,.44),transparent);
+  margin:18px auto;
+  opacity:0;animation:fadeIn .6s 3.8s ease forwards;
+}
+.s8-contact{
+  font-family:'Cinzel',serif;font-size:11px;letter-spacing:5px;
+  color:rgba(201,150,44,.60);text-transform:uppercase;
+  opacity:0;animation:fadeUp .7s 4.0s ease forwards;
+}
+.s8-gems{
+  display:flex;align-items:center;gap:10px;margin-top:24px;
+  opacity:0;animation:fadeUp .5s 4.6s ease forwards;
+}
+.s8-gl{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.s8-gm{width:8px;height:8px;background:var(--gold-l);transform:rotate(45deg);animation:gemP 2.6s 5.2s ease-in-out infinite}
+.s8-gs{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);animation:gemP 2.6s 5.4s ease-in-out infinite}
+#s8 .text-layer{animation:sceneOut .7s 7.2s ease forwards}
+
+/* ════════════════════════════════════════════════
+   S9 — CTA
+   ════════════════════════════════════════════════ */
+.s9-bg{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  animation:s9BgIn 1.5s ease forwards;
+}
+@keyframes s9BgIn{
+  0%  {opacity:0;filter:brightness(.55) blur(5px)}
+  100%{opacity:1;filter:brightness(.82) blur(0)}
+}
+.s9-eye{
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:8px;
+  color:rgba(201,150,44,.65);text-transform:uppercase;
+  margin-bottom:16px;
+  opacity:0;animation:fadeUp .6s .5s ease forwards;
+}
+.s9-hl{
+  font-family:'Great Vibes',cursive;font-size:92px;line-height:1.1;
+  background:linear-gradient(155deg,#fff8e7,#f0d070 38%,#c9962c 58%,#f0d070,#fff8e7);
+  background-size:280% 280%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 30px rgba(201,150,44,.42));
+  opacity:0;transform:translateY(20px);
+  animation:fadeUp 1s .7s cubic-bezier(.22,1,.36,1) forwards,
+            shimmer 5s 2s ease-in-out infinite;
+}
+.s9-div{
+  width:1px;height:26px;
+  background:linear-gradient(to bottom,transparent,rgba(201,150,44,.48),transparent);
+  margin:18px auto;
+  opacity:0;animation:fadeIn .5s 1.6s ease forwards;
+}
+.s9-body{
+  font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18.5px;
+  color:rgba(244,239,229,.70);letter-spacing:1.5px;text-align:center;line-height:1.6;
+  max-width:460px;
+  opacity:0;animation:fadeUp .8s 1.8s ease forwards;
+}
+.s9-cta{
+  display:inline-block;margin-top:28px;
+  padding:12px 38px;
+  border:1px solid var(--gold);
+  font-family:'Cinzel',serif;font-size:12px;letter-spacing:5px;
+  color:var(--gold-l);text-transform:uppercase;
+  opacity:0;
+  animation:fadeUp .7s 2.5s ease forwards,
+            ctaP 2.5s 3.3s ease-in-out infinite;
+}
+@keyframes ctaP{
+  0%,100%{box-shadow:0 0 0 0 rgba(201,150,44,.4)}
+  50%    {box-shadow:0 0 0 14px rgba(201,150,44,0)}
+}
+.s9-contact{
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:5px;
+  color:rgba(201,150,44,.55);text-transform:uppercase;
+  margin-top:14px;
+  opacity:0;animation:fadeUp .6s 3.1s ease forwards;
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <canvas id="cv"></canvas>
+
+  <!-- ══ S1 — INTRO ══════════════════════════════════════════════════════ -->
+  <div class="scene active" id="s1">
+    <div class="s1-bg"
+      style="background-image:url('https://images.pexels.com/photos/19544256/pexels-photo-19544256.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+    </div>
+    <div class="overlay"></div>
+    <div class="text-layer">
+      <img class="s1-logo" src="https://aristokrat.az/frontassets/site/images/logo.svg" alt="Aristokrat İrove Azerbaijan">
+      <div class="s1-rule"></div>
+      <div class="s1-tagline">Journey beyond the ordinary —<br>where every destination is a masterpiece.</div>
+      <div class="s1-sub">Baku &nbsp;·&nbsp; Azerbaijan &nbsp;·&nbsp; Since 2003</div>
+    </div>
+  </div>
+
+  <!-- ══ S2 — FLAME TOWERS ══════════════════════════════════════════════ -->
+  <div class="scene" id="s2">
+    <div class="card-deck">
+      <div class="ghost-card gc-l"
+        style="background-image:url('https://images.pexels.com/photos/8412668/pexels-photo-8412668.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+      </div>
+      <div class="ghost-card gc-r"
+        style="background-image:url('https://images.pexels.com/photos/33297225/pexels-photo-33297225.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+      </div>
+      <div class="main-card"
+        style="background-image:url('https://images.pexels.com/photos/19825792/pexels-photo-19825792.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+      </div>
+    </div>
+    <div class="overlay"></div>
+    <div class="text-layer">
+      <div class="d-eye">Icon of Modern Baku</div>
+      <div class="d-name">Flame Towers</div>
+      <div class="d-orn">
+        <svg width="280" height="16" viewBox="0 0 280 16">
+          <path class="d-orn-path" d="M0,8 L38,8 Q52,8 62,3 Q76,0 90,3 Q100,8 140,8 Q180,8 190,3 Q204,0 218,3 Q228,8 242,8 L280,8"/>
+        </svg>
+      </div>
+      <div class="d-country">Baku, Azerbaijan</div>
+      <div class="d-div"></div>
+      <div class="d-tag">Three blazing towers crown the skyline —<br>a symbol of fire, heritage and ambition.</div>
+      <div class="d-gems">
+        <div class="d-gl"></div><div class="d-gs"></div><div class="d-gm"></div><div class="d-gs"></div><div class="d-gl"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ S3 — OLD CITY ══════════════════════════════════════════════════ -->
+  <div class="scene" id="s3">
+    <div class="card-deck">
+      <div class="ghost-card gc-l"
+        style="background-image:url('https://images.pexels.com/photos/19825792/pexels-photo-19825792.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+      </div>
+      <div class="ghost-card gc-r"
+        style="background-image:url('https://images.pexels.com/photos/9356284/pexels-photo-9356284.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+      </div>
+      <div class="main-card"
+        style="background-image:url('https://images.pexels.com/photos/33297225/pexels-photo-33297225.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+      </div>
+    </div>
+    <div class="overlay"></div>
+    <div class="text-layer">
+      <div class="d-eye">A UNESCO World Heritage Site</div>
+      <div class="d-name">Icherisheher</div>
+      <div class="d-orn">
+        <svg width="280" height="16" viewBox="0 0 280 16">
+          <path class="d-orn-path" d="M0,8 L38,8 Q52,8 62,3 Q76,0 90,3 Q100,8 140,8 Q180,8 190,3 Q204,0 218,3 Q228,8 242,8 L280,8"/>
+        </svg>
+      </div>
+      <div class="d-country">Old City, Baku</div>
+      <div class="d-div"></div>
+      <div class="d-tag">Ancient walls whisper stories of empires —<br>walk the stone lanes of the Old City.</div>
+      <div class="d-gems">
+        <div class="d-gl"></div><div class="d-gs"></div><div class="d-gm"></div><div class="d-gs"></div><div class="d-gl"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ S4 — CAUCASUS MOUNTAINS ════════════════════════════════════════ -->
+  <div class="scene" id="s4">
+    <div class="card-deck">
+      <div class="ghost-card gc-l"
+        style="background-image:url('https://images.pexels.com/photos/33297225/pexels-photo-33297225.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+      </div>
+      <div class="ghost-card gc-r"
+        style="background-image:url('https://images.pexels.com/photos/19257817/pexels-photo-19257817.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+      </div>
+      <div class="main-card"
+        style="background-image:url('https://images.pexels.com/photos/9356284/pexels-photo-9356284.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+      </div>
+    </div>
+    <div class="overlay"></div>
+    <div class="text-layer">
+      <div class="d-eye">Nature's Grand Cathedral</div>
+      <div class="d-name">Caucasus</div>
+      <div class="d-orn">
+        <svg width="280" height="16" viewBox="0 0 280 16">
+          <path class="d-orn-path" d="M0,8 L38,8 Q52,8 62,3 Q76,0 90,3 Q100,8 140,8 Q180,8 190,3 Q204,0 218,3 Q228,8 242,8 L280,8"/>
+        </svg>
+      </div>
+      <div class="d-country">Greater Caucasus Range</div>
+      <div class="d-div"></div>
+      <div class="d-tag">Soaring peaks and verdant valleys —<br>where nature reclaims its ancient grandeur.</div>
+      <div class="d-gems">
+        <div class="d-gl"></div><div class="d-gs"></div><div class="d-gm"></div><div class="d-gs"></div><div class="d-gl"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ S5 — HEYDAR ALIYEV CENTRE ══════════════════════════════════════ -->
+  <div class="scene" id="s5">
+    <div class="card-deck">
+      <div class="ghost-card gc-l"
+        style="background-image:url('https://images.pexels.com/photos/9356284/pexels-photo-9356284.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+      </div>
+      <div class="ghost-card gc-r"
+        style="background-image:url('https://images.pexels.com/photos/19050002/pexels-photo-19050002.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+      </div>
+      <div class="main-card"
+        style="background-image:url('https://images.pexels.com/photos/8412668/pexels-photo-8412668.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+      </div>
+    </div>
+    <div class="overlay"></div>
+    <div class="text-layer">
+      <div class="d-eye">Zaha Hadid's Masterwork</div>
+      <div class="d-name">Heydar Aliyev</div>
+      <div class="d-orn">
+        <svg width="280" height="16" viewBox="0 0 280 16">
+          <path class="d-orn-path" d="M0,8 L38,8 Q52,8 62,3 Q76,0 90,3 Q100,8 140,8 Q180,8 190,3 Q204,0 218,3 Q228,8 242,8 L280,8"/>
+        </svg>
+      </div>
+      <div class="d-country">Baku, Azerbaijan</div>
+      <div class="d-div"></div>
+      <div class="d-tag">Fluid white curves against cobalt sky —<br>architecture as pure poetry.</div>
+      <div class="d-gems">
+        <div class="d-gl"></div><div class="d-gs"></div><div class="d-gm"></div><div class="d-gs"></div><div class="d-gl"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ S6 — NIZAMI CULTURE CENTRE ════════════════════════════════════ -->
+  <div class="scene" id="s6">
+    <div class="card-deck">
+      <div class="ghost-card gc-l"
+        style="background-image:url('https://images.pexels.com/photos/8412668/pexels-photo-8412668.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+      </div>
+      <div class="ghost-card gc-r"
+        style="background-image:url('https://images.pexels.com/photos/19257817/pexels-photo-19257817.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+      </div>
+      <div class="main-card"
+        style="background-image:url('https://images.pexels.com/photos/19050002/pexels-photo-19050002.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+      </div>
+    </div>
+    <div class="overlay"></div>
+    <div class="text-layer">
+      <div class="d-eye">Heart of Azerbaijani Culture</div>
+      <div class="d-name">Nizami Street</div>
+      <div class="d-orn">
+        <svg width="280" height="16" viewBox="0 0 280 16">
+          <path class="d-orn-path" d="M0,8 L38,8 Q52,8 62,3 Q76,0 90,3 Q100,8 140,8 Q180,8 190,3 Q204,0 218,3 Q228,8 242,8 L280,8"/>
+        </svg>
+      </div>
+      <div class="d-country">Downtown Baku</div>
+      <div class="d-div"></div>
+      <div class="d-tag">Art, music and memory converge<br>along Baku's most celebrated boulevard.</div>
+      <div class="d-gems">
+        <div class="d-gl"></div><div class="d-gs"></div><div class="d-gm"></div><div class="d-gs"></div><div class="d-gl"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ S7 — CASPIAN SHORE ═════════════════════════════════════════════ -->
+  <div class="scene" id="s7">
+    <div class="card-deck">
+      <div class="ghost-card gc-l"
+        style="background-image:url('https://images.pexels.com/photos/19050002/pexels-photo-19050002.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+      </div>
+      <div class="ghost-card gc-r"
+        style="background-image:url('https://images.pexels.com/photos/19544256/pexels-photo-19544256.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+      </div>
+      <div class="main-card"
+        style="background-image:url('https://images.pexels.com/photos/19257817/pexels-photo-19257817.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+      </div>
+    </div>
+    <div class="overlay"></div>
+    <div class="text-layer">
+      <div class="d-eye">The World's Largest Inland Sea</div>
+      <div class="d-name">Caspian Shore</div>
+      <div class="d-orn">
+        <svg width="280" height="16" viewBox="0 0 280 16">
+          <path class="d-orn-path" d="M0,8 L38,8 Q52,8 62,3 Q76,0 90,3 Q100,8 140,8 Q180,8 190,3 Q204,0 218,3 Q228,8 242,8 L280,8"/>
+        </svg>
+      </div>
+      <div class="d-country">Caspian Sea, Azerbaijan</div>
+      <div class="d-div"></div>
+      <div class="d-tag">Horizon melts into silver water —<br>timeless, boundless, utterly free.</div>
+      <div class="d-gems">
+        <div class="d-gl"></div><div class="d-gs"></div><div class="d-gm"></div><div class="d-gs"></div><div class="d-gl"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ S8 — BRAND REVEAL ══════════════════════════════════════════════ -->
+  <div class="scene" id="s8">
+    <div class="s8-bg"
+      style="background-image:url('https://images.pexels.com/photos/33972180/pexels-photo-33972180.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+    </div>
+    <div class="overlay" style="background:radial-gradient(ellipse at 50% 45%,rgba(3,4,6,.12) 0%,rgba(3,4,6,.80) 100%),linear-gradient(180deg,rgba(3,4,6,.85) 0%,rgba(3,4,6,.08) 40%,rgba(3,4,6,.92) 100%)"></div>
+    <div class="text-layer">
+      <div class="s8-orn">
+        <svg width="340" height="16" viewBox="0 0 340 16">
+          <path class="s8-orn-path" d="M0,8 L46,8 Q62,8 74,3 Q92,0 110,3 Q122,8 170,8 Q218,8 230,3 Q248,0 266,3 Q278,8 294,8 L340,8"/>
+        </svg>
+      </div>
+      <img class="s8-logo" src="https://aristokrat.az/frontassets/site/images/logo.svg" alt="Aristokrat İrove Azerbaijan">
+      <div class="s8-title">Aristokrat İrove</div>
+      <div class="s8-sub">Curated luxury travel across the Land of Fire</div>
+      <div class="s8-div"></div>
+      <div class="s8-contact">aristokrat.az &nbsp;·&nbsp; Baku, Azerbaijan</div>
+      <div class="s8-gems">
+        <div class="s8-gl"></div><div class="s8-gs"></div><div class="s8-gm"></div><div class="s8-gs"></div><div class="s8-gl"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ S9 — CTA ═══════════════════════════════════════════════════════ -->
+  <div class="scene" id="s9">
+    <div class="s9-bg"
+      style="background-image:url('https://images.pexels.com/photos/19825792/pexels-photo-19825792.jpeg?auto=compress&cs=tinysrgb&w=1280')">
+    </div>
+    <div class="overlay" style="background:linear-gradient(180deg,rgba(3,4,6,.88) 0%,rgba(3,4,6,.30) 40%,rgba(3,4,6,.92) 100%)"></div>
+    <div class="text-layer">
+      <div class="s9-eye">Begin Your Story</div>
+      <div class="s9-hl">Your Journey Awaits</div>
+      <div class="s9-div"></div>
+      <div class="s9-body">
+        Let Aristokrat İrove craft an experience<br>
+        as extraordinary as Azerbaijan itself.
+      </div>
+      <div class="s9-cta">Book Your Experience</div>
+      <div class="s9-contact">aristokrat.az &nbsp;·&nbsp; +994 12 000 0000</div>
+    </div>
+  </div>
+
+</div><!-- /stage -->
+
+<script>
+/* ── Gold & ember particle system ────────────────────────────────── */
+const PC = ['#c9962c','#f0d070','#ff8c00','#ffe8a0','#e67c00'];
+const cv  = document.getElementById('cv');
+cv.width  = cv.height = 820;
+const ctx = cv.getContext('2d');
+
+class P {
+  constructor(){ this.reset(true) }
+  reset(init){
+    this.x  = Math.random() * 820;
+    this.y  = init ? Math.random() * 820 : 830;
+    this.vx = (Math.random() - .5) * .5;
+    this.vy = -(0.32 + Math.random() * 1.0);
+    this.r  = .5 + Math.random() * 2.2;
+    this.col= PC[Math.floor(Math.random() * PC.length)];
+    this.alpha  = 0;
+    this.life   = 0;
+    this.maxLife= 140 + Math.random() * 230;
+    this.flicker= Math.random() * Math.PI * 2;
+  }
+  tick(){
+    this.life++;
+    this.x += this.vx + Math.sin(this.life * .04 + this.flicker) * .26;
+    this.y += this.vy;
+    const t = this.life / this.maxLife;
+    this.alpha = (t < .15 ? t / .15 : t > .75 ? (1 - t) / .25 : 1) * .48;
+    if(this.life >= this.maxLife || this.y < -10) this.reset(false);
+  }
+  draw(){
+    ctx.save();
+    ctx.globalAlpha   = this.alpha;
+    ctx.shadowColor   = this.col;
+    ctx.shadowBlur    = this.r * 6;
+    ctx.fillStyle     = this.col;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+const particles = Array.from({length: 70}, () => new P());
+(function loop(){
+  ctx.clearRect(0, 0, 820, 820);
+  particles.forEach(p => { p.tick(); p.draw(); });
+  requestAnimationFrame(loop);
+})();
+
+/* ── Scene sequencer ─────────────────────────────────────────────── */
+const SCENES    = ['s1','s2','s3','s4','s5','s6','s7','s8','s9'];
+const DURATIONS = [5000, 5000, 5000, 5000, 5000, 5000, 5000, 8000, 6000];
+
+let current = 0;
+
+function showScene(i){
+  /* Remove active from current scene */
+  const prev = document.querySelector('.scene.active');
+  if(prev) prev.classList.remove('active');
+
+  const next = document.getElementById(SCENES[i]);
+
+  /* Force reflow so CSS animations restart from 0 */
+  next.style.display = 'none';
+  void next.offsetWidth;
+  next.style.display = '';
+
+  next.classList.add('active');
+  current = i;
+}
+
+function advance(){
+  const next = (current + 1) % SCENES.length;
+  showScene(next);
+  schedule();
+}
+
+function schedule(){
+  setTimeout(advance, DURATIONS[current]);
+}
+
+/* Start */
+schedule();
+</script>
+</body>
+</html>

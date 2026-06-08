@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Sheedi's Restaurant — Chilli Writer</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --saffron:#FF7800;
+  --gold:#C9922A;
+  --gold-l:#F5D98E;
+  --green:#3d8c15;
+}
+body{background:#000;display:flex;align-items:center;justify-content:center;
+     width:100vw;height:100vh;overflow:hidden}
+.stage{position:relative;width:820px;height:820px;overflow:hidden;background:#000}
+
+.ambient{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse 60% 54% at 50% 52%,
+    rgba(90,0,8,.22) 0%,rgba(50,0,5,.08) 48%,transparent 68%);
+  animation:ambientBreathe 5.5s 3s ease-in-out infinite;
+}
+@keyframes ambientBreathe{0%,100%{opacity:.5}50%{opacity:1}}
+canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+
+/* ── Content ── */
+.content{
+  position:absolute;top:108px;left:0;right:0;
+  display:flex;flex-direction:column;align-items:center;
+  z-index:8;pointer-events:none;
+}
+
+/* ── Eyebrow ── */
+.eyebrow{display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+.ey-line{height:1px;width:60px;
+         background:linear-gradient(90deg,transparent,rgba(255,120,0,.46),transparent)}
+.ey-words{display:flex;gap:7px;font-family:'Cinzel',serif;font-size:9.5px;
+          letter-spacing:7px;color:rgba(255,120,0,.54);text-transform:uppercase}
+.fw{display:inline-block;opacity:0}
+.fw.flare{animation:wordFlare .68s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes wordFlare{
+  0%  {opacity:0;transform:scale(1.90);filter:brightness(3.5) blur(7px)}
+  25% {opacity:1;filter:brightness(1.6) blur(1px)}
+  62% {transform:scale(.97)}
+  100%{opacity:1;transform:scale(1);filter:brightness(1) blur(0)}
+}
+
+/* ── Logo — 3D tumble from behind ── */
+.logo-wrap{position:relative;width:400px;overflow:visible;z-index:5;margin-top:2px}
+.logo-img{
+  display:block;width:400px;border-radius:3px;
+  opacity:0;
+  transform:perspective(700px) rotateY(-180deg) scale(0.06);
+  filter:blur(12px);
+}
+.logo-img.tumble{
+  animation:logoTumbleIn 1.9s cubic-bezier(.22,1,.36,1) forwards,
+            logoPulse    7s  2.2s ease-in-out infinite;
+}
+@keyframes logoTumbleIn{
+  0%  {opacity:0; transform:perspective(700px) rotateY(-180deg) scale(0.06);filter:blur(12px)}
+  18% {opacity:.7;filter:blur(3px)}
+  62% {           transform:perspective(700px) rotateY(11deg)  scale(1.07);opacity:1;filter:blur(0)}
+  78% {           transform:perspective(700px) rotateY(-6deg)  scale(0.96)}
+  90% {           transform:perspective(700px) rotateY( 3deg)  scale(1.02)}
+  100%{opacity:1; transform:perspective(700px) rotateY(0deg)   scale(1);   filter:blur(0)}
+}
+@keyframes logoPulse{
+  0%,100%{filter:drop-shadow(0 0 10px rgba(255,80,0,.18))}
+  50%    {filter:drop-shadow(0 0 44px rgba(255,100,0,.70))
+                 drop-shadow(0 0 88px rgba(139,0,20,.20))}
+}
+.logo-wrap::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(110deg,transparent 16%,rgba(255,220,130,.24) 50%,transparent 84%);
+  transform:translateX(-160%);
+  animation:logoShimmer 1.15s ease-out forwards;animation-play-state:paused;
+}
+.logo-wrap.shimmer::after{animation-play-state:running}
+@keyframes logoShimmer{to{transform:translateX(260%)}}
+
+/* ── Ornament divider ── */
+.orn-div{margin:18px 0 4px;opacity:0;transition:opacity .6s}
+.orn-div.show{opacity:1}
+.orn-path{stroke:var(--saffron);stroke-width:.9;fill:none;opacity:.46;
+          stroke-dasharray:300;stroke-dashoffset:300}
+.orn-div.show .orn-path{animation:drawOrn 1.4s ease-out forwards}
+@keyframes drawOrn{to{stroke-dashoffset:0}}
+
+/* ══════════════════════════════════════════════════════
+   CHILLI TAGLINE
+   ─────────────────────────────────────────────────────
+   .tagline-wrap  —  relative container, width = text width
+   .tagline       —  the actual text, hidden behind clip-path
+   .chilli-wrap   —  the moving chilli, absolutely positioned
+══════════════════════════════════════════════════════ */
+.tagline-outer{
+  /* centres the fit-content wrap inside the flex column */
+  display:flex;justify-content:center;
+  width:100%;margin-top:6px;
+  position:relative;
+}
+.tagline-wrap{
+  position:relative;
+  display:inline-block;   /* shrink-wraps to text width */
+}
+.tagline{
+  font-family:'Cormorant Garamond',serif;font-style:italic;font-size:24px;
+  color:rgba(255,246,220,.82);letter-spacing:2.5px;white-space:nowrap;
+  filter:drop-shadow(0 0 12px rgba(255,100,0,.18));
+  /* hidden until chilli starts writing */
+  clip-path:inset(0 100% 0 0);
+}
+/* clip-path animates from right-blocked to fully open — linear matches chilli speed */
+.tagline.writing{
+  animation:textReveal var(--write-dur,3.4s) linear forwards;
+}
+@keyframes textReveal{
+  to{clip-path:inset(0 0% 0 0)}
+}
+
+/* ── After writing: gentle glow on tagline ── */
+.tagline.done{
+  animation:taglinePulse 5s ease-in-out infinite;
+}
+@keyframes taglinePulse{
+  0%,100%{filter:drop-shadow(0 0 8px rgba(255,100,0,.14))}
+  50%    {filter:drop-shadow(0 0 20px rgba(255,120,0,.38))}
+}
+
+/* ─────────────────────────────────────────────────────
+   GREEN CHILLI — moves left → right as the pen
+   The pointed TIP faces right (the "nib").
+   The stem curves up-left.
+───────────────────────────────────────────────────── */
+.chilli-wrap{
+  position:absolute;
+  /* vertical: centred on text baseline */
+  top:50%;
+  left:0;
+  transform:translateY(-58%);
+  pointer-events:none;
+  opacity:0;
+  /* fade in when .active is added */
+  transition:opacity .25s ease;
+  z-index:20;
+}
+.chilli-wrap.active{opacity:1}
+.chilli-wrap.done{
+  opacity:0;
+  transition:opacity .6s ease;
+}
+
+/* ─────────────────────────────────────────────────────
+   NIP / INK GLOW — the bright dot at the chilli tip
+───────────────────────────────────────────────────── */
+.tip-glow{
+  position:absolute;
+  /* placed at the rightmost tip of the SVG */
+  right:-3px;
+  top:50%;
+  transform:translateY(-50%);
+  width:7px;height:7px;border-radius:50%;
+  background:rgba(180,255,80,.95);
+  box-shadow:0 0 8px rgba(120,255,40,1),
+             0 0 18px rgba(80,200,20,.7),
+             0 0 32px rgba(60,160,10,.4);
+  animation:nibPulse .28s ease-in-out infinite alternate;
+}
+@keyframes nibPulse{
+  from{transform:translateY(-50%) scale(0.75);opacity:.7}
+  to  {transform:translateY(-50%) scale(1.25);opacity:1 }
+}
+
+/* tiny ink-drop trail particles (pure CSS, 4 dots) */
+.ink-dot{
+  position:absolute;top:50%;
+  border-radius:50%;
+  background:rgba(140,230,60,.55);
+  transform:translateY(-50%);
+  animation:inkFade .6s ease-out forwards;
+}
+@keyframes inkFade{
+  0%  {opacity:.7;transform:translateY(-50%) scale(1)}
+  100%{opacity:0; transform:translateY(-50%) scale(0)}
+}
+
+/* ── Sub caption ── */
+.sub-line{
+  font-family:'Cinzel',serif;font-size:9px;letter-spacing:6px;
+  color:rgba(255,120,0,.38);text-transform:uppercase;
+  margin-top:18px;opacity:0;transition:opacity .8s ease;
+}
+.sub-line.show{opacity:1}
+
+/* ── Bottom ornament ── */
+.bot-orn{
+  display:flex;align-items:center;gap:8px;margin-top:14px;
+  opacity:0;transition:opacity .7s .3s ease;
+}
+.bot-orn.show{opacity:1}
+.bo-ln{width:54px;height:1px;
+       background:linear-gradient(90deg,transparent,rgba(255,120,0,.36),transparent)}
+.bo-gm{width:6px;height:6px;background:var(--saffron);
+       transform:rotate(45deg);box-shadow:0 0 8px rgba(255,120,0,.5)}
+.bo-sm{width:4px;height:4px;background:var(--gold-l);transform:rotate(45deg)}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="ambient"></div>
+  <canvas id="cv"></canvas>
+
+  <div class="content">
+
+    <!-- Eyebrow -->
+    <div class="eyebrow">
+      <div class="ey-line"></div>
+      <div class="ey-words">
+        <span class="fw" id="ew0">The</span>
+        <span class="fw" id="ew1">Sheedi's</span>
+        <span class="fw" id="ew2">Restaurant</span>
+      </div>
+      <div class="ey-line"></div>
+    </div>
+
+    <!-- Logo -->
+    <div class="logo-wrap" id="logoWrap">
+      <img class="logo-img" id="logoImg"
+           src="../SHEEDI RESTAURANT.jpeg"
+           alt="The Sheedi's Restaurant">
+    </div>
+
+    <!-- Ornament -->
+    <div class="orn-div" id="ornDiv">
+      <svg width="280" height="20" viewBox="0 0 280 20">
+        <path class="orn-path" d="M10,10 L116,10"/>
+        <path class="orn-path" d="M164,10 L270,10"/>
+        <circle cx="140" cy="10" r="5"   fill="none" stroke="rgba(255,120,0,.44)" stroke-width=".8"/>
+        <circle cx="128" cy="10" r="2.5" fill="rgba(255,120,0,.30)"/>
+        <circle cx="152" cy="10" r="2.5" fill="rgba(255,120,0,.30)"/>
+        <polygon points="140,5 145,10 140,15 135,10"
+                 fill="none" stroke="rgba(255,120,0,.52)" stroke-width=".8"/>
+      </svg>
+    </div>
+
+    <!-- ══ CHILLI TAGLINE ══════════════════════════════════ -->
+    <div class="tagline-outer">
+      <div class="tagline-wrap" id="taglineWrap">
+
+        <!-- The text — revealed left→right behind the chilli -->
+        <div class="tagline" id="tagline">Where every bite tells a story.</div>
+
+        <!-- Green chilli pen that moves across and writes the text -->
+        <div class="chilli-wrap" id="chilliWrap">
+
+          <!-- The chilli SVG: horizontal, tip pointing RIGHT -->
+          <svg width="68" height="36" viewBox="0 0 68 36"
+               xmlns="http://www.w3.org/2000/svg" style="display:block">
+            <defs>
+              <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stop-color="#7acc36"/>
+                <stop offset="45%"  stop-color="#4a9e18"/>
+                <stop offset="100%" stop-color="#2d6e0e"/>
+              </linearGradient>
+              <linearGradient id="cg2" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%"   stop-color="#3a820f"/>
+                <stop offset="100%" stop-color="#246008"/>
+              </linearGradient>
+              <filter id="cshadow" x="-20%" y="-30%" width="140%" height="160%">
+                <feDropShadow dx="0" dy="2" stdDeviation="2"
+                              flood-color="rgba(0,80,0,.45)"/>
+              </filter>
+            </defs>
+
+            <!-- Main chilli body — slight upward curve (natural chilli shape) -->
+            <path d="
+              M14,20
+              C16,11  28,6   40,7
+              C52,8   60,12  64,17
+              C60,23  52,28  40,29
+              C28,30  16,25  14,20 Z
+            " fill="url(#cg)" filter="url(#cshadow)"/>
+
+            <!-- Pointed tip (rightmost) -->
+            <path d="M64,17 C66,16 68,17.5 66,19 L64,19 Z"
+                  fill="#1e5008"/>
+
+            <!-- Inner highlight (shine strip along top) -->
+            <ellipse cx="36" cy="13" rx="14" ry="2.8"
+                     fill="rgba(255,255,255,.22)"
+                     transform="rotate(-6 36 13)"/>
+
+            <!-- Darker ridge at bottom edge -->
+            <path d="M14,20 C28,30 52,28 64,17"
+                  stroke="rgba(0,60,0,.30)" stroke-width="1.5"
+                  fill="none"/>
+
+            <!-- Rounded stem end (left side) -->
+            <path d="M14,20 C9,19 7,17 8,14 C10,11 14,13 14,20"
+                  fill="#246008"/>
+
+            <!-- Stem (curves upward-left) -->
+            <path d="M9,13 C7,8 10,3 14,1"
+                  stroke="#5c3a00" stroke-width="2.8"
+                  fill="none" stroke-linecap="round"/>
+
+            <!-- Small stem leaf -->
+            <path d="M11,7 C7,4 6,0 9,1 C12,2 13,6 11,7"
+                  fill="#3a6e10" opacity=".75"/>
+          </svg>
+
+          <!-- Glowing ink nib at chilli tip -->
+          <div class="tip-glow"></div>
+
+        </div><!-- /chilli-wrap -->
+      </div><!-- /tagline-wrap -->
+    </div><!-- /tagline-outer -->
+
+    <div class="sub-line" id="sub">Authentic &nbsp;·&nbsp; Flavourful &nbsp;·&nbsp; Unforgettable</div>
+
+    <div class="bot-orn" id="bot">
+      <div class="bo-ln"></div><div class="bo-sm"></div>
+      <div class="bo-gm"></div>
+      <div class="bo-sm"></div><div class="bo-ln"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   CANVAS — petals + burst sparks
+═══════════════════════════════════════ */
+const cv = document.getElementById('cv');
+cv.width = cv.height = 820;
+const ctx = cv.getContext('2d');
+
+const PC = ['#7B0016','#8B0018','#A31020','#B81428','#C9922A','#B08030','#D4A843'];
+class Petal {
+  constructor(init){ this.reset(init??true) }
+  reset(init){
+    this.x=Math.random()*820; this.y=init?Math.random()*820:-24;
+    this.vy=.55+Math.random()*1.15; this.vx=(Math.random()-.5)*.55;
+    this.rot=Math.random()*Math.PI*2; this.rotV=(Math.random()-.5)*.038;
+    this.w=9+Math.random()*15; this.h=5+Math.random()*8;
+    this.sway=Math.random()*Math.PI*2; this.swayS=.012+Math.random()*.018;
+    this.a=init?Math.random()*.62:0; this.maxA=.48+Math.random()*.28;
+    this.c=PC[Math.floor(Math.random()*PC.length)];
+  }
+  tick(){
+    this.y+=this.vy; this.sway+=this.swayS;
+    this.x+=this.vx+Math.sin(this.sway)*.45; this.rot+=this.rotV;
+    this.a=Math.min(this.maxA,this.a+.020);
+    if(this.y>844) this.reset(false);
+  }
+  draw(){
+    ctx.save(); ctx.globalAlpha=this.a;
+    ctx.translate(this.x,this.y); ctx.rotate(this.rot);
+    ctx.shadowColor=this.c; ctx.shadowBlur=3; ctx.fillStyle=this.c;
+    ctx.beginPath(); ctx.ellipse(0,0,this.w/2,this.h/2,0,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+}
+const SC=['#FF7800','#FFB940','#FF4500','#FFD060','#C9922A'];
+class Spark{
+  constructor(cx,cy){
+    const a=Math.random()*Math.PI*2,spd=2.5+Math.random()*7;
+    this.x=cx+(Math.random()-.5)*80; this.y=cy+(Math.random()-.5)*30;
+    this.vx=Math.cos(a)*spd; this.vy=Math.sin(a)*spd-1.8;
+    this.g=.10+Math.random()*.06; this.r=1+Math.random()*2.8;
+    this.a=.9+Math.random()*.1; this.c=SC[Math.floor(Math.random()*SC.length)];
+    this.dead=false;
+  }
+  tick(){
+    this.vy+=this.g; this.x+=this.vx; this.y+=this.vy; this.vx*=.978;
+    this.a-=.018+Math.random()*.008; if(this.a<=0) this.dead=true;
+  }
+  draw(){
+    ctx.save(); ctx.globalAlpha=Math.max(0,this.a);
+    ctx.shadowColor=this.c; ctx.shadowBlur=this.r*5; ctx.fillStyle=this.c;
+    ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+}
+const petals=Array.from({length:60},()=>new Petal(true));
+let burst=[];
+function triggerBurst(cx,cy,n){for(let i=0;i<n;i++) burst.push(new Spark(cx,cy))}
+(function loop(){
+  ctx.clearRect(0,0,820,820);
+  petals.forEach(p=>{p.tick();p.draw()});
+  burst=burst.filter(s=>!s.dead);
+  burst.forEach(s=>{s.tick();s.draw()});
+  requestAnimationFrame(loop);
+})();
+
+/* ═══════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════ */
+function flareWord(id,ms){
+  setTimeout(()=>document.getElementById(id).classList.add('flare'),ms);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   CHILLI WRITING
+   ───────────────────────────────────────────────────────────────────
+   1. Set CSS custom property --write-dur so the clip-path animation
+      duration matches the JS chilli movement exactly.
+   2. Add .writing to tagline (starts clip-path reveal)
+   3. Use rAF loop to move chilli from x=0 to x=wrapWidth - chilliW
+      over the same duration.
+   4. After done: chilli fades, tagline switches to .done glow.
+═══════════════════════════════════════════════════════════════════ */
+const WRITE_DURATION = 3400;   /* ms — adjust to taste */
+
+function startChilliWrite() {
+  const tagWrap = document.getElementById('taglineWrap');
+  const tagline = document.getElementById('tagline');
+  const chilli  = document.getElementById('chilliWrap');
+
+  /* Match CSS animation duration to JS movement duration */
+  tagWrap.style.setProperty('--write-dur', WRITE_DURATION + 'ms');
+
+  /* Measure widths after layout is stable */
+  const wrapW  = tagWrap.offsetWidth;
+  const chilliW= chilli.offsetWidth;
+
+  /* The chilli tip (right edge of SVG) aligns with the reveal front.
+     We start with tip at left edge (left = -(chilliW)) so text starts
+     appearing right from the very first pixel.                         */
+  const startX = -chilliW + 4;   /* offset: 4px so tip just enters text */
+  const endX   = wrapW    - 4;   /* stop just past the last character   */
+  const travel = endX - startX;
+
+  /* Show chilli */
+  chilli.style.left    = startX + 'px';
+  chilli.style.opacity = '0';
+
+  /* Slight delay before chilli appears so logo settle completes */
+  setTimeout(() => {
+    chilli.classList.add('active');
+
+    /* Start text reveal animation */
+    tagline.classList.add('writing');
+
+    /* Move chilli across with rAF */
+    const t0 = performance.now();
+
+    function tick(now) {
+      const elapsed  = now - t0;
+      const progress = Math.min(elapsed / WRITE_DURATION, 1);
+
+      /* Linear motion — matches linear CSS clip-path animation */
+      chilli.style.left = (startX + travel * progress) + 'px';
+
+      /* Tiny ink-drop trail: every ~280ms drop a dot */
+      if (Math.random() < 0.018) {
+        spawnInkDot(tagWrap, startX + travel * progress + chilliW - 6,
+                    chilli.offsetTop + chilli.offsetHeight * 0.5);
+      }
+
+      if (progress < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        /* Writing done: fade chilli, switch tagline to idle glow */
+        chilli.classList.add('done');
+        setTimeout(() => {
+          tagline.classList.remove('writing');
+          tagline.classList.add('done');
+        }, 300);
+      }
+    }
+    requestAnimationFrame(tick);
+  }, 80);
+}
+
+/* Spawn a tiny ink-drop particle at the chilli tip */
+function spawnInkDot(parent, x, y) {
+  const d = document.createElement('div');
+  d.className = 'ink-dot';
+  const size = 3 + Math.random() * 4;
+  d.style.cssText = `
+    width:${size}px; height:${size}px;
+    left:${x}px; top:${y}px;
+    position:absolute; pointer-events:none; z-index:15;
+  `;
+  parent.appendChild(d);
+  /* Remove after animation ends */
+  setTimeout(() => d.remove(), 650);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MAIN TIMELINE
+   ───────────────────────────────────────────────────────────────────
+   0.55 s  Eyebrow words flare in  (3 × 140 ms)
+   2.40 s  Logo tumbles in from behind + burst sparks
+   3.50 s  Shimmer
+   4.50 s  Ornament divider draws on
+   4.80 s  CHILLI starts writing tagline  (3.4 s to complete)
+   8.30 s  Sub caption + bottom ornament
+═══════════════════════════════════════════════════════════════════ */
+const logoWrap = document.getElementById('logoWrap');
+const logoImg  = document.getElementById('logoImg');
+const ornDiv   = document.getElementById('ornDiv');
+const sub      = document.getElementById('sub');
+const bot      = document.getElementById('bot');
+
+const CX=410, CY=355;
+
+flareWord('ew0',  550);
+flareWord('ew1',  690);
+flareWord('ew2',  830);
+
+setTimeout(()=>{ logoImg.classList.add('tumble'); triggerBurst(CX,CY,65); }, 2400);
+setTimeout(()=>  logoWrap.classList.add('shimmer'), 3500);
+setTimeout(()=>  ornDiv.classList.add('show'),      4500);
+setTimeout(()=>  startChilliWrite(),                4800);
+setTimeout(()=>{ sub.classList.add('show'); bot.classList.add('show'); }, 8300);
+</script>
+</body>
+</html>

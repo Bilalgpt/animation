@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aristokrat İrove — Luxury Travel</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cinzel:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Playfair+Display:ital,wght@1,400&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          gold: '#C9922A',
+          'gold-l': '#F5D98E',
+          'gold-d': '#8B6319',
+          ink: '#05060A',
+        },
+        fontFamily: {
+          cinzel: ['Cinzel', 'serif'],
+          cormorant: ['"Cormorant Garamond"', 'serif'],
+          playfair: ['"Playfair Display"', 'serif'],
+          vibes: ['"Great Vibes"', 'cursive'],
+        },
+      }
+    }
+  }
+</script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#C9922A;
+  --gold-l:#F5D98E;
+  --glow:rgba(201,146,42,.55);
+  --bg:#05060A;
+}
+
+/* ── Rotating conic-gradient border property ── */
+@property --ba {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+body{
+  background: var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  width:100vw;height:100vh;overflow:hidden;
+}
+
+/* ── Stage ─────────────────────────────────── */
+.stage{
+  position:relative;width:820px;height:820px;
+  overflow:hidden;background: var(--bg);
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;
+}
+
+canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+
+/* ── SVG corner ornaments ──────────────────── */
+.corners{
+  position:absolute;inset:28px;pointer-events:none;z-index:1;
+}
+.corner-svg{
+  position:absolute;width:70px;height:70px;
+}
+.corner-svg.tl{top:0;left:0}
+.corner-svg.tr{top:0;right:0;transform:scaleX(-1)}
+.corner-svg.bl{bottom:0;left:0;transform:scaleY(-1)}
+.corner-svg.br{bottom:0;right:0;transform:scale(-1,-1)}
+
+.corner-path{
+  fill:none;
+  stroke:var(--gold);
+  stroke-width:1.2;
+  stroke-dasharray:200;
+  stroke-dashoffset:200;
+}
+.corner-inner{
+  fill:none;
+  stroke:rgba(201,146,42,.30);
+  stroke-width:0.6;
+  stroke-dasharray:120;
+  stroke-dashoffset:120;
+}
+.corner-dot{
+  fill:var(--gold-l);
+  opacity:0;
+}
+
+/* ── Center horizontal lines ───────────────── */
+.h-line{
+  position:absolute;
+  height:1px;
+  background:linear-gradient(90deg,transparent 0%,rgba(201,146,42,.15) 20%,rgba(201,146,42,.55) 50%,rgba(201,146,42,.15) 80%,transparent 100%);
+  pointer-events:none;z-index:1;
+  transform:scaleX(0);
+  width:calc(100% - 80px);
+  left:40px;
+}
+.h-line.top{top:30px}
+.h-line.bottom{bottom:30px}
+
+/* ── Glassmorphism logo frame ──────────────── */
+.logo-frame{
+  position:relative;
+  width:280px;height:280px;
+  display:flex;align-items:center;justify-content:center;
+  z-index:4;
+  opacity:0;
+}
+
+/* Rotating conic-gradient ring */
+.logo-frame::before{
+  content:'';
+  position:absolute;
+  inset:-3px;
+  border-radius:50%;
+  background:conic-gradient(
+    from var(--ba),
+    transparent 0deg,
+    rgba(201,146,42,.0) 60deg,
+    rgba(201,146,42,.90) 120deg,
+    rgba(245,217,142,.80) 150deg,
+    rgba(201,146,42,.90) 180deg,
+    rgba(201,146,42,.0) 240deg,
+    transparent 360deg
+  );
+  animation: rotateBorder 4s linear infinite;
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), black calc(100% - 2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), black calc(100% - 2px));
+}
+@keyframes rotateBorder{
+  to{ --ba: 360deg; }
+}
+
+/* Static gold ring underneath */
+.logo-frame::after{
+  content:'';
+  position:absolute;
+  inset:-12px;
+  border-radius:50%;
+  border:1px solid rgba(201,146,42,.12);
+  box-shadow:
+    0 0 40px rgba(201,146,42,.08),
+    inset 0 0 40px rgba(201,146,42,.05);
+}
+
+/* Glassmorphism inner */
+.logo-glass{
+  width:240px;height:240px;
+  border-radius:50%;
+  background:radial-gradient(ellipse at 40% 35%,rgba(201,146,42,.06) 0%,rgba(5,6,10,.70) 70%);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border:1px solid rgba(201,146,42,.18);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:
+    0 0 60px rgba(201,146,42,.10),
+    inset 0 1px 0 rgba(255,240,180,.08);
+}
+
+.logo-img{
+  width:190px;
+  object-fit:contain;
+  opacity:0;
+  filter:drop-shadow(0 0 20px rgba(201,146,42,.40));
+}
+
+/* ── Eyebrow ────────────────────────────────── */
+.ey-row{
+  display:flex;align-items:center;gap:14px;
+  margin-bottom:10px;
+  opacity:0;
+}
+.ey-ln{
+  height:1px;width:60px;
+  background:linear-gradient(90deg,transparent,rgba(201,146,42,.50),transparent);
+}
+.ey-tx{
+  font-family:'Cinzel',serif;font-size:8.5px;letter-spacing:7px;
+  color:rgba(201,146,42,.60);text-transform:uppercase;
+  overflow:hidden;white-space:nowrap;max-width:0;
+  transition:max-width 1.2s ease;
+}
+.ey-tx.expand{max-width:220px}
+
+/* ── Divider ────────────────────────────────── */
+.divider{
+  display:flex;align-items:center;gap:10px;
+  margin:16px 0 10px;
+  opacity:0;
+}
+.dv-ln{
+  width:90px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  transform:scaleX(0);transform-origin:center;
+}
+.dv-gm{
+  width:7px;height:7px;background:var(--gold);
+  transform:rotate(45deg) scale(0);
+  box-shadow:0 0 10px var(--glow);
+}
+.dv-sm{
+  width:4px;height:4px;background:var(--gold-l);
+  transform:rotate(45deg) scale(0);
+}
+
+/* ── Tagline ─────────────────────────────────── */
+.tagline-wrap{
+  min-height:36px;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;
+}
+.tagline{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:22px;color:rgba(255,248,231,.78);letter-spacing:2px;
+  text-align:center;
+  filter:drop-shadow(0 0 18px rgba(201,146,42,.22));
+}
+.tagline .char{
+  display:inline-block;opacity:0;
+  transform:translateY(12px);
+}
+
+/* ── Sub line ────────────────────────────────── */
+.sub-line{
+  font-family:'Cinzel',serif;font-size:8.5px;letter-spacing:6px;
+  color:rgba(201,146,42,.44);text-transform:uppercase;
+  margin-top:14px;opacity:0;
+  overflow:hidden;white-space:nowrap;max-width:0;
+}
+.sub-line.expand{max-width:320px;transition:max-width 1.4s ease}
+
+/* ── Bottom ornament ─────────────────────────── */
+.bot-orn{
+  display:flex;align-items:center;gap:8px;
+  margin-top:14px;opacity:0;
+}
+.bo-ln{
+  width:54px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,146,42,.38),transparent);
+  transform:scaleX(0);transform-origin:center;
+}
+.bo-gm{width:6px;height:6px;background:var(--gold);transform:rotate(45deg) scale(0)}
+.bo-sm{width:4px;height:4px;background:var(--gold-l);transform:rotate(45deg) scale(0)}
+
+/* ── Flash ───────────────────────────────────── */
+.flash{
+  position:absolute;inset:0;z-index:30;pointer-events:none;opacity:0;
+  background:radial-gradient(ellipse 70% 55% at 50% 38%,
+    rgba(255,248,231,.92) 0%,rgba(245,217,142,.70) 30%,
+    rgba(201,146,42,.35) 60%,transparent 85%);
+}
+@keyframes flashBurst{
+  0%  {opacity:.88}
+  15% {opacity:.50}
+  45% {opacity:.16}
+  100%{opacity:0}
+}
+.flash.pop{animation:flashBurst .55s ease-out forwards}
+
+/* ── Shimmer sweep ───────────────────────────── */
+.shimmer-overlay{
+  position:absolute;inset:0;pointer-events:none;border-radius:50%;overflow:hidden;z-index:5;
+}
+.shimmer-overlay::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(110deg,transparent 20%,rgba(255,240,180,.30) 50%,transparent 80%);
+  transform:translateX(-200%);
+}
+.shimmer-overlay.run::after{
+  animation:shimSweep 1s ease-out forwards;
+}
+@keyframes shimSweep{to{transform:translateX(200%)}}
+
+/* ── Watermark ───────────────────────────────── */
+.wm{
+  position:absolute;font-family:'Great Vibes',cursive;font-size:300px;
+  color:rgba(201,146,42,.016);pointer-events:none;user-select:none;z-index:0;
+  top:50%;left:50%;transform:translate(-50%,-52%);white-space:nowrap;
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <canvas id="cv"></canvas>
+
+  <!-- Watermark -->
+  <div class="wm">Aristokrat</div>
+
+  <!-- Horizontal border lines -->
+  <div class="h-line top" id="hTop"></div>
+  <div class="h-line bottom" id="hBot"></div>
+
+  <!-- SVG corner ornaments -->
+  <div class="corners">
+    <svg class="corner-svg tl" viewBox="0 0 70 70">
+      <path class="corner-path" id="cp-tl" d="M 8 62 L 8 8 L 62 8"/>
+      <path class="corner-inner" id="ci-tl" d="M 16 54 L 16 16 L 54 16"/>
+      <circle class="corner-dot" id="cd-tl" cx="8" cy="8" r="2.5"/>
+    </svg>
+    <svg class="corner-svg tr" viewBox="0 0 70 70">
+      <path class="corner-path" id="cp-tr" d="M 8 62 L 8 8 L 62 8"/>
+      <path class="corner-inner" id="ci-tr" d="M 16 54 L 16 16 L 54 16"/>
+      <circle class="corner-dot" id="cd-tr" cx="8" cy="8" r="2.5"/>
+    </svg>
+    <svg class="corner-svg bl" viewBox="0 0 70 70">
+      <path class="corner-path" id="cp-bl" d="M 8 62 L 8 8 L 62 8"/>
+      <path class="corner-inner" id="ci-bl" d="M 16 54 L 16 16 L 54 16"/>
+      <circle class="corner-dot" id="cd-bl" cx="8" cy="8" r="2.5"/>
+    </svg>
+    <svg class="corner-svg br" viewBox="0 0 70 70">
+      <path class="corner-path" id="cp-br" d="M 8 62 L 8 8 L 62 8"/>
+      <path class="corner-inner" id="ci-br" d="M 16 54 L 16 16 L 54 16"/>
+      <circle class="corner-dot" id="cd-br" cx="8" cy="8" r="2.5"/>
+    </svg>
+  </div>
+
+  <!-- Flash -->
+  <div class="flash" id="fl"></div>
+
+  <!-- Content -->
+  <div class="relative z-10 flex flex-col items-center" style="gap:0">
+
+    <!-- Eyebrow -->
+    <div class="ey-row" id="eyRow">
+      <div class="ey-ln"></div>
+      <div class="ey-tx" id="eyTx">Luxury Travel Company</div>
+      <div class="ey-ln"></div>
+    </div>
+
+    <!-- Logo frame -->
+    <div class="logo-frame" id="logoFrame">
+      <div class="logo-glass">
+        <div class="shimmer-overlay" id="shimmer"></div>
+        <img class="logo-img" id="logoImg"
+             src="Aristokrat logo_1.png"
+             alt="Aristokrat İrove Azerbaijan">
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="divider" id="divEl">
+      <div class="dv-ln" id="dvLnL"></div>
+      <div class="dv-sm" id="dvSmL"></div>
+      <div class="dv-gm" id="dvGm"></div>
+      <div class="dv-sm" id="dvSmR"></div>
+      <div class="dv-ln" id="dvLnR"></div>
+    </div>
+
+    <!-- Tagline -->
+    <div class="tagline-wrap" id="tglWrap">
+      <div class="tagline" id="tgl"></div>
+    </div>
+
+    <!-- Sub line -->
+    <div class="sub-line" id="sub">Baku &nbsp;·&nbsp; Azerbaijan &nbsp;·&nbsp; Since 2003</div>
+
+    <!-- Bottom ornament -->
+    <div class="bot-orn" id="bot">
+      <div class="bo-ln" id="boLnL"></div>
+      <div class="bo-sm" id="boSmL"></div>
+      <div class="bo-gm" id="boGm"></div>
+      <div class="bo-sm" id="boSmR"></div>
+      <div class="bo-ln" id="boLnR"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="gsap.min.js"></script>
+<script src="anime.min.js"></script>
+<script>
+/* ═══════════════════════════════════════════
+   PARTICLE SYSTEM  — 3 types: ember / star / wisp
+═══════════════════════════════════════════ */
+const cv  = document.getElementById('cv');
+cv.width  = cv.height = 820;
+const ctx = cv.getContext('2d');
+
+const GOLD_PALETTE = ['#C9922A','#F5D98E','#E67C00','#FFE8A0','#D4A843','#FFF0C0'];
+
+class Particle {
+  constructor(type) {
+    this.type = type; // 'ember' | 'star' | 'wisp'
+    this.reset(true);
+  }
+  reset(init) {
+    this.x   = Math.random() * 820;
+    this.y   = init ? Math.random() * 820 : 826 + Math.random() * 20;
+    this.vx  = (Math.random() - .5) * .45;
+    this.vy  = -(0.18 + Math.random() * .65);
+    this.c   = GOLD_PALETTE[Math.floor(Math.random() * GOLD_PALETTE.length)];
+    this.l   = 0;
+    this.ml  = 140 + Math.random() * 310;
+    this.w   = Math.random() * Math.PI * 2;
+    if (this.type === 'ember') {
+      this.r = .5 + Math.random() * 1.8;
+    } else if (this.type === 'star') {
+      this.r = .6 + Math.random() * 1.2;
+      this.rot = Math.random() * Math.PI;
+    } else {
+      // wisp — elongated trail
+      this.r   = .3 + Math.random() * .8;
+      this.len = 4 + Math.random() * 12;
+    }
+  }
+  tick() {
+    this.l++;
+    this.x += this.vx + Math.sin(this.l * .028 + this.w) * .28;
+    this.y += this.vy;
+    const t = this.l / this.ml;
+    this.a = (t < .15 ? t / .15 : t > .75 ? (1 - t) / .25 : 1)
+             * (this.type === 'star' ? .55 : this.type === 'wisp' ? .22 : .35);
+    if (this.l >= this.ml || this.y < -10) this.reset(false);
+  }
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = this.a;
+    if (this.type === 'ember') {
+      ctx.shadowColor = this.c;
+      ctx.shadowBlur  = this.r * 7;
+      ctx.fillStyle   = this.c;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (this.type === 'star') {
+      ctx.shadowColor = this.c;
+      ctx.shadowBlur  = this.r * 9;
+      ctx.fillStyle   = this.c;
+      const s = this.r * 2.8;
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rot + this.l * .02);
+      ctx.fillRect(-s/2, -.7, s, 1.4);
+      ctx.fillRect(-.7, -s/2, 1.4, s);
+    } else {
+      // wisp — soft elongated trail
+      const grad = ctx.createLinearGradient(this.x, this.y, this.x, this.y + this.len);
+      grad.addColorStop(0, this.c);
+      grad.addColorStop(1, 'transparent');
+      ctx.strokeStyle = grad;
+      ctx.lineWidth   = this.r * 1.6;
+      ctx.lineCap     = 'round';
+      ctx.beginPath();
+      ctx.moveTo(this.x, this.y);
+      ctx.lineTo(this.x + this.vx * 3, this.y + this.len);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+
+const particles = [
+  ...Array.from({length:32}, () => new Particle('ember')),
+  ...Array.from({length:14}, () => new Particle('star')),
+  ...Array.from({length:10}, () => new Particle('wisp')),
+];
+
+(function loop(){
+  ctx.clearRect(0,0,820,820);
+  particles.forEach(p => { p.tick(); p.draw(); });
+  requestAnimationFrame(loop);
+})();
+
+/* ═══════════════════════════════════════════
+   FLASH
+═══════════════════════════════════════════ */
+const flEl = document.getElementById('fl');
+function doFlash() {
+  flEl.classList.remove('pop');
+  void flEl.offsetWidth;
+  flEl.classList.add('pop');
+}
+
+/* ═══════════════════════════════════════════
+   TAGLINE CHAR-BY-CHAR with anime.js
+═══════════════════════════════════════════ */
+function buildCharSpans(el, text) {
+  el.innerHTML = text.split('').map(ch =>
+    `<span class="char">${ch === ' ' ? '&nbsp;' : ch}</span>`
+  ).join('');
+}
+
+function animateChars(el, onDone) {
+  const chars = el.querySelectorAll('.char');
+  anime({
+    targets: chars,
+    opacity:   [0, 1],
+    translateY:[12, 0],
+    easing:    'easeOutCubic',
+    duration:  420,
+    delay:     anime.stagger(52, {start: 0}),
+    complete:  onDone || null,
+  });
+}
+
+/* ═══════════════════════════════════════════
+   GSAP MASTER TIMELINE
+═══════════════════════════════════════════ */
+const tl = gsap.timeline();
+
+// 0.0s — opening flash
+tl.add(() => doFlash(), 0);
+
+// 0.0s — horizontal border lines scale in
+tl.to(['#hTop','#hBot'], {scaleX:1, duration:1.4, ease:'power2.inOut', stagger:0.1}, 0.1);
+
+// 0.3s — SVG corner paths draw
+tl.add(() => {
+  const paths = document.querySelectorAll('.corner-path, .corner-inner');
+  anime({
+    targets: paths,
+    strokeDashoffset: [anime.setDashoffset, 0],
+    easing:   'easeInOutSine',
+    duration: 1600,
+    delay:    anime.stagger(80),
+  });
+  setTimeout(() => {
+    const dots = document.querySelectorAll('.corner-dot');
+    anime({ targets: dots, opacity:[0,1], scale:[0,1], duration:300, delay:anime.stagger(60), easing:'easeOutBack' });
+  }, 800);
+}, 0.3);
+
+// 0.5s — eyebrow row fades + text expands
+tl.to('#eyRow', {opacity:1, duration:0.4, ease:'power1.out'}, 0.5);
+tl.add(() => {
+  document.getElementById('eyTx').classList.add('expand');
+}, 0.55);
+
+// 2.0s — flash before logo
+tl.add(() => doFlash(), 2.0);
+
+// 2.2s — logo frame appears
+tl.to('#logoFrame', {opacity:1, scale:1, duration:0.1}, 2.2);
+
+// logo image scales + fades in with bounce
+tl.to('#logoImg', {
+  opacity:   1,
+  scale:     1,
+  duration:  1.4,
+  ease:      'back.out(1.4)',
+  transformOrigin: 'center center',
+}, 2.2);
+gsap.set('#logoImg', {scale: 0.05, opacity: 0});
+
+// 2.8s — shimmer sweep
+tl.add(() => {
+  document.getElementById('shimmer').classList.add('run');
+}, 2.8);
+
+// 3.0s — gold pulse on logo (repeating)
+tl.add(() => {
+  gsap.to('#logoImg', {
+    filter:   'drop-shadow(0 0 38px rgba(201,146,42,.70)) drop-shadow(0 0 80px rgba(201,146,42,.18))',
+    duration: 2.5,
+    repeat:   -1,
+    yoyo:     true,
+    ease:     'sine.inOut',
+  });
+}, 3.0);
+
+// 3.8s — flash + divider
+tl.add(() => {
+  doFlash();
+  const div = document.getElementById('divEl');
+  gsap.to(div, {opacity:1, duration:0.3});
+  gsap.to(['#dvLnL','#dvLnR'], {scaleX:1, duration:0.7, ease:'power2.out', delay:0.1});
+  gsap.to(['#dvSmL','#dvSmR','#dvGm'], {
+    scale:1, duration:0.5, ease:'back.out(2)', stagger:0.08, delay:0.2
+  });
+}, 3.8);
+
+// 4.2s — tagline chars
+tl.add(() => {
+  const wrap = document.getElementById('tglWrap');
+  const tglEl = document.getElementById('tgl');
+  gsap.to(wrap, {opacity:1, duration:0.3});
+  buildCharSpans(tglEl, 'Crafted Journeys. Timeless Memories.');
+  animateChars(tglEl);
+}, 4.2);
+
+// 6.5s — flash + sub line + bottom ornament
+tl.add(() => {
+  doFlash();
+  // sub line
+  const sub = document.getElementById('sub');
+  gsap.to(sub, {opacity:1, duration:0.3});
+  sub.classList.add('expand');
+  // bottom ornament
+  const bot = document.getElementById('bot');
+  gsap.to(bot, {opacity:1, duration:0.3, delay:0.15});
+  gsap.to(['#boLnL','#boLnR'], {scaleX:1, duration:0.6, ease:'power2.out', delay:0.2});
+  gsap.to(['#boSmL','#boSmR','#boGm'], {
+    scale:1, duration:0.4, ease:'back.out(2)', stagger:0.07, delay:0.3
+  });
+}, 6.5);
+</script>
+</body>
+</html>

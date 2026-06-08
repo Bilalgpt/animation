@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aristokrat Travel — Logo Reveal 9:16</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  width:100vw; height:100vh;
+  background:#000;
+  overflow:hidden;
+}
+
+/* ── 9:16 PORTRAIT STAGE 1080×1920 ─────────── */
+.stage {
+  position:absolute;
+  width:1080px; height:1920px;
+  transform-origin:top left;
+  overflow:hidden;
+  /* Same navy-black backdrop — now portrait-oriented */
+  background:
+    radial-gradient(ellipse 100% 55% at 50% 46%,
+      #0c1230 0%, #080d22 24%, #04061a 50%, #010210 74%, #000008 100%);
+}
+
+/* Golden ember canvas */
+#emberCv {
+  position:absolute; inset:0;
+  z-index:2; pointer-events:none;
+}
+
+/* FX canvas — lines + sparkles (screen blend: black = invisible) */
+#fxCv {
+  position:absolute; inset:0;
+  z-index:6; pointer-events:none;
+  mix-blend-mode:screen;
+}
+
+/* Glow behind logo when settled */
+.logo-glow {
+  position:absolute; z-index:3; pointer-events:none;
+  left:50%; top:50%;
+  width:880px; height:520px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:radial-gradient(ellipse 55% 55% at 50% 50%,
+    rgba(200,215,255,0.065) 0%,
+    rgba(160,185,255,0.022) 48%,
+    transparent 72%);
+  filter:blur(32px);
+  opacity:0;
+}
+
+/* Logo — GSAP animates scale + rotationY + blur */
+.logo-wrap {
+  position:absolute; z-index:5; pointer-events:none;
+  left:50%; top:50%;
+}
+
+.logo-img {
+  width:860px;     /* wider in portrait so it fills frame nicely */
+  display:block;
+}
+
+/* Vignette — portrait shape */
+.vignette {
+  position:absolute; inset:0; z-index:10; pointer-events:none;
+  background:radial-gradient(ellipse 90% 65% at 50% 50%,
+    transparent 22%, rgba(0,0,10,0.45) 65%, rgba(0,0,6,0.90) 100%);
+}
+
+/* Credit — bottom of portrait frame */
+.credit {
+  position:absolute; bottom:80px; left:0; right:0;
+  z-index:16; pointer-events:none;
+  text-align:center;
+  font-family:'Cinzel',serif;
+  font-size:22px; font-weight:300;
+  letter-spacing:8px;
+  color:rgba(255,255,255,0.38);
+  text-transform:uppercase;
+  opacity:0;
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <canvas id="emberCv" width="1080" height="1920"></canvas>
+
+  <div class="logo-glow" id="logoGlow"></div>
+
+  <div class="logo-wrap" id="logoWrap">
+    <img class="logo-img" id="logoImg"
+         src="aristokrat_logo.png"
+         alt="Aristokrat Travel Azerbaijan">
+  </div>
+
+  <!-- Lines + sparkles FX canvas -->
+  <canvas id="fxCv" width="1080" height="1920"></canvas>
+
+  <div class="vignette"></div>
+  <div class="credit" id="credit">Aristokrat Travel &nbsp;·&nbsp; Azerbaijan</div>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+/* ══════════════════════════════════════════════════
+   FX CANVAS — rotating lines + sparkle sprinkles
+   Centre of logo in portrait 1080×1920 stage:
+   cx=540, cy=960
+══════════════════════════════════════════════════ */
+const fxCv  = document.getElementById('fxCv');
+const fxCtx = fxCv.getContext('2d');
+
+const FX_CX = 540, FX_CY = 960;   /* logo centre */
+const N_LINES = 8;                 /* radial spokes */
+let   lineRot = 0;                 /* accumulated rotation angle */
+
+/* ── Rotating radial lines ─────────────────── */
+function drawLines(p) {
+  if (p >= 0.88) return;
+
+  /* Opacity: ramps up 0→0.08, holds, fades to 0 at p=0.88 */
+  const op = p < 0.08
+    ? p / 0.08
+    : Math.max(0, 1 - (p - 0.08) / 0.80);
+  if (op < 0.01) return;
+
+  /* Width & length shrink as logo approaches */
+  const w = Math.max(0.05, 3.2 * Math.pow(1 - p, 2.0));
+  const L = 60 + 340 * Math.pow(1 - p, 1.15);
+
+  /* Rotation speed mirrors logo deceleration:
+     fast when p≈0, near-still when p≈1            */
+  lineRot += 0.028 * Math.pow(1 - p, 0.6);
+
+  for (let i = 0; i < N_LINES; i++) {
+    const angle = lineRot + (i / N_LINES) * Math.PI * 2;
+    const x2 = FX_CX + Math.cos(angle) * L;
+    const y2 = FX_CY + Math.sin(angle) * L;
+
+    /* Gradient: bright at root, transparent at tip */
+    const gr = fxCtx.createLinearGradient(FX_CX, FX_CY, x2, y2);
+    gr.addColorStop(0,    `rgba(255,255,255,${(op * 0.95).toFixed(3)})`);
+    gr.addColorStop(0.30, `rgba(255,255,255,${(op * 0.55).toFixed(3)})`);
+    gr.addColorStop(0.70, `rgba(255,255,255,${(op * 0.15).toFixed(3)})`);
+    gr.addColorStop(1,    'rgba(255,255,255,0)');
+
+    fxCtx.save();
+    fxCtx.strokeStyle = gr;
+    fxCtx.lineWidth   = w;
+    fxCtx.lineCap     = 'round';
+    fxCtx.beginPath();
+    fxCtx.moveTo(FX_CX, FX_CY);
+    fxCtx.lineTo(x2, y2);
+    fxCtx.stroke();
+    fxCtx.restore();
+  }
+}
+
+/* ── Sparkle sprinkle particles ─────────────── */
+class Sparkle {
+  constructor(){
+    const angle = Math.random() * Math.PI * 2;
+    const dist  = 25 + Math.random() * 290;
+    this.ox  = Math.cos(angle) * dist;          /* offset from centre */
+    this.oy  = Math.sin(angle) * dist * 0.52;   /* squashed → ellipse */
+    this.r   = 0.6 + Math.random() * 2.0;
+    this.maxA= 0.45 + Math.random() * 0.55;
+    this.tw  = Math.random() * Math.PI * 2;     /* twinkle phase */
+    this.twS = 0.055 + Math.random() * 0.10;    /* twinkle speed */
+    this.sc  = 0.6   + Math.random() * 1.8;     /* scatter strength */
+  }
+  draw(p){
+    /* All gone by p = 0.70 */
+    if (p >= 0.70) return;
+    const baseOp = Math.max(0, 1 - p / 0.70);
+
+    this.tw += this.twS;
+    const twinkle = 0.35 + 0.65 * Math.abs(Math.sin(this.tw));
+    const a = baseOp * this.maxA * twinkle;
+    if (a < 0.008) return;
+
+    /* Drift outward as logo zooms in */
+    const x = FX_CX + this.ox * (1 + p * this.sc * 1.4);
+    const y = FX_CY + this.oy * (1 + p * this.sc * 1.4);
+
+    fxCtx.save();
+    fxCtx.globalAlpha = a;
+    fxCtx.fillStyle = '#ffffff';
+    fxCtx.beginPath();
+    fxCtx.arc(x, y, this.r, 0, Math.PI * 2);
+    fxCtx.fill();
+
+    /* Larger sparkles get a 4-point star cross */
+    if (this.r > 1.35) {
+      fxCtx.globalAlpha = a * 0.40;
+      fxCtx.strokeStyle = '#ffffff';
+      fxCtx.lineWidth   = 0.6;
+      const arm = this.r * 3.8;
+      fxCtx.beginPath();
+      fxCtx.moveTo(x - arm, y); fxCtx.lineTo(x + arm, y);
+      fxCtx.moveTo(x, y - arm); fxCtx.lineTo(x, y + arm);
+      fxCtx.stroke();
+    }
+    fxCtx.restore();
+  }
+}
+
+const sparkles = Array.from({length: 92}, () => new Sparkle());
+
+/* ── FX RAF loop — reads live logo scale → progress ── */
+(function fxLoop(){
+  fxCtx.clearRect(0, 0, 1080, 1920);
+
+  /* Map current scale (0.02→1.0) to progress (0→1) */
+  const s = +gsap.getProperty('#logoWrap', 'scale') || 0.02;
+  const p = Math.max(0, Math.min(1, (s - 0.02) / 0.98));
+
+  if (p < 0.99) {
+    drawLines(p);
+    sparkles.forEach(sp => sp.draw(p));
+  }
+
+  requestAnimationFrame(fxLoop);
+})();
+
+/* ── Stage scale — fit 1080×1920 into viewport ── */
+(function(){
+  const s = document.getElementById('stage');
+  function fit(){
+    const scl = Math.min(window.innerWidth/1080, window.innerHeight/1920);
+    s.style.transform = `scale(${scl})`;
+    s.style.left = Math.max(0,(window.innerWidth -1080*scl)/2)+'px';
+    s.style.top  = Math.max(0,(window.innerHeight-1920*scl)/2)+'px';
+  }
+  fit(); window.addEventListener('resize',fit);
+})();
+
+/* ── Golden ember particles across 1080×1920 ─── */
+const eCv  = document.getElementById('emberCv');
+const eCtx = eCv.getContext('2d');
+
+const COLS = [
+  [255,215,  0],[255,190,  0],[255,160, 20],
+  [255,140, 30],[255,120, 40],[255,200, 80],[240,180,  0],
+];
+
+class Ember {
+  constructor(init){ this.reset(init); }
+  reset(init){
+    this.x  = 20 + Math.random()*1040;
+    this.y  = init ? Math.random()*1920 : 1940+Math.random()*60;
+    this.r  = 0.7+Math.random()*2.6;
+    this.gr = this.r*(3.5+Math.random()*5.0);
+    this.vx = (Math.random()-.5)*0.38;
+    this.vy = -(0.30+Math.random()*0.90);
+    this.wb = Math.random()*Math.PI*2;
+    this.wbS= 0.012+Math.random()*0.022;
+    this.wbA= 0.25 +Math.random()*0.70;
+    this.life=0; this.ml=200+Math.random()*800;
+    this.pk = 0.38+Math.random()*0.58;
+    this.col= COLS[Math.floor(Math.random()*COLS.length)];
+    if(Math.random()<0.08){ this.r*=2.2; this.gr*=1.8; this.pk*=0.7; }
+  }
+  tick(){
+    this.life++; this.wb+=this.wbS;
+    this.x+=this.vx+Math.sin(this.wb)*this.wbA; this.y+=this.vy;
+    const t=this.life/this.ml;
+    this.a=(t<.10?t/.10:t>.68?(1-t)/.32:1)*this.pk;
+    if(this.life>=this.ml||this.y<-20||this.x<-20||this.x>1100) this.reset(false);
+  }
+  draw(){
+    if(this.a<0.005) return;
+    const [r,g,b]=this.col;
+    const gr=eCtx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.gr);
+    gr.addColorStop(0,  `rgba(${r},${g},${b},${(this.a*.55).toFixed(4)})`);
+    gr.addColorStop(.35,`rgba(${r},${g},${b},${(this.a*.18).toFixed(4)})`);
+    gr.addColorStop(.70,`rgba(${r},${g},${b},${(this.a*.04).toFixed(4)})`);
+    gr.addColorStop(1,  'transparent');
+    eCtx.save();
+    eCtx.fillStyle=gr;
+    eCtx.beginPath(); eCtx.arc(this.x,this.y,this.gr,0,Math.PI*2); eCtx.fill();
+    const ca=Math.min(this.a*2.2,1);
+    eCtx.fillStyle=`rgba(${r},${g},${b},${ca.toFixed(4)})`;
+    eCtx.beginPath(); eCtx.arc(this.x,this.y,this.r,0,Math.PI*2); eCtx.fill();
+    eCtx.restore();
+  }
+}
+
+const pool = Array.from({length:120},()=>new Ember(true));
+
+(function loop(){
+  eCtx.clearRect(0,0,1080,1920);
+  pool.forEach(e=>{ e.tick(); e.draw(); });
+  requestAnimationFrame(loop);
+})();
+
+/* ── GSAP — same Y-axis spin-in, now portrait ─ */
+const tl = gsap.timeline();
+
+gsap.set('#logoWrap',{
+  xPercent:-50, yPercent:-50,
+  transformPerspective:1800,
+  rotationY:720,
+  scale:0.02,
+  filter:'blur(28px)',
+  opacity:1,
+});
+gsap.set('#logoGlow',{ opacity:0 });
+gsap.set('#credit',  { opacity:0, y:8 });
+
+/* Spin in: tiny+blurry from deep bg → sharp+full */
+tl.to('#logoWrap',{
+  scale:1,
+  rotationY:0,
+  filter:'blur(0px)',
+  duration:6.0,
+  ease:'power4.out',
+}, 0.4);
+
+/* Glow blooms as logo settles */
+tl.to('#logoGlow',{
+  opacity:1, duration:2.5, ease:'power2.out',
+}, 5.0);
+
+/* Credit fades in */
+tl.to('#credit',{
+  opacity:1, y:0, duration:1.4, ease:'power2.out',
+}, 7.2);
+
+tl.to({},{ duration:1.0 },9.8);
+
+tl.eventCallback('onComplete',()=>{
+  gsap.delayedCall(3.0,()=>{ tl.restart(); });
+});
+</script>
+</body>
+</html>

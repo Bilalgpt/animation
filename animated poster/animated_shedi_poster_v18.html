@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Biryani — The Sheedi's Restaurant v18</title>
+<link rel="stylesheet" href="../libs/splitting.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Josefin+Sans:wght@300;400;600;700&family=Crimson+Pro:ital,wght@0,400;1,400;1,600&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+
+:root{
+  --gold:#D4A84B; --gold-lt:#F0CC7A; --copper:#C46A35;
+  --ivory:#F8EED8; --muted:rgba(248,238,216,.48);
+  --sage:#5C7A50; --surface:rgba(28,22,14,.88);
+  --line:rgba(212,168,75,.30);
+}
+
+body{width:100vw;height:100vh;background:#080604;overflow:hidden;}
+
+.stage{
+  position:absolute;width:1080px;height:1920px;
+  transform-origin:top left;overflow:hidden;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% 28%,#1C1208 0%,#0E0B07 45%,#060402 100%),
+    radial-gradient(ellipse 55% 35% at 50% 82%,#181008 0%,transparent 65%);
+}
+.stage::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(circle,rgba(212,168,75,.035) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+
+#cv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;}
+
+/* ── DECORATIVE ELEMENTS ─────────────────────── */
+.deco{position:absolute;pointer-events:none;z-index:2;}
+
+/* ── FRAME ───────────────────────────────────── */
+.frame-h{position:absolute;left:30px;right:30px;height:1px;background:var(--line);transform:scaleX(0);transform-origin:center;z-index:12;}
+.frame-h.t{top:30px;} .frame-h.b{bottom:30px;}
+.frame-v{position:absolute;top:30px;bottom:30px;width:1px;background:var(--line);transform:scaleY(0);transform-origin:50% 0;z-index:12;}
+.frame-v.l{left:30px;} .frame-v.r{right:30px;}
+.ctk{position:absolute;width:16px;height:16px;border-color:var(--gold);border-style:solid;z-index:13;opacity:0;}
+.ctk.tl{top:26px;left:26px;border-width:1.5px 0 0 1.5px;}
+.ctk.tr{top:26px;right:26px;border-width:1.5px 1.5px 0 0;}
+.ctk.bl{bottom:26px;left:26px;border-width:0 0 1.5px 1.5px;}
+.ctk.br{bottom:26px;right:26px;border-width:0 1.5px 1.5px 0;}
+
+/* ── CORNER SVG ORNAMENTS ────────────────────── */
+.corn{position:absolute;width:80px;height:80px;pointer-events:none;z-index:14;}
+.corn.tl{top:28px;left:28px;} .corn.tr{top:28px;right:28px;transform:scaleX(-1);}
+.corn.bl{bottom:28px;left:28px;transform:scaleY(-1);} .corn.br{bottom:28px;right:28px;transform:scale(-1,-1);}
+.cp{fill:none;stroke:var(--gold);stroke-width:1.2;stroke-dasharray:300;stroke-dashoffset:300;}
+.cp2{fill:none;stroke:rgba(212,168,75,.35);stroke-width:.6;stroke-dasharray:180;stroke-dashoffset:180;}
+.cdot{fill:var(--gold);opacity:0;}
+
+/* ── LOGO ────────────────────────────────────── */
+.logo-wrap{position:absolute;top:60px;left:0;right:0;display:flex;justify-content:center;z-index:6;opacity:0;}
+.logo-circle{
+  width:108px;height:108px;border-radius:50%;overflow:hidden;
+  border:2px solid rgba(212,168,75,.55);
+  box-shadow:0 0 0 6px rgba(212,168,75,.07),0 8px 30px rgba(0,0,0,.70);
+  transform:scale(0) rotate(-180deg);
+}
+.logo-circle img{width:100%;height:100%;object-fit:cover;}
+
+/* ── RESTAURANT NAME ─────────────────────────── */
+.rest-name{position:absolute;top:184px;left:0;right:0;text-align:center;z-index:6;opacity:0;transform:translateY(10px);}
+.rn1{font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:48px;letter-spacing:14px;color:var(--gold);text-transform:uppercase;text-shadow:0 0 30px rgba(212,168,75,.28);}
+.rn2{font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:15px;letter-spacing:20px;color:var(--muted);margin-top:7px;}
+.rn3{font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:12px;letter-spacing:5px;color:rgba(212,168,75,.38);margin-top:9px;}
+
+/* ── DIVIDERS ────────────────────────────────── */
+.hdiv{position:absolute;left:55px;right:55px;z-index:6;opacity:0;}
+.hdiv-inner{display:flex;align-items:center;}
+.hdiv-l,.hdiv-r{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.hdiv-gem{width:8px;height:8px;background:var(--gold);transform:rotate(45deg) scale(0);margin:0 10px;flex-shrink:0;}
+.hdiv-sub{height:.5px;margin-top:5px;background:linear-gradient(90deg,transparent,rgba(212,168,75,.22),transparent);}
+
+/* ── BANNER ──────────────────────────────────── */
+.special-banner{position:absolute;top:318px;left:0;right:0;display:flex;align-items:center;justify-content:center;z-index:5;opacity:0;}
+.s-pill{
+  background:rgba(92,122,80,.16);border:1px solid rgba(92,122,80,.50);
+  border-radius:50px;padding:10px 38px;display:flex;align-items:center;gap:11px;
+  box-shadow:0 4px 20px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.04);
+}
+.s-star{color:var(--gold);font-size:15px;opacity:.85;}
+.s-txt{font-family:'Great Vibes',cursive;font-size:40px;color:#A8D890;text-shadow:0 2px 12px rgba(92,122,80,.45);}
+
+/* ── TITLE ───────────────────────────────────── */
+.title-block{position:absolute;top:392px;left:0;right:0;text-align:center;z-index:5;}
+.dish-cat{
+  font-family:'Josefin Sans',sans-serif;font-size:18px;font-weight:700;
+  letter-spacing:15px;color:var(--copper);text-transform:uppercase;
+  opacity:0;transform:translateY(10px);text-shadow:0 2px 10px rgba(196,106,53,.25);
+  margin-bottom:2px;
+}
+.title-main{
+  font-family:'Abril Fatface',serif;font-size:158px;line-height:.88;
+  color:var(--gold);letter-spacing:5px;
+  text-shadow:0 0 50px rgba(212,168,75,.18),0 4px 0 rgba(0,0,0,.55);
+  -webkit-text-stroke:1px rgba(240,204,122,.30);
+  padding:6px 0 10px;
+}
+.title-main .char{display:inline-block;opacity:0;transform:translateY(65px) rotate(9deg);}
+.title-sub{font-family:'Great Vibes',cursive;font-size:52px;color:var(--copper);opacity:0;transform:translateY(12px);text-shadow:0 3px 14px rgba(196,106,53,.28);}
+.title-orn{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:9px;opacity:0;}
+.to-line{width:110px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transform:scaleX(0);transform-origin:center;}
+.to-gem{width:8px;height:8px;background:var(--gold);transform:rotate(45deg) scale(0);}
+.to-sm{width:4px;height:4px;background:var(--gold-lt);transform:rotate(45deg) scale(0);}
+
+/* ── DISHES ──────────────────────────────────── */
+.dual-dish-area{
+  position:absolute;top:668px;left:0;right:0;
+  display:flex;justify-content:center;align-items:flex-start;
+  gap:22px;z-index:3;padding:0 56px;
+}
+.dish-col{display:flex;flex-direction:column;align-items:center;gap:14px;flex:1;max-width:450px;}
+.dish-outer{
+  width:450px;height:450px;border-radius:50%;
+  border:1.5px solid rgba(212,168,75,.20);
+  box-shadow:0 0 0 8px rgba(212,168,75,.04),0 16px 50px rgba(0,0,0,.65);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transform:scale(.35) translateY(90px);position:relative;
+}
+.dish-outer::before{
+  content:'';position:absolute;inset:-4px;border-radius:50%;
+  background:conic-gradient(from 0deg,transparent 0deg,rgba(212,168,75,0) 65deg,
+    rgba(212,168,75,.80) 108deg,rgba(240,204,122,.90) 148deg,
+    rgba(212,168,75,.80) 185deg,rgba(212,168,75,0) 248deg,transparent 360deg);
+  animation:spinRing 5s linear infinite;
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),black calc(100% - 2px));
+  mask:radial-gradient(farthest-side,transparent calc(100% - 5px),black calc(100% - 2px));
+}
+.dish-outer.rev::before{animation-direction:reverse;animation-duration:7s;}
+@keyframes spinRing{to{transform:rotate(360deg);}}
+.dish-inner{
+  width:420px;height:420px;border-radius:50%;overflow:hidden;
+  border:2px solid rgba(212,168,75,.32);
+  box-shadow:inset 0 0 40px rgba(0,0,0,.50);
+  animation:dishSpin 30s linear infinite;
+}
+.dish-inner.rev{animation-direction:reverse;animation-duration:27s;}
+.dish-inner img{width:100%;height:100%;object-fit:cover;transform:scale(1.12);}
+@keyframes dishSpin{to{transform:rotate(360deg);}}
+.dish-label{
+  font-family:'Josefin Sans',sans-serif;font-size:12px;font-weight:700;
+  letter-spacing:5px;color:var(--ivory);text-transform:uppercase;
+  text-align:center;padding-bottom:10px;
+  border-bottom:1px solid rgba(212,168,75,.38);opacity:0;transform:translateY(8px);
+}
+.dish-label span{display:block;font-family:'Crimson Pro',serif;font-style:italic;font-size:20px;letter-spacing:2px;color:var(--copper);margin-top:5px;}
+
+/* ── FEATURE STRIP — positioned BELOW dish labels ── */
+/* dish-area top:625 + dish:450 + label:55 + gap:30 = 1160 */
+.feature-strip{
+  position:absolute;top:1208px;left:48px;right:48px;
+  display:flex;justify-content:space-between;gap:12px;z-index:5;opacity:0;
+}
+.feat-pill{
+  flex:1;background:var(--surface);border:1px solid rgba(212,168,75,.30);
+  border-radius:10px;padding:18px 10px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  box-shadow:0 6px 20px rgba(0,0,0,.45);
+}
+.feat-icon{font-size:28px;}
+.feat-lbl{font-family:'Josefin Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:3px;color:var(--gold);text-transform:uppercase;}
+.feat-sub{font-family:'Crimson Pro',serif;font-style:italic;font-size:17px;color:rgba(248,238,216,.80);}
+
+/* ── SALADS ──────────────────────────────────── */
+.salads-section{position:absolute;top:1350px;left:0;right:0;z-index:5;opacity:0;}
+.sal-header{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:18px;}
+.sal-hl{width:65px;height:1px;background:linear-gradient(90deg,transparent,rgba(212,168,75,.48),transparent);}
+.sal-title{font-family:'Josefin Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:6px;color:rgba(248,238,216,.82);text-transform:uppercase;}
+.sal-row{display:flex;align-items:flex-start;justify-content:center;gap:52px;padding:0 64px;}
+.sal-item{display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;transform:translateY(18px) scale(.88);}
+.sal-circle{
+  width:138px;height:138px;border-radius:50%;overflow:hidden;
+  border:1.5px solid rgba(212,168,75,.38);
+  box-shadow:0 0 0 5px rgba(212,168,75,.06),0 8px 24px rgba(0,0,0,.50);
+}
+.sal-circle img{width:100%;height:100%;object-fit:cover;}
+.sal-name{font-family:'Josefin Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:3px;color:rgba(248,238,216,.92);text-transform:uppercase;text-align:center;line-height:1.7;}
+
+
+/* ── RESERVE LABEL — below salads ─────────────── */
+.cta-section{
+  position:absolute;top:1684px;left:0;right:0;
+  display:flex;align-items:center;justify-content:center;
+  z-index:6;opacity:0;
+}
+.cta-label-row{display:flex;align-items:center;gap:14px;}
+.cta-side-line{width:90px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.cta-label-txt{font-family:'Josefin Sans',sans-serif;font-size:22px;font-weight:700;letter-spacing:5px;color:rgba(248,238,216,.88);text-transform:uppercase;}
+
+/* ── ORDER NOW BADGE — floats ON dish images ──── */
+.cta{
+  position:absolute;top:962px;left:50%;margin-left:-75px;
+  width:150px;height:150px;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transform:scale(0) rotate(-20deg);
+  filter:drop-shadow(0 6px 28px rgba(212,168,75,.55));
+  z-index:8;
+}
+.cta-star{
+  position:absolute;inset:0;background:#1A0D06;
+  clip-path:polygon(50% 0%,62% 14%,80% 8%,76% 27%,95% 30%,84% 46%,97% 57%,82% 65%,90% 83%,71% 82%,65% 99%,50% 90%,35% 99%,29% 82%,10% 83%,18% 65%,3% 57%,16% 46%,5% 30%,24% 27%,20% 8%,38% 14%);
+}
+.cta-ring{
+  position:absolute;inset:0;
+  clip-path:polygon(50% 0%,62% 14%,80% 8%,76% 27%,95% 30%,84% 46%,97% 57%,82% 65%,90% 83%,71% 82%,65% 99%,50% 90%,35% 99%,29% 82%,10% 83%,18% 65%,3% 57%,16% 46%,5% 30%,24% 27%,20% 8%,38% 14%);
+  border:2px solid rgba(212,168,75,.55);background:transparent;
+}
+.cta-pulse{position:absolute;inset:-12px;border-radius:50%;border:2px solid rgba(212,168,75,.28);opacity:0;animation:ctaPulse 2.4s ease-out infinite;}
+@keyframes ctaPulse{0%{transform:scale(.8);opacity:.7;}100%{transform:scale(1.7);opacity:0;}}
+.cta-txt{position:relative;z-index:1;text-align:center;}
+.cta-txt span{display:block;font-family:'Josefin Sans',sans-serif;font-weight:700;color:var(--gold);letter-spacing:3px;text-transform:uppercase;}
+.cta-txt .l1{font-size:18px;} .cta-txt .l2{font-size:30px;margin-top:2px;}
+
+/* ── TAGLINE ─────────────────────────────────── */
+.tagline{
+  position:absolute;top:1778px;left:68px;right:68px;
+  font-family:'Crimson Pro',serif;font-style:italic;font-size:34px;
+  font-weight:400;line-height:1.45;text-align:center;
+  color:rgba(248,238,216,.68);z-index:5;
+}
+.tagline .word{display:inline-block;opacity:0;transform:translateY(12px);filter:blur(5px);}
+.tagline .word.gld{color:rgba(212,168,75,.82);}
+.tagline .word+.word{margin-left:.36em;}
+
+/* ── COME LINE ───────────────────────────────── */
+.come-line{
+  position:absolute;top:1846px;left:0;right:0;text-align:center;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  z-index:5;opacity:0;
+}
+.come-orn{width:56px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.come-txt{font-family:'Josefin Sans',sans-serif;font-size:19px;font-weight:700;letter-spacing:7px;color:rgba(248,238,216,.68);text-transform:uppercase;}
+
+/* ── FLASH ───────────────────────────────────── */
+.flash{position:absolute;inset:0;z-index:40;pointer-events:none;opacity:0;
+  background:radial-gradient(ellipse 70% 42% at 50% 38%,rgba(212,168,75,.28) 0%,rgba(196,106,53,.12) 42%,transparent 72%);}
+@keyframes flashBurst{0%{opacity:.72;}20%{opacity:.32;}100%{opacity:0;}}
+.flash.pop{animation:flashBurst .50s ease-out forwards;}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <canvas id="cv"></canvas>
+  <div class="flash" id="fl"></div>
+
+  <!-- Frame -->
+  <div class="frame-h t" id="fT"></div><div class="frame-h b" id="fB"></div>
+  <div class="frame-v l" id="fL"></div><div class="frame-v r" id="fR"></div>
+  <div class="ctk tl" id="ctl"></div><div class="ctk tr" id="ctr"></div>
+  <div class="ctk bl" id="cbl"></div><div class="ctk br" id="cbr"></div>
+
+  <!-- Corner ornaments -->
+  <svg class="corn tl" viewBox="0 0 80 80"><path class="cp" d="M6 74 L6 6 L74 6"/><path class="cp2" d="M16 64 L16 16 L64 16"/><circle class="cdot" cx="6" cy="6" r="2.5"/><circle class="cdot" cx="38" cy="6" r="1.5"/><circle class="cdot" cx="6" cy="38" r="1.5"/></svg>
+  <svg class="corn tr" viewBox="0 0 80 80"><path class="cp" d="M6 74 L6 6 L74 6"/><path class="cp2" d="M16 64 L16 16 L64 16"/><circle class="cdot" cx="6" cy="6" r="2.5"/><circle class="cdot" cx="38" cy="6" r="1.5"/><circle class="cdot" cx="6" cy="38" r="1.5"/></svg>
+  <svg class="corn bl" viewBox="0 0 80 80"><path class="cp" d="M6 74 L6 6 L74 6"/><path class="cp2" d="M16 64 L16 16 L64 16"/><circle class="cdot" cx="6" cy="6" r="2.5"/><circle class="cdot" cx="38" cy="6" r="1.5"/><circle class="cdot" cx="6" cy="38" r="1.5"/></svg>
+  <svg class="corn br" viewBox="0 0 80 80"><path class="cp" d="M6 74 L6 6 L74 6"/><path class="cp2" d="M16 64 L16 16 L64 16"/><circle class="cdot" cx="6" cy="6" r="2.5"/><circle class="cdot" cx="38" cy="6" r="1.5"/><circle class="cdot" cx="6" cy="38" r="1.5"/></svg>
+
+  <!-- Logo -->
+  <div class="logo-wrap" id="logoWrap">
+    <div class="logo-circle" id="logoCircle"><img src="sheedi_logo.jpeg" alt="The Sheedi's"></div>
+  </div>
+
+  <!-- Restaurant name -->
+  <div class="rest-name" id="restName">
+    <div class="rn1">The Sheedi's</div>
+    <div class="rn2">Restaurant</div>
+    <div class="rn3">✦ &nbsp; Baku · Azerbaijan &nbsp; ✦</div>
+  </div>
+
+  <!-- Divider 1 -->
+  <div class="hdiv" id="hdiv1" style="top:272px;">
+    <div class="hdiv-inner"><div class="hdiv-l"></div><div class="hdiv-gem" id="hg1"></div><div class="hdiv-r"></div></div>
+    <div class="hdiv-sub"></div>
+  </div>
+
+  <!-- Special banner -->
+  <div class="special-banner" id="specialBanner">
+    <div class="s-pill"><span class="s-star">✦</span><span class="s-txt">Signature Special</span><span class="s-star">✦</span></div>
+  </div>
+
+  <!-- Title -->
+  <div class="title-block">
+    <div class="dish-cat" id="dishCat">Chicken</div>
+    <div class="title-main" id="titleMain" data-splitting>BIRYANI</div>
+    <div class="title-sub" id="titleSub">Dum Style</div>
+    <div class="title-orn" id="titleOrn">
+      <div class="to-line" id="tol1"></div><div class="to-sm" id="tos1"></div>
+      <div class="to-gem" id="tog"></div>
+      <div class="to-sm" id="tos2"></div><div class="to-line" id="tol2"></div>
+    </div>
+  </div>
+
+  <!-- Divider 2 -->
+  <div class="hdiv" id="hdiv2" style="top:660px;">
+    <div class="hdiv-inner"><div class="hdiv-l"></div><div class="hdiv-r"></div></div>
+  </div>
+
+  <!-- Dishes -->
+  <div class="dual-dish-area">
+    <div class="dish-col">
+      <div class="dish-outer" id="dishL"><div class="dish-inner"><img src="biryani_dish2.jpg" alt="Chicken Biryani"></div></div>
+      <div class="dish-label" id="dlL">Chicken<br><span>Dum Biryani</span></div>
+    </div>
+    <div class="dish-col">
+      <div class="dish-outer rev" id="dishR"><div class="dish-inner rev"><img src="matka_bowl.jpg" alt="Matka Biryani"></div></div>
+      <div class="dish-label" id="dlR">Matka<br><span>Biryani</span></div>
+    </div>
+  </div>
+
+  <!-- Feature strip (below dish labels, no overlap) -->
+  <div class="feature-strip" id="featureStrip">
+    <div class="feat-pill" id="fp1"><span class="feat-icon">🔥</span><span class="feat-lbl">Slow Cooked</span><span class="feat-sub">4hr Dum</span></div>
+    <div class="feat-pill" id="fp2"><span class="feat-icon">🌿</span><span class="feat-lbl">Aromatic</span><span class="feat-sub">Whole Spices</span></div>
+    <div class="feat-pill" id="fp3"><span class="feat-icon">🌾</span><span class="feat-lbl">Premium</span><span class="feat-sub">Basmati</span></div>
+    <div class="feat-pill" id="fp4"><span class="feat-icon">🍗</span><span class="feat-lbl">Tender</span><span class="feat-sub">Farm Chicken</span></div>
+  </div>
+
+  <!-- Salads -->
+  <div class="salads-section" id="saladsSection">
+    <div class="sal-header"><div class="sal-hl"></div><span class="sal-title">Salads &amp; Fresh Sides</span><div class="sal-hl"></div></div>
+    <div class="sal-row">
+      <div class="sal-item" id="sal1"><div class="sal-circle"><img src="salad1.jpg" alt="Garden Salad"></div><span class="sal-name">Garden<br>Salad</span></div>
+      <div class="sal-item" id="sal2"><div class="sal-circle"><img src="salad2.jpg" alt="Greek Salad"></div><span class="sal-name">Greek<br>Salad</span></div>
+      <div class="sal-item" id="sal3"><div class="sal-circle"><img src="salad3.jpg" alt="Kachumber"></div><span class="sal-name">Kachumber<br>Salad</span></div>
+    </div>
+  </div>
+
+
+  <!-- Order Now badge — overlaid on dish images -->
+  <div class="cta" id="ctaBadge">
+    <div class="cta-star"></div><div class="cta-ring"></div>
+    <div class="cta-pulse" id="ctaPulse"></div>
+    <div class="cta-txt"><span class="l1">Order</span><span class="l2">Now</span></div>
+  </div>
+
+  <!-- Reserve Your Table label — below salads -->
+  <div class="cta-section" id="ctaSection">
+    <div class="cta-label-row">
+      <div class="cta-side-line"></div>
+      <span class="cta-label-txt">Reserve Your Table</span>
+      <div class="cta-side-line"></div>
+    </div>
+  </div>
+
+  <!-- Tagline -->
+  <div class="tagline" id="tagline"></div>
+
+  <!-- Come line -->
+  <div class="come-line" id="comeLine">
+    <div class="come-orn"></div>
+    <span class="come-txt">Come · Indulge · Enjoy</span>
+    <div class="come-orn"></div>
+  </div>
+
+</div>
+
+<script src="../libs/gsap.min.js"></script>
+<script src="../libs/anime.min.js"></script>
+<script src="../libs/mo.min.js"></script>
+<script src="../libs/splitting.min.js"></script>
+<script>
+/* ── Stage scale ─────────────────────────────────── */
+(function(){
+  const s=document.getElementById('stage');
+  function fit(){
+    const sc=Math.min(window.innerWidth/1080,window.innerHeight/1920);
+    s.style.transform=`scale(${sc})`;
+    s.style.left=Math.max(0,(window.innerWidth-1080*sc)/2)+'px';
+    s.style.top =Math.max(0,(window.innerHeight-1920*sc)/2)+'px';
+  }
+  fit(); window.addEventListener('resize',fit);
+})();
+
+Splitting();
+
+/* ══════════════════════════════════════════════════
+   DECORATIVE SVG ELEMENTS (lemons, chillies, leaves)
+══════════════════════════════════════════════════ */
+function svgLemon(sz){
+  return `<svg width="${sz}" height="${sz}" viewBox="0 0 60 60">
+  <circle cx="30" cy="30" r="28" fill="#F2BC18" stroke="#D4A000" stroke-width="1.8"/>
+  <circle cx="30" cy="30" r="22" fill="#FFF59D"/>
+  <line x1="30" y1="2" x2="30" y2="58" stroke="#D4A000" stroke-width=".9" opacity=".65"/>
+  <line x1="2" y1="30" x2="58" y2="30" stroke="#D4A000" stroke-width=".9" opacity=".65"/>
+  <line x1="9" y1="9" x2="51" y2="51" stroke="#D4A000" stroke-width=".9" opacity=".65"/>
+  <line x1="51" y1="9" x2="9" y2="51" stroke="#D4A000" stroke-width=".9" opacity=".65"/>
+  <circle cx="30" cy="30" r="4.5" fill="#E8A800" opacity=".85"/>
+  <circle cx="22" cy="20" r="2.2" fill="rgba(255,255,255,.55)"/>
+  <circle cx="38" cy="20" r="2.2" fill="rgba(255,255,255,.55)"/>
+  <circle cx="22" cy="40" r="2.2" fill="rgba(255,255,255,.55)"/>
+  <circle cx="38" cy="40" r="2.2" fill="rgba(255,255,255,.55)"/>
+  </svg>`;
+}
+function svgHalfLemon(sz){
+  return `<svg width="${sz}" height="${Math.round(sz*.55)}" viewBox="0 0 60 34">
+  <path d="M2 34 Q2 4 30 2 Q58 4 58 34z" fill="#F2BC18" stroke="#D4A000" stroke-width="1.5"/>
+  <path d="M6 34 Q6 8 30 6 Q54 8 54 34z" fill="#FFF59D"/>
+  <line x1="6" y1="34" x2="30" y2="6" stroke="#D4A000" stroke-width=".8" opacity=".55"/>
+  <line x1="54" y1="34" x2="30" y2="6" stroke="#D4A000" stroke-width=".8" opacity=".55"/>
+  <line x1="30" y1="6" x2="30" y2="34" stroke="#D4A000" stroke-width=".8" opacity=".55"/>
+  </svg>`;
+}
+function svgChilli(w,h){
+  return `<svg width="${w}" height="${h}" viewBox="0 0 22 78">
+  <path d="M11 7 Q9 2 5 2" stroke="#1A5C00" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <path d="M11 7 Q8 1 14 0" stroke="#1A5C00" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".5"/>
+  <path d="M11 7 Q19 22 18 44 Q16 64 11 76 Q6 64 4 44 Q3 22 11 7z" fill="#1E8000"/>
+  <path d="M11 7 Q16 22 15.5 44 Q14 63 11 76" fill="#2DA010" opacity=".55"/>
+  <path d="M12 12 Q16 26 15 44" stroke="rgba(255,255,255,.28)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <ellipse cx="11" cy="74" rx="1.5" ry="2" fill="#0D5C00"/>
+  </svg>`;
+}
+function svgLeaf(w,h,dark){
+  const c1=dark?'#1A6010':'#2D9020', c2=dark?'#0E4208':'#1A6010', c3=dark?'#3AAE28':'#55CC42';
+  return `<svg width="${w}" height="${h}" viewBox="0 0 38 60">
+  <path d="M19 57 Q4 43 3 28 Q1 8 19 2 Q37 8 35 28 Q34 43 19 57z" fill="${c1}"/>
+  <path d="M19 57 Q13 42 13 28 Q13 11 19 2" stroke="${c2}" stroke-width=".9" fill="none" opacity=".6"/>
+  <path d="M19 30 Q12 26 8 21" stroke="${c3}" stroke-width=".8" fill="none" opacity=".7"/>
+  <path d="M19 38 Q12 34 9 30" stroke="${c3}" stroke-width=".8" fill="none" opacity=".7"/>
+  <path d="M19 22 Q12 18 9 14" stroke="${c3}" stroke-width=".8" fill="none" opacity=".7"/>
+  <path d="M19 30 Q26 26 30 21" stroke="${c3}" stroke-width=".8" fill="none" opacity=".7"/>
+  <path d="M19 38 Q26 34 29 30" stroke="${c3}" stroke-width=".8" fill="none" opacity=".7"/>
+  <path d="M19 22 Q26 18 29 14" stroke="${c3}" stroke-width=".8" fill="none" opacity=".7"/>
+  </svg>`;
+}
+function svgLeafSprig(w,h){
+  return `<svg width="${w}" height="${h}" viewBox="0 0 30 65">
+  <line x1="15" y1="65" x2="15" y2="10" stroke="#1A6010" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M15 42 Q8 36 5 28 Q10 26 15 32z" fill="#2D9020"/>
+  <path d="M15 42 Q22 36 25 28 Q20 26 15 32z" fill="#238018"/>
+  <path d="M15 26 Q7 20 4 12 Q10 9 15 18z" fill="#2D9020"/>
+  <path d="M15 26 Q23 20 26 12 Q20 9 15 18z" fill="#238018"/>
+  <path d="M15 12 Q10 6 8 1 Q13 0 15 8z" fill="#2D9020"/>
+  <path d="M15 12 Q20 6 22 1 Q17 0 15 8z" fill="#238018"/>
+  </svg>`;
+}
+
+/* Decorative element placement — fills empty side strips and corners */
+const DECOS = [
+  /* ── TOP AREA (around logo/header) ── */
+  {fn:svgLemon,     args:[52],       x:55,  y:175, rot:20,  op:.82},
+  {fn:svgLemon,     args:[56],       x:970, y:152, rot:-26, op:.82},
+  {fn:svgChilli,    args:[20,70],    x:145, y:92,  rot:42,  op:.82},
+  {fn:svgChilli,    args:[20,70],    x:170, y:78,  rot:62,  op:.82},
+  {fn:svgChilli,    args:[20,70],    x:892, y:90,  rot:-48, op:.82},
+  {fn:svgChilli,    args:[20,70],    x:868, y:106, rot:-66, op:.82},
+  {fn:svgLeaf,      args:[36,56,false], x:105, y:68,  rot:-18, op:.85},
+  {fn:svgLeaf,      args:[38,58,true],  x:944, y:65,  rot:24,  op:.85},
+  {fn:svgLeaf,      args:[34,52,false], x:30,  y:202, rot:-36, op:.78},
+  {fn:svgLeaf,      args:[36,55,true],  x:1018,y:215, rot:36,  op:.78},
+  {fn:svgLeafSprig, args:[26,58],    x:186, y:145, rot:-10, op:.75},
+  {fn:svgLeafSprig, args:[26,58],    x:862, y:148, rot:14,  op:.75},
+
+];
+
+/* Inject decorative elements into stage */
+const stageEl = document.getElementById('stage');
+const canvasEl = document.getElementById('cv');
+DECOS.forEach(d => {
+  const el = document.createElement('div');
+  el.className = 'deco';
+  el.style.cssText = `left:${d.x}px;top:${d.y}px;`;
+  el.innerHTML = d.fn(...d.args);
+  stageEl.insertBefore(el, canvasEl);
+  gsap.set(el, {opacity:0, rotation:d.rot, scale:0.72, transformOrigin:'center center'});
+});
+
+/* ── Canvas: steam + sparkles ────────────────────── */
+const cv  = document.getElementById('cv');
+cv.width=1080; cv.height=1920;
+const ctx = cv.getContext('2d');
+let steamOn = false;
+
+const STEAM_SRC=[
+  {x:212,y:711},{x:264,y:689},{x:318,y:678},{x:372,y:691},
+  {x:706,y:691},{x:760,y:678},{x:814,y:689},{x:866,y:711},
+];
+class Steam{
+  constructor(src){this.src=src;this.reset();}
+  reset(){
+    this.x=this.src.x+(Math.random()-.5)*28; this.y=this.src.y+Math.random()*16;
+    this.vx=(Math.random()-.5)*.32; this.vy=-(0.65+Math.random()*.90);
+    this.r=8+Math.random()*8; this.gr=0.17+Math.random()*.22;
+    this.l=0; this.ml=80+Math.random()*105; this.w=Math.random()*Math.PI*2;
+    this.del=Math.floor(Math.random()*75); this.live=false;
+  }
+  tick(){
+    if(!steamOn)return;
+    if(this.del>0){this.del--;return;}
+    this.live=true; this.l++;
+    this.x+=this.vx+Math.sin(this.l*.035+this.w)*.44; this.y+=this.vy; this.r+=this.gr;
+    const t=this.l/this.ml;
+    this.a=(t<.18?t/.18:t>.55?(1-t)/.45:1)*.12;
+    if(this.l>=this.ml||this.y<340)this.reset();
+  }
+  draw(){
+    if(!this.live||this.a<=0)return;
+    const R=this.r*2.0;
+    const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,R);
+    g.addColorStop(0,`rgba(255,250,238,${Math.min(this.a*1.8,.17)})`);
+    g.addColorStop(.30,`rgba(255,248,235,${this.a})`);
+    g.addColorStop(.65,`rgba(255,244,228,${this.a*.45})`);
+    g.addColorStop(1,'transparent');
+    ctx.save(); ctx.fillStyle=g;
+    ctx.beginPath(); ctx.arc(this.x,this.y,R,0,Math.PI*2); ctx.fill(); ctx.restore();
+  }
+}
+class Sparkle{
+  constructor(){this.reset(true);}
+  reset(init){
+    this.x=80+Math.random()*920; this.y=init?Math.random()*1920:1942;
+    this.vx=(Math.random()-.5)*.20; this.vy=-(0.12+Math.random()*.36);
+    this.r=.3+Math.random()*1.3; this.l=0; this.ml=220+Math.random()*380;
+    this.w=Math.random()*Math.PI*2;
+    const C=['#D4A84B','#F0CC7A','#C46A35','rgba(248,238,216,.50)'];
+    this.c=C[Math.floor(Math.random()*C.length)];
+    this.cross=Math.random()<.28;
+  }
+  tick(){
+    this.l++; this.x+=this.vx+Math.sin(this.l*.017+this.w)*.16; this.y+=this.vy;
+    const t=this.l/this.ml;
+    this.a=(t<.12?t/.12:t>.78?(1-t)/.22:1)*.20;
+    if(this.l>=this.ml||this.y<-8)this.reset(false);
+  }
+  draw(){
+    if(this.a<=0)return;
+    ctx.save(); ctx.globalAlpha=this.a;
+    if(this.cross){
+      ctx.strokeStyle=this.c; ctx.lineWidth=this.r*.7;
+      ctx.beginPath();
+      ctx.moveTo(this.x-this.r*2.4,this.y); ctx.lineTo(this.x+this.r*2.4,this.y);
+      ctx.moveTo(this.x,this.y-this.r*2.4); ctx.lineTo(this.x,this.y+this.r*2.4);
+      ctx.stroke();
+    }
+    ctx.fillStyle=this.c;
+    ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+}
+const steams  =STEAM_SRC.flatMap(s=>Array.from({length:3},()=>new Steam(s)));
+const sparkles=Array.from({length:40},()=>new Sparkle());
+(function loop(){
+  ctx.clearRect(0,0,1080,1920);
+  steams.forEach(s=>{s.tick();s.draw();});
+  sparkles.forEach(s=>{s.tick();s.draw();});
+  requestAnimationFrame(loop);
+})();
+
+/* ── Flash ──────────────────────────────────────── */
+const flEl=document.getElementById('fl');
+function flash(){flEl.classList.remove('pop');void flEl.offsetWidth;flEl.classList.add('pop');}
+
+/* ── Tagline ────────────────────────────────────── */
+const TW=[{t:'Slow-cooked'},{t:'with'},{t:'love,',g:true},{t:'every'},{t:'plate'},{t:'tells',g:true},{t:'a'},{t:'story.'}];
+function buildTagline(){
+  const el=document.getElementById('tagline');
+  el.innerHTML=TW.map(w=>`<span class="word${w.g?' gld':''}">${w.t}</span>`).join(' ');
+  anime({targets:'#tagline .word',opacity:[0,1],translateY:[12,0],filter:['blur(5px)','blur(0px)'],easing:'easeOutCubic',duration:520,delay:anime.stagger(80)});
+}
+
+/* ── Corner draw (anime.js) ─────────────────────── */
+function drawCorners(){
+  anime({targets:'.cp',strokeDashoffset:[anime.setDashoffset,0],easing:'easeInOutSine',duration:1400,delay:anime.stagger(70)});
+  setTimeout(()=>{
+    anime({targets:'.cp2',strokeDashoffset:[anime.setDashoffset,0],easing:'easeInOutSine',duration:1000,delay:anime.stagger(50)});
+    anime({targets:'.cdot',opacity:[0,1],easing:'easeOutQuad',duration:300,delay:anime.stagger(35)});
+  },550);
+}
+
+/* ── Deco float animation ───────────────────────── */
+function animateDecos(){
+  const decoEls=document.querySelectorAll('.deco');
+  decoEls.forEach((el,i)=>{
+    const d=DECOS[i];
+    gsap.to(el,{opacity:d.op,scale:1,duration:.8+Math.random()*.4,ease:'power2.out',delay:.1+i*.03+Math.random()*.22});
+    gsap.to(el,{y:5+Math.random()*9,rotation:d.rot+(Math.random()-.5)*7,
+      duration:2.0+Math.random()*1.8,ease:'sine.inOut',repeat:-1,yoyo:true,delay:Math.random()*2.6});
+  });
+}
+
+/* ── mo.js burst ────────────────────────────────── */
+function dishBurst(){
+  try{
+    const burst=new mojs.Burst({left:540,top:883,radius:{0:180},count:16,
+      children:{shape:'line',stroke:['#D4A84B','#F0CC7A','#C46A35'],strokeWidth:{3:0},radius:{22:10},duration:950,easing:mojs.easing.expo.out}});
+    burst.generate().replay();
+  }catch(e){}
+}
+
+/* ── GSAP initial states ─────────────────────────── */
+gsap.set(['#logoWrap','#restName','#specialBanner','#saladsSection',
+          '#ctaSection','#comeLine','#featureStrip'],{opacity:0});
+gsap.set('#logoCircle',{scale:0,rotation:-180});
+gsap.set(['#fT','#fB'],{scaleX:0}); gsap.set(['#fL','#fR'],{scaleY:0});
+gsap.set('.ctk',{opacity:0});
+gsap.set('#hdiv1',{opacity:0}); gsap.set('#hg1',{scale:0});
+gsap.set('#hdiv2',{opacity:0});
+gsap.set(['#dishL','#dishR'],{opacity:0,scale:.35,y:90});
+gsap.set(['#dlL','#dlR'],{opacity:0,y:8});
+gsap.set('.dish-cat',{opacity:0,y:10});
+gsap.set('#titleSub',{opacity:0,y:12});
+gsap.set('#titleOrn',{opacity:0});
+gsap.set(['#tol1','#tol2'],{scaleX:0}); gsap.set(['#tog','#tos1','#tos2'],{scale:0});
+gsap.set('#ctaBadge',{opacity:0,scale:0,rotation:-20});
+gsap.set('#ctaPulse',{opacity:0});
+gsap.set('.feat-pill',{opacity:0,y:14});
+gsap.set(['#sal1','#sal2','#sal3'],{opacity:0,y:18,scale:.88});
+gsap.set('#titleMain .char',{opacity:0,y:65,rotation:9});
+gsap.set('#restName',{y:10});
+
+/* ── GSAP master timeline ────────────────────────── */
+const tl=gsap.timeline({defaults:{ease:'power2.out'}});
+
+/* 0.0 — frame + corners + decos */
+tl.add(()=>{ flash(); drawCorners(); animateDecos(); },0)
+  .to(['#fT','#fB'],{scaleX:1,duration:1.1,stagger:.04},0)
+  .to(['#fL','#fR'],{scaleY:1,duration:1.1,stagger:.04},0.08)
+  .to('.ctk',{opacity:1,duration:.3,stagger:.06},0.75);
+
+/* 0.5 — logo */
+tl.to('#logoWrap',{opacity:1,duration:.1},0.5)
+  .to('#logoCircle',{scale:1,rotation:0,duration:.88,ease:'back.out(1.7)'},0.5);
+
+/* 1.1 — restaurant name */
+tl.to('#restName',{opacity:1,y:0,duration:.65},1.1);
+
+/* 1.6 — divider 1 */
+tl.to('#hdiv1',{opacity:1,duration:.55},1.6)
+  .to('#hg1',{scale:1,duration:.32,ease:'back.out(2.2)'},2.0);
+
+/* 2.0 — banner */
+tl.add(()=>flash(),2.0)
+  .to('#specialBanner',{opacity:1,y:0,duration:.50,ease:'back.out(1.4)'},2.1);
+
+/* 2.6 — title chars drop in (Splitting.js) */
+tl.to('.dish-cat',{opacity:1,y:0,duration:.42},2.6)
+  .to('#titleMain .char',{opacity:1,y:0,rotation:0,duration:.48,stagger:.055,ease:'back.out(1.6)'},2.85)
+  .to('#titleSub',{opacity:1,y:0,duration:.52},3.38)
+  .to('#titleOrn',{opacity:1,duration:.18},3.62)
+  .to(['#tol1','#tol2'],{scaleX:1,duration:.52,stagger:.06},3.67)
+  .to(['#tos1','#tos2'],{scale:1,duration:.28,ease:'back.out(2)',stagger:.06},3.90)
+  .to('#tog',{scale:1,duration:.30,ease:'back.out(2.5)'},4.00);
+
+/* 3.5 — divider 2 */
+tl.to('#hdiv2',{opacity:1,duration:.45},3.5);
+
+/* 3.9 — dishes + mo.js burst */
+tl.add(()=>{ flash(); dishBurst(); },3.9)
+  .to('#dishL',{opacity:1,scale:1,y:0,duration:1.1,ease:'back.out(1.3)'},4.0)
+  .to('#dishR',{opacity:1,scale:1,y:0,duration:1.1,ease:'back.out(1.3)'},4.25)
+  .add(()=>{ steamOn=true; },5.4)
+  .to(['#dlL','#dlR'],{opacity:1,y:0,duration:.48,stagger:.14},5.4);
+
+/* 5.6 — feature pills (no overlap — positioned at y:1164) */
+tl.to('#featureStrip',{opacity:1,duration:.3},5.6)
+  .to('.feat-pill',{opacity:1,y:0,duration:.48,stagger:.09,ease:'back.out(1.5)'},5.7);
+
+/* 6.4 — salads */
+tl.to('#saladsSection',{opacity:1,duration:.38},6.4)
+  .add(()=>{
+    anime({targets:['#sal1','#sal2','#sal3'],opacity:[0,1],translateY:[18,0],scale:[.88,1],easing:'easeOutBack',duration:520,delay:anime.stagger(105)});
+  },6.5);
+
+/* 5.5 — Order Now badge stamps onto dish images */
+tl.to('#ctaBadge',{opacity:1,scale:1,rotation:0,duration:.72,ease:'back.out(2.4)'},5.5)
+  .to('#ctaPulse',{opacity:1,duration:.1},6.2);
+
+/* 7.0 — Reserve Your Table label (below salads) */
+tl.to('#ctaSection',{opacity:1,duration:.55},7.0);
+
+/* 7.6 — come line + tagline */
+tl.to('#comeLine',{opacity:1,duration:.48},7.6)
+  .add(()=>buildTagline(),7.9);
+</script>
+</body>
+</html>

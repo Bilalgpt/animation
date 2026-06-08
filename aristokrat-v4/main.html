@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aristokrat İrove Azerbaijan — V4</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:    #05060A;
+  --gold:  #C9922A;
+  --gold-l:#F5D98E;
+  --gold-d:#8B6520;
+  --ink:   rgba(255,248,231,.85);
+  --glow:  rgba(201,146,42,.50);
+}
+
+body{
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  width:100vw;height:100vh;overflow:hidden;
+}
+
+/* ── Stage ───────────────────────────────────── */
+.stage{
+  position:relative;
+  width:820px;height:820px;
+  overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background-color:var(--bg);
+  /* Fine diamond grid instead of dot grid */
+  background-image:
+    linear-gradient(45deg,  rgba(201,146,42,.04) 1px, transparent 1px),
+    linear-gradient(-45deg, rgba(201,146,42,.04) 1px, transparent 1px);
+  background-size:24px 24px;
+}
+/* Vignette */
+.stage::after{
+  content:'';position:absolute;inset:0;z-index:1;
+  background:radial-gradient(ellipse 68% 65% at 50% 48%,
+    rgba(201,146,42,.05) 0%, transparent 40%, rgba(2,2,5,.72) 100%);
+  pointer-events:none;
+}
+
+canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+
+/* Faint large watermark */
+.watermark{
+  position:absolute;font-family:'Great Vibes',cursive;
+  font-size:320px;color:rgba(201,146,42,.025);
+  white-space:nowrap;pointer-events:none;user-select:none;z-index:0;
+  top:50%;left:50%;transform:translate(-50%,-52%);
+  opacity:0;animation:fadeIn 2s .6s ease forwards;
+}
+
+/* ── Content ─────────────────────────────────── */
+.content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center}
+
+/* ── Top label ───────────────────────────────── */
+.top-rule{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:18px;
+  opacity:0;animation:fadeIn .6s .1s ease forwards;
+}
+.tr-line{height:1px;width:0;background:linear-gradient(90deg,transparent,rgba(201,146,42,.40));animation:growR80 .8s .2s ease forwards}
+.tr-line.r{background:linear-gradient(90deg,rgba(201,146,42,.40),transparent)}
+.tr-dot{width:3px;height:3px;background:var(--gold-l);border-radius:50%}
+.tr-text{font-family:'Cinzel',serif;font-size:8.5px;letter-spacing:7px;color:rgba(201,146,42,.48);text-transform:uppercase}
+@keyframes growR80{to{width:80px}}
+
+/* ── Eyebrow ─────────────────────────────────── */
+.eyebrow{display:flex;align-items:center;gap:14px;margin-bottom:30px}
+.ey-line{height:1px;width:0;animation:ey-l .9s .3s ease forwards}
+.ey-line.l{background:linear-gradient(90deg,transparent,var(--gold))}
+.ey-line.r{background:linear-gradient(90deg,var(--gold),transparent)}
+@keyframes ey-l{to{width:55px}}
+.ey-text{font-family:'Cinzel',serif;font-size:10px;letter-spacing:8px;color:rgba(201,146,42,.58);text-transform:uppercase}
+
+/* ══════════════════════════════════════════════
+   ARCH PORTAL FRAME
+   ══════════════════════════════════════════════
+
+   Structure (top to bottom):
+     ① Arch crown ornament (◆ + stem)
+     ② SVG arch curve draws over logo top
+     ③ Two vertical pillar bars flank the logo
+     ④ Logo image
+     ⑤ Base horizontal line + center diamond
+     ⑥ Faint atmospheric ring (always behind)
+
+   This gives a classical gateway / heraldic crest
+   feel — completely unlike the square brackets of
+   Trust DMC.
+   ══════════════════════════════════════════════ */
+.logo-portal{
+  position:relative;
+  display:flex;flex-direction:column;align-items:center;
+}
+
+/* ① Atmospheric ring — large faint circle behind logo */
+.portal-ring{
+  position:absolute;
+  width:330px;height:330px;
+  border:1px solid rgba(201,146,42,.07);
+  border-radius:50%;
+  top:50%;left:50%;transform:translate(-50%,-48%);
+  opacity:0;
+  animation:ringIn 1.5s .5s ease forwards, ringBreath 6s 3s ease-in-out infinite;
+  pointer-events:none;z-index:0;
+}
+@keyframes ringIn{to{opacity:1}}
+@keyframes ringBreath{0%,100%{box-shadow:0 0 0 0 rgba(201,146,42,0)}50%{box-shadow:0 0 40px 4px rgba(201,146,42,.08)}}
+
+/* Inner ring (smaller, more visible) */
+.portal-ring-inner{
+  position:absolute;
+  width:270px;height:270px;
+  border:1px solid rgba(201,146,42,.12);
+  border-radius:50%;
+  top:50%;left:50%;transform:translate(-50%,-48%);
+  opacity:0;animation:ringIn 1.5s .8s ease forwards;
+  pointer-events:none;z-index:0;
+}
+
+/* ② Arch SVG */
+.arch-wrap{
+  position:relative;
+  width:340px;
+  height:60px;
+  flex-shrink:0;
+  z-index:2;
+}
+.arch-svg{
+  position:absolute;
+  bottom:0;left:0;
+  width:100%;height:100%;
+  overflow:visible;
+}
+/* Arch path: smooth curve from left to right, peaking at top-center */
+.arch-path{
+  fill:none;stroke:var(--gold);stroke-width:1.5;
+  stroke-linecap:round;
+  stroke-dasharray:520;stroke-dashoffset:520;
+  filter:drop-shadow(0 0 6px rgba(201,146,42,.45));
+  animation:drawArch 1.2s 1.0s ease-out forwards;
+}
+@keyframes drawArch{to{stroke-dashoffset:0}}
+
+/* Endpoint circles where arch meets the pillars */
+.arch-end{
+  fill:var(--gold);opacity:0;
+  filter:drop-shadow(0 0 5px var(--glow));
+  animation:fadeIn .3s 2.1s ease forwards;
+}
+
+/* ① Crown ornament above arch peak */
+.crown-orn{
+  position:absolute;
+  top:-32px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;
+  z-index:3;
+}
+.crown-stem{
+  width:1.5px;height:0;
+  background:linear-gradient(180deg,rgba(201,146,42,.0),var(--gold));
+  animation:stemGrow .5s 1.8s ease forwards;
+}
+@keyframes stemGrow{to{height:24px}}
+
+.crown-gem{
+  width:9px;height:9px;
+  background:var(--gold);
+  transform:rotate(45deg) scale(0);opacity:0;
+  box-shadow:0 0 16px var(--glow),0 0 32px rgba(201,146,42,.25);
+  animation:gemCrystal 1.4s 2.0s ease-out forwards,
+            crownPulse  4s  3.8s ease-in-out infinite;
+}
+@keyframes gemCrystal{
+  0%  {transform:rotate(45deg) scale(0);  opacity:0}
+  20% {opacity:.30}
+  58% {transform:rotate(45deg) scale(1.30);opacity:.85}
+  76% {transform:rotate(45deg) scale(.88)}
+  90% {transform:rotate(45deg) scale(1.08)}
+  100%{transform:rotate(45deg) scale(1);  opacity:1}
+}
+@keyframes crownPulse{
+  0%,100%{box-shadow:0 0 12px var(--glow)}
+  50%    {box-shadow:0 0 28px rgba(201,146,42,.90),0 0 55px rgba(201,146,42,.35)}
+}
+
+/* Small wing lines flanking crown gem */
+.crown-wing{
+  position:absolute;
+  top:50%;height:1px;width:0;
+  background:linear-gradient(90deg,var(--gold),transparent);
+  opacity:.60;
+}
+.crown-wing.wl{right:100%;margin-right:4px;animation:wingL .5s 2.4s ease forwards}
+.crown-wing.wr{left:100%;margin-left:4px;transform-origin:left;background:linear-gradient(90deg,transparent,var(--gold));animation:wingR .5s 2.4s ease forwards}
+@keyframes wingL{to{width:22px}} @keyframes wingR{to{width:22px}}
+
+/* ③ Vertical pillar bars */
+.pillar{
+  position:absolute;
+  width:1.5px;
+  top:58px;   /* bottom of arch wrap */
+  height:0;
+  z-index:2;
+  box-shadow:0 0 8px rgba(201,146,42,.30);
+}
+.pillar-l{
+  left:18px;
+  background:linear-gradient(180deg,var(--gold) 0%,rgba(201,146,42,.25) 100%);
+  animation:pillarGrow .85s 1.15s ease-out forwards;
+}
+.pillar-r{
+  right:18px;
+  background:linear-gradient(180deg,var(--gold) 0%,rgba(201,146,42,.25) 100%);
+  animation:pillarGrow .85s 1.25s ease-out forwards;
+}
+@keyframes pillarGrow{to{height:268px}}
+
+/* Small diamond ornament at midpoint of each pillar */
+.pillar-gem{
+  position:absolute;
+  width:6px;height:6px;
+  background:var(--gold);transform:rotate(45deg) scale(0);opacity:0;
+  box-shadow:0 0 10px var(--glow);
+  animation:gemCrystal 1.2s 2.3s ease-out forwards;
+  z-index:3;
+}
+.pillar-gem-l{top:calc(58px + 130px);left:15px}
+.pillar-gem-r{top:calc(58px + 130px);right:15px}
+
+/* ⑤ Base line */
+.base-line{
+  position:relative;
+  width:0;height:1.5px;
+  background:linear-gradient(90deg,transparent,var(--gold) 20%,var(--gold) 80%,transparent);
+  box-shadow:0 0 8px rgba(201,146,42,.35);
+  margin-top:4px;
+  animation:baseGrow .85s 2.05s ease-out forwards;
+  z-index:2;
+}
+@keyframes baseGrow{to{width:300px}}
+
+/* Base center ornament */
+.base-orn{
+  display:flex;flex-direction:column;align-items:center;
+  margin-top:0;z-index:3;
+}
+.base-stem{
+  width:1.5px;height:0;
+  background:linear-gradient(180deg,var(--gold),rgba(201,146,42,.0));
+  animation:stemGrow .4s 2.7s ease forwards;
+}
+.base-gem{
+  width:7px;height:7px;background:var(--gold);
+  transform:rotate(45deg) scale(0);opacity:0;
+  box-shadow:0 0 12px var(--glow);
+  animation:gemCrystal 1.2s 2.9s ease-out forwards;
+}
+
+/* ── Logo image ──────────────────────────────── */
+.logo-wrap{
+  position:relative;width:300px;
+  overflow:hidden;z-index:2;
+}
+.logo-img{
+  display:block;width:300px;
+  opacity:0;transform:scale(.84) translateY(12px);filter:blur(10px);
+  animation:logoReveal 1.3s .5s cubic-bezier(.22,1,.36,1) forwards,
+            logoPulse  6s   3.5s ease-in-out infinite;
+}
+@keyframes logoReveal{
+  0%  {opacity:0;transform:scale(.84) translateY(12px);filter:blur(10px)}
+  38% {filter:blur(0)}
+  65% {transform:scale(1.04) translateY(-3px);opacity:1}
+  82% {transform:scale(.98) translateY(1px)}
+  100%{transform:scale(1) translateY(0);opacity:1;filter:blur(0)}
+}
+@keyframes logoPulse{
+  0%,100%{filter:drop-shadow(0 0 16px rgba(201,146,42,.22))}
+  50%    {filter:drop-shadow(0 0 35px rgba(201,146,42,.55)) drop-shadow(0 0 65px rgba(201,146,42,.16))}
+}
+/* Light shimmer over logo */
+.logo-wrap::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(108deg,transparent 25%,rgba(255,240,180,.15) 50%,transparent 75%);
+  transform:translateX(-140%);
+  animation:logoShimmer 1.1s 2.0s ease-out forwards;pointer-events:none;
+}
+@keyframes logoShimmer{to{transform:translateX(250%)}}
+
+/* Ornament between logo and tagline */
+.middle-orn{
+  margin-top:18px;
+  opacity:0;animation:fadeIn .7s 2.8s ease forwards;
+}
+.middle-orn-path{
+  stroke:var(--gold);stroke-width:.9;fill:none;opacity:.55;
+  stroke-dasharray:300;stroke-dashoffset:300;
+  animation:drawOrn 1.2s 2.8s ease-out forwards;
+}
+@keyframes drawOrn{to{stroke-dashoffset:0}}
+
+/* ══════════════════════════════════════════════
+   TAGLINE SECTION — arc brackets + circle ends
+   ══════════════════════════════════════════════
+
+   Two curved SVG arcs (echoing the portal arch)
+   wrap above and below the tagline text.
+   • Arc endpoints have slow-expanding circle ornaments
+     with a pulse ring — no diamonds at all
+   • A glowing dot travels the arc on a loop after
+     it finishes drawing
+   ══════════════════════════════════════════════ */
+.tagline-section{
+  display:flex;flex-direction:column;align-items:center;
+  width:380px;margin-top:14px;
+}
+
+/* SVG arc row */
+.arc-svg{
+  display:block;width:380px;overflow:visible;
+}
+
+/* The arc curve itself */
+.arc-path{
+  fill:none;stroke:var(--gold);stroke-width:1.3;
+  stroke-linecap:round;
+  stroke-dasharray:420;stroke-dashoffset:420;
+  filter:drop-shadow(0 0 5px rgba(201,146,42,.40));
+}
+/* Top arc draws left → right */
+.arc-top .arc-path{animation:drawArcPath 1.1s 3.45s ease-out forwards}
+/* Bottom arc draws right → left (reverse) */
+.arc-bot .arc-path{
+  stroke-dashoffset:-420;
+  animation:drawArcPathRev 1.1s 3.70s ease-out forwards;
+}
+@keyframes drawArcPath   {to{stroke-dashoffset:0}}
+@keyframes drawArcPathRev{to{stroke-dashoffset:0}}
+
+/* Travelling glow dot along each arc (loops after draw) */
+.arc-traveler{
+  fill:none;
+  stroke:rgba(255,230,140,.85);
+  stroke-width:3;
+  stroke-linecap:round;
+  stroke-dasharray:18 440;  /* 18px visible, rest hidden */
+  stroke-dashoffset:460;    /* starts off-path */
+  filter:blur(.8px) drop-shadow(0 0 5px rgba(255,220,100,.9));
+  opacity:0;
+}
+.arc-top .arc-traveler{animation:travelFwd 2.8s 4.75s ease-in-out infinite}
+.arc-bot .arc-traveler{animation:travelRev 2.8s 4.95s ease-in-out infinite}
+@keyframes travelFwd{
+  0%  {stroke-dashoffset:460;opacity:0}
+  5%  {opacity:1}
+  90% {opacity:.9}
+  100%{stroke-dashoffset:-20;opacity:0}
+}
+@keyframes travelRev{
+  0%  {stroke-dashoffset:-20;opacity:0}
+  5%  {opacity:1}
+  90% {opacity:.9}
+  100%{stroke-dashoffset:460;opacity:0}
+}
+
+/* ── Arc endpoint circles ────────────────────
+   Each end: outer ring expands slowly,
+   inner dot appears in the middle.
+   transform-box: fill-box lets us scale from
+   the element's own centre.
+──────────────────────────────────────────── */
+.arc-ring{
+  fill:none;stroke:var(--gold);stroke-width:1.2;
+  transform-box:fill-box;transform-origin:center;
+  transform:scale(0);opacity:0;
+  filter:drop-shadow(0 0 6px rgba(201,146,42,.55));
+}
+.arc-dot-c{
+  fill:var(--gold);
+  transform-box:fill-box;transform-origin:center;
+  transform:scale(0);opacity:0;
+  filter:drop-shadow(0 0 8px rgba(201,146,42,.80));
+}
+/* Pulse ring that expands & fades after circle appears */
+.arc-pulse{
+  fill:none;stroke:rgba(201,146,42,.50);stroke-width:.8;
+  transform-box:fill-box;transform-origin:center;
+  transform:scale(1);opacity:0;
+}
+
+/* Top arc — left circle first, right circle after line */
+.arc-top .end-l .arc-ring  {animation:circleBloom 1.5s 3.40s ease-out forwards}
+.arc-top .end-l .arc-dot-c {animation:dotBloom    0.8s 3.85s ease-out forwards}
+.arc-top .end-l .arc-pulse {animation:pulseRing   1.8s 3.90s ease-out forwards}
+.arc-top .end-r .arc-ring  {animation:circleBloom 1.5s 4.55s ease-out forwards}
+.arc-top .end-r .arc-dot-c {animation:dotBloom    0.8s 5.00s ease-out forwards}
+.arc-top .end-r .arc-pulse {animation:pulseRing   1.8s 5.05s ease-out forwards}
+
+/* Bottom arc — 0.25s offset */
+.arc-bot .end-l .arc-ring  {animation:circleBloom 1.5s 3.65s ease-out forwards}
+.arc-bot .end-l .arc-dot-c {animation:dotBloom    0.8s 4.10s ease-out forwards}
+.arc-bot .end-l .arc-pulse {animation:pulseRing   1.8s 4.15s ease-out forwards}
+.arc-bot .end-r .arc-ring  {animation:circleBloom 1.5s 4.80s ease-out forwards}
+.arc-bot .end-r .arc-dot-c {animation:dotBloom    0.8s 5.25s ease-out forwards}
+.arc-bot .end-r .arc-pulse {animation:pulseRing   1.8s 5.30s ease-out forwards}
+
+@keyframes circleBloom{
+  0%  {transform:scale(0);opacity:0}
+  25% {opacity:.5}
+  65% {transform:scale(1.18);opacity:1}
+  82% {transform:scale(.92)}
+  100%{transform:scale(1);opacity:1}
+}
+@keyframes dotBloom{
+  0%  {transform:scale(0);opacity:0}
+  60% {transform:scale(1.25);opacity:1}
+  100%{transform:scale(1);opacity:1}
+}
+@keyframes pulseRing{
+  0%  {transform:scale(1); opacity:.6}
+  100%{transform:scale(2.8);opacity:0}
+}
+
+/* Tagline text — Great Vibes for Aristokrat elegance */
+.tagline{
+  font-family:'Great Vibes',cursive;font-size:32px;
+  color:var(--ink);letter-spacing:1px;
+  text-align:center;line-height:1.4;
+  padding:8px 0;
+  filter:drop-shadow(0 0 18px rgba(201,146,42,.20));
+  overflow:visible;
+}
+.tagline span{display:inline-block;opacity:0}
+.tagline .bounce-l{animation:bounceFromLeft  .88s cubic-bezier(.22,1,.36,1) forwards}
+.tagline .bounce-r{animation:bounceFromRight .88s cubic-bezier(.22,1,.36,1) forwards}
+.tagline span:nth-child(1){animation-delay:3.70s}
+.tagline span:nth-child(2){animation-delay:3.95s}
+.tagline span:nth-child(3){animation-delay:4.22s}
+.tagline span:nth-child(4){animation-delay:4.49s}
+
+.sub{
+  font-family:'Cinzel',serif;font-size:9.5px;letter-spacing:6px;
+  color:rgba(201,146,42,.50);text-transform:uppercase;
+  margin-top:14px;
+  opacity:0;animation:fadeUp .6s 5.5s ease forwards;
+}
+.bot-rule{
+  display:flex;align-items:center;gap:9px;
+  margin-top:20px;opacity:0;animation:fadeUp .5s 5.9s ease forwards;
+}
+.bot-line{width:55px;height:1px;background:linear-gradient(90deg,transparent,rgba(201,146,42,.38),transparent)}
+.bot-gem {width:6px;height:6px;background:var(--gold);  transform:rotate(45deg);box-shadow:0 0 8px var(--glow)}
+.bot-gsm {width:4px;height:4px;background:var(--gold-l);transform:rotate(45deg)}
+
+/* ── Tagline bounce-in from sides ────────────── */
+@keyframes bounceFromLeft{
+  0%  {transform:translateX(-360px) scaleX(1.08);opacity:0}
+  48% {transform:translateX(20px)   scaleX(.96); opacity:1}
+  64% {transform:translateX(-11px)  scaleX(1.02)}
+  78% {transform:translateX(6px)    scaleX(.99)}
+  89% {transform:translateX(-3px)}
+  100%{transform:translateX(0)      scaleX(1);   opacity:1}
+}
+@keyframes bounceFromRight{
+  0%  {transform:translateX(360px)  scaleX(1.08);opacity:0}
+  48% {transform:translateX(-20px)  scaleX(.96); opacity:1}
+  64% {transform:translateX(11px)   scaleX(1.02)}
+  78% {transform:translateX(-6px)   scaleX(.99)}
+  89% {transform:translateX(3px)}
+  100%{transform:translateX(0)      scaleX(1);   opacity:1}
+}
+
+/* ── Scatter-merge letters ────────────────────── */
+.scatter-letter{
+  display:inline-block;opacity:0;
+  transform:translate(var(--sx),var(--sy)) rotate(var(--sr)) scale(.12);
+  animation:letterMerge .92s cubic-bezier(.22,1,.36,1) forwards;
+}
+@keyframes letterMerge{
+  0%  {opacity:0;  transform:translate(var(--sx),var(--sy)) rotate(var(--sr)) scale(.12)}
+  22% {opacity:1}
+  100%{opacity:1;  transform:translate(0,0) rotate(0deg) scale(1)}
+}
+
+/* Shared */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <canvas id="cv"></canvas>
+  <div class="watermark">Aristokrat</div>
+
+  <div class="content">
+
+    <div class="top-rule">
+      <div class="tr-line"></div>
+      <div class="tr-dot"></div>
+      <div class="tr-text" data-scatter="0.18">Luxury Travel Company</div>
+      <div class="tr-dot"></div>
+      <div class="tr-line r"></div>
+    </div>
+
+    <div class="eyebrow">
+      <div class="ey-line l"></div>
+      <div class="ey-text" data-scatter="0.48">Premium Destination Management</div>
+      <div class="ey-line r"></div>
+    </div>
+
+    <!-- ══ ARCH PORTAL FRAME ══════════════════════ -->
+    <div class="logo-portal">
+
+      <!-- Atmospheric rings -->
+      <div class="portal-ring"></div>
+      <div class="portal-ring-inner"></div>
+
+      <!-- ② Arch curve above logo -->
+      <div class="arch-wrap">
+        <svg class="arch-svg" viewBox="0 0 340 58" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+          <!-- Main arch: gentle curve peak at top-center -->
+          <path class="arch-path" d="M 18,56 Q 170,4 322,56"/>
+          <!-- Endpoint circles -->
+          <circle class="arch-end" cx="18"  cy="56" r="3"/>
+          <circle class="arch-end" cx="322" cy="56" r="3"/>
+        </svg>
+
+        <!-- ① Crown ornament above arch peak -->
+        <div class="crown-orn">
+          <div class="crown-stem"></div>
+          <div style="position:relative;display:flex;align-items:center">
+            <div class="crown-wing wl"></div>
+            <div class="crown-gem"></div>
+            <div class="crown-wing wr"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ③ Vertical pillar bars (absolute, flank logo) -->
+      <div class="pillar pillar-l"></div>
+      <div class="pillar pillar-r"></div>
+
+      <!-- Pillar midpoint gems -->
+      <div class="pillar-gem pillar-gem-l"></div>
+      <div class="pillar-gem pillar-gem-r"></div>
+
+      <!-- Logo -->
+      <div class="logo-wrap">
+        <img class="logo-img"
+             src="../New_logo_design/Aristokrat logo_1.png"
+             alt="Aristokrat İrove Azerbaijan">
+      </div>
+
+      <!-- ⑤ Base line -->
+      <div class="base-line"></div>
+
+      <!-- Base ornament (stem + diamond below base line) -->
+      <div class="base-orn">
+        <div class="base-stem"></div>
+        <div class="base-gem"></div>
+      </div>
+
+    </div><!-- /logo-portal -->
+
+    <!-- Ornamental divider between logo and tagline -->
+    <div class="middle-orn">
+      <svg width="300" height="18" viewBox="0 0 300 18">
+        <path class="middle-orn-path"
+          d="M0,9 L40,9 Q55,9 65,3 Q80,0 95,3 Q105,9 150,9 Q195,9 205,3 Q220,0 235,3 Q245,9 260,9 L300,9"/>
+      </svg>
+    </div>
+
+    <!-- ══ TAGLINE — arc brackets + circle ends ══
+         Two SVG arcs wrap the tagline (echoing the
+         portal arch). Circle ornaments bloom at each
+         arc endpoint. A glow dot travels each arc.
+    ═════════════════════════════════════════════ -->
+    <div class="tagline-section">
+
+      <!--  Top arc  (concave upward — opens toward text)  -->
+      <!--  viewBox 380×34; arc from (8,32) peaks at (190,4) to (372,32)  -->
+      <svg class="arc-svg arc-top" viewBox="0 0 380 34" xmlns="http://www.w3.org/2000/svg">
+        <!-- Arc curve -->
+        <path class="arc-path"     d="M 8,32 Q 190,4 372,32"/>
+        <!-- Travelling glow dot -->
+        <path class="arc-traveler" d="M 8,32 Q 190,4 372,32"/>
+        <!-- Left endpoint ornament -->
+        <g class="end-l">
+          <circle class="arc-ring"  cx="8"   cy="32" r="6"/>
+          <circle class="arc-pulse" cx="8"   cy="32" r="6"/>
+          <circle class="arc-dot-c" cx="8"   cy="32" r="2.5"/>
+        </g>
+        <!-- Right endpoint ornament -->
+        <g class="end-r">
+          <circle class="arc-ring"  cx="372" cy="32" r="6"/>
+          <circle class="arc-pulse" cx="372" cy="32" r="6"/>
+          <circle class="arc-dot-c" cx="372" cy="32" r="2.5"/>
+        </g>
+      </svg>
+
+      <!-- Tagline text (Great Vibes, word by word) -->
+      <div class="tagline">
+        <span class="bounce-l">Crafted</span>&nbsp;<span class="bounce-r">Journeys.</span>&nbsp;<span class="bounce-l">Timeless</span>&nbsp;<span class="bounce-r">Memories.</span>
+      </div>
+
+      <!--  Bottom arc  (concave downward — opens toward text)  -->
+      <svg class="arc-svg arc-bot" viewBox="0 0 380 34" xmlns="http://www.w3.org/2000/svg">
+        <path class="arc-path"     d="M 8,2 Q 190,30 372,2"/>
+        <path class="arc-traveler" d="M 8,2 Q 190,30 372,2"/>
+        <g class="end-l">
+          <circle class="arc-ring"  cx="8"   cy="2" r="6"/>
+          <circle class="arc-pulse" cx="8"   cy="2" r="6"/>
+          <circle class="arc-dot-c" cx="8"   cy="2" r="2.5"/>
+        </g>
+        <g class="end-r">
+          <circle class="arc-ring"  cx="372" cy="2" r="6"/>
+          <circle class="arc-pulse" cx="372" cy="2" r="6"/>
+          <circle class="arc-dot-c" cx="372" cy="2" r="2.5"/>
+        </g>
+      </svg>
+
+    </div>
+
+    <div class="sub">Baku &nbsp;·&nbsp; Azerbaijan &nbsp;·&nbsp; Since 2003</div>
+
+    <div class="bot-rule">
+      <div class="bot-line"></div>
+      <div class="bot-gsm"></div>
+      <div class="bot-gem"></div>
+      <div class="bot-gsm"></div>
+      <div class="bot-line"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ── Amber / gold ember particles ────────────── */
+const cv  = document.getElementById('cv');
+cv.width  = cv.height = 820;
+const ctx = cv.getContext('2d');
+
+const COLS = ['#C9922A','#F5D98E','#E67C00','#FFE8A0','#D4A843','#FFF3C4'];
+
+class Spark {
+  constructor(){ this.reset(true) }
+  reset(init){
+    this.x       = Math.random() * 820;
+    this.y       = init ? Math.random() * 820 : 825;
+    this.vx      = (Math.random() - .5) * .44;
+    this.vy      = -(0.24 + Math.random() * .68);
+    this.r       = .4 + Math.random() * 1.8;
+    this.col     = COLS[Math.floor(Math.random() * COLS.length)];
+    this.alpha   = 0; this.life = 0;
+    this.maxLife = 150 + Math.random() * 270;
+    this.waver   = Math.random() * Math.PI * 2;
+    this.isStar  = Math.random() < .15;
+  }
+  tick(){
+    this.life++;
+    this.x += this.vx + Math.sin(this.life * .03 + this.waver) * .25;
+    this.y += this.vy;
+    const t = this.life / this.maxLife;
+    this.alpha = (t < .15 ? t / .15 : t > .78 ? (1 - t) / .22 : 1) * (this.isStar ? .52 : .36);
+    if(this.life >= this.maxLife || this.y < -8) this.reset(false);
+  }
+  draw(){
+    ctx.save();
+    ctx.globalAlpha = this.alpha;
+    ctx.shadowColor = this.col;
+    ctx.shadowBlur  = this.r * (this.isStar ? 10 : 6);
+    ctx.fillStyle   = this.col;
+    if(this.isStar){
+      const s = this.r * 2.5;
+      ctx.fillRect(this.x - s/2, this.y - .7, s, 1.4);
+      ctx.fillRect(this.x - .7, this.y - s/2, 1.4, s);
+    } else {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+const sparks = Array.from({length: 65}, () => new Spark());
+(function loop(){
+  ctx.clearRect(0, 0, 820, 820);
+  sparks.forEach(s => { s.tick(); s.draw(); });
+  requestAnimationFrame(loop);
+})();
+
+/* ── Scatter-merge: split text into letter spans ── */
+function applyScatter(el, baseDelay) {
+  const text = el.textContent;
+  el.textContent = '';
+  text.split('').forEach((ch, i) => {
+    const span = document.createElement('span');
+    span.className = 'scatter-letter';
+    span.textContent = ch === ' ' ? '\u00A0' : ch;
+    // Random scatter: ±180px horizontal, ±90px vertical, ±50deg rotation
+    const sx = (Math.random() * 360 - 180).toFixed(1) + 'px';
+    const sy = (Math.random() * 180 - 90).toFixed(1) + 'px';
+    const sr = (Math.random() * 100 - 50).toFixed(1) + 'deg';
+    span.style.setProperty('--sx', sx);
+    span.style.setProperty('--sy', sy);
+    span.style.setProperty('--sr', sr);
+    // All letters arrive together — tiny stagger (20ms) for visual ripple
+    span.style.animationDelay = (baseDelay + i * 0.020).toFixed(3) + 's';
+    el.appendChild(span);
+  });
+}
+
+document.querySelectorAll('[data-scatter]').forEach(el => {
+  applyScatter(el, parseFloat(el.dataset.scatter) || 0);
+});
+</script>
+</body>
+</html>

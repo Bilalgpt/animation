@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scene 08 — Logo Reveal</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cinzel:wght@400;600;900&family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--gold:#c9922a;--gold-l:#f5d98e;--gold-p:#fff8e7;--deep:#060402}
+body{background:var(--deep);display:flex;align-items:center;justify-content:center;width:100vw;height:100vh;overflow:hidden}
+.scene{position:relative;width:820px;height:820px;overflow:hidden;background:var(--deep)}
+
+/* Blurred food BG */
+.bg{position:absolute;inset:0;
+  background:url('https://images.pexels.com/photos/8312083/pexels-photo-8312083.jpeg?auto=compress&cs=tinysrgb&w=1280') center/cover no-repeat;
+  filter:blur(5px) brightness(.72);transform:scale(1.08);
+  opacity:0;animation:fadeIn 2s .2s ease-out forwards,kBurns 28s 2s ease-in-out infinite alternate}
+@keyframes fadeIn{to{opacity:1}}
+@keyframes kBurns{from{transform:scale(1.08)}to{transform:scale(1.16) translate(-14px,-5px)}}
+
+/* Overlays */
+.overlay{position:absolute;inset:0;z-index:2;
+  background:radial-gradient(ellipse at 52% 52%,rgba(6,4,2,.12) 0%,rgba(6,4,2,.78) 100%),
+             linear-gradient(180deg,rgba(6,4,2,.55) 0%,rgba(6,4,2,.05) 40%,rgba(6,4,2,.72) 100%);
+  opacity:0;animation:fadeIn 1.4s .8s forwards}
+.grain{position:absolute;inset:0;z-index:3;opacity:.04;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:180px}
+canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
+
+/* Stage */
+.stage{position:absolute;inset:0;z-index:8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
+
+/* Top ornament */
+.orn-top{opacity:0;animation:fadeUp 1s .6s ease forwards;margin-bottom:20px}
+.orn-path{stroke:var(--gold);stroke-width:.9;fill:none;opacity:.55;stroke-dasharray:480;stroke-dashoffset:480;animation:draw 2s .8s ease-out forwards}
+.orn-dot{fill:var(--gold);opacity:0;animation:show .1s 2.6s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes show{to{opacity:1}}
+
+/* Badge row */
+.badge-row{display:flex;align-items:center;gap:26px;margin-bottom:-2px}
+
+/* Halal */
+.halal{width:72px;height:72px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#56c95a,#1a5c1e);
+  border:2.5px solid rgba(86,201,90,.55);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;flex-shrink:0;
+  animation:halIn .9s 1.0s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes halIn{0%{opacity:0;transform:scale(0) rotate(-270deg)}100%{opacity:1;transform:scale(1) rotate(0);box-shadow:0 0 0 8px rgba(86,201,90,.1),0 0 32px rgba(86,201,90,.3)}}
+.hal-ar{font-size:15px;color:#fff;font-family:serif;font-weight:700;line-height:1}
+.hal-en{font-size:7.5px;color:#c8e6c9;letter-spacing:2px;font-family:'Cinzel',serif;margin-top:2px}
+
+/* Centre */
+.logo-c{text-align:center}
+.bukhara{font-family:'Great Vibes',cursive;font-size:110px;line-height:1;letter-spacing:4px;
+  background:linear-gradient(160deg,#fff8e7 0%,#f5d98e 22%,#c9922a 46%,#f5d98e 62%,#fff8e7 78%,#c9922a 100%);
+  background-size:300% 300%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  opacity:0;transform:translateY(36px) scale(.88);
+  filter:drop-shadow(0 0 32px rgba(201,146,42,.55));
+  animation:bukIn 1.1s 1.6s cubic-bezier(.22,1,.36,1) forwards,shimmer 4.5s 3s ease-in-out infinite}
+@keyframes bukIn{to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes shimmer{0%,100%{background-position:0% 60%}50%{background-position:100% 40%}}
+
+.u-svg{display:block;margin-top:-10px;overflow:visible;opacity:0;animation:show .1s 2.7s forwards}
+.u-path{stroke:url(#gG);stroke-width:1.8;fill:none;stroke-dasharray:360;stroke-dashoffset:360;animation:draw 1.5s 2.7s cubic-bezier(.4,0,.2,1) forwards;filter:drop-shadow(0 0 6px rgba(201,146,42,.9))}
+
+.subtitle{font-family:'Cinzel',serif;font-size:13px;letter-spacing:8px;color:rgba(245,217,142,.7);text-transform:uppercase;
+  opacity:0;transform:translateY(10px);animation:fadeUp .9s 3.1s ease forwards;margin-top:6px}
+
+/* Pepsi */
+.pepsi{width:62px;height:62px;border-radius:50%;overflow:hidden;position:relative;
+  border:2px solid rgba(255,255,255,.15);opacity:0;flex-shrink:0;
+  animation:pepIn .9s 1.2s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes pepIn{0%{opacity:0;transform:scale(0) rotate(270deg)}100%{opacity:1;transform:scale(1) rotate(0);box-shadow:0 0 22px rgba(0,61,165,.3)}}
+.pep-r{height:50%;background:#c8102e}
+.pep-b{height:50%;background:#003DA5}
+.pep-w{position:absolute;left:-5px;right:-5px;top:44%;height:14%;background:#fff;border-radius:50%;transform:rotate(-6deg)}
+.pep-l{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:900 9px/1 'Cinzel',serif;color:#fff;letter-spacing:1.5px;text-shadow:0 1px 3px rgba(0,0,0,.6);z-index:2}
+
+/* Gems divider */
+.gems{display:flex;align-items:center;gap:10px;margin:20px 0 0;opacity:0;animation:fadeUp .7s 3.4s ease forwards}
+.gem-line{width:88px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.gem{width:8px;height:8px;background:var(--gold-l);transform:rotate(45deg);animation:gemP 2.5s 4s ease-in-out infinite}
+.gem-sm{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);animation:gemP 2.5s 4.2s ease-in-out infinite}
+@keyframes gemP{0%,100%{box-shadow:0 0 6px var(--gold)}50%{box-shadow:0 0 16px var(--gold-l),0 0 32px var(--gold)}}
+
+/* Bot ornament */
+.orn-bot{opacity:0;margin-top:18px;animation:fadeUp 1s 3.6s ease forwards}
+.orn-path2{stroke:var(--gold);stroke-width:.9;fill:none;opacity:.5;stroke-dasharray:380;stroke-dashoffset:380;animation:draw 1.6s 3.6s ease-out forwards}
+
+/* Tagline */
+.tagline{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;
+  color:rgba(255,248,231,.38);letter-spacing:3px;margin-top:20px;
+  opacity:0;animation:fadeUp .8s 3.9s ease forwards}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="scene">
+  <div class="bg"></div>
+  <div class="overlay"></div>
+  <div class="grain"></div>
+  <canvas id="c"></canvas>
+
+  <div class="stage">
+    <svg width="0" height="0" style="position:absolute">
+      <defs>
+        <linearGradient id="gG" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#f5d98e"/>
+          <stop offset="50%" stop-color="#c9922a"/>
+          <stop offset="100%" stop-color="#f5d98e"/>
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <div class="orn-top">
+      <svg width="440" height="36" viewBox="0 0 440 36">
+        <path class="orn-path" d="M0,18 L55,18 Q75,18 87,8 Q103,0 120,8 Q132,16 143,8 Q160,0 176,9 Q186,18 220,18 Q254,18 264,9 Q280,0 297,8 Q308,16 320,8 Q337,0 353,8 Q365,18 385,18 L440,18"/>
+        <circle class="orn-dot" cx="220" cy="18" r="3.5"/>
+        <circle class="orn-dot" cx="120" cy="8"  r="2.5" style="animation-delay:2.65s"/>
+        <circle class="orn-dot" cx="320" cy="8"  r="2.5" style="animation-delay:2.7s"/>
+      </svg>
+    </div>
+
+    <div class="badge-row">
+      <div class="halal"><span class="hal-ar">حلال</span><span class="hal-en">HALAL</span></div>
+      <div class="logo-c">
+        <div class="bukhara">Bukhara</div>
+        <svg class="u-svg" width="340" height="16" viewBox="0 0 340 16">
+          <path class="u-path" d="M8,12 Q85,2 170,9 Q255,16 332,6"/>
+        </svg>
+        <div class="subtitle">Indian &nbsp; Restoran</div>
+      </div>
+      <div class="pepsi"><div class="pep-r"></div><div class="pep-b"></div><div class="pep-w"></div><div class="pep-l">PEPSI</div></div>
+    </div>
+
+    <div class="gems">
+      <div class="gem-line"></div><div class="gem-sm"></div><div class="gem"></div><div class="gem-sm"></div><div class="gem-line"></div>
+    </div>
+
+    <div class="orn-bot">
+      <svg width="320" height="24" viewBox="0 0 320 24">
+        <path class="orn-path2" d="M0,12 L45,12 Q65,12 78,4 Q95,0 112,4 Q124,12 160,12 Q196,12 208,4 Q225,0 242,4 Q255,12 275,12 L320,12"/>
+      </svg>
+    </div>
+
+    <div class="tagline">Flavours of the Silk Road &nbsp;·&nbsp; Baku, Azerbaijan</div>
+  </div>
+</div>
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+canvas.width=canvas.height=820;
+const C=['#c9922a','#f5d98e','#ff8c00','#fff3c4','#e65c00'];
+class E{constructor(){this.reset(true)}reset(init){this.x=Math.random()*820;this.y=init?Math.random()*820:830;this.vx=(Math.random()-.5)*.55;this.vy=-(0.35+Math.random()*1.1);this.r=.5+Math.random()*2;this.col=C[Math.floor(Math.random()*C.length)];this.alpha=0;this.life=0;this.maxLife=130+Math.random()*220;this.flicker=Math.random()*Math.PI*2}update(){this.life++;this.x+=this.vx+Math.sin(this.life*.04+this.flicker)*.28;this.y+=this.vy;const t=this.life/this.maxLife;this.alpha=(t<.15?t/.15:t>.75?(1-t)/.25:1)*.55;if(this.life>=this.maxLife||this.y<-10)this.reset(false)}draw(){ctx.save();ctx.globalAlpha=this.alpha;ctx.shadowColor=this.col;ctx.shadowBlur=this.r*5;ctx.fillStyle=this.col;ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();ctx.restore()}}
+const embers=Array.from({length:90},()=>new E());
+(function loop(){ctx.clearRect(0,0,820,820);embers.forEach(e=>{e.update();e.draw()});requestAnimationFrame(loop)})();
+</script>
+</body>
+</html>

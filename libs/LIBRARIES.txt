@@ -1,0 +1,1003 @@
+================================================================
+  ANIMATION LIBRARIES — Reference & Documentation
+  Project: Animated Logo (Trust DMC / Aristokrat / etc.)
+  Location: C:\Projects\animated-logo\libs\
+  Last updated: 2026-06-07
+================================================================
+
+  Tailwind CSS       — CDN only (no local file needed)
+
+----------------------------------------------------------------
+  LOCAL FILE INDEX  (C:\Projects\animated-logo\libs\)
+----------------------------------------------------------------
+  anime.min.js         17  KB    Anime.js v3.2.1
+  countup.min.js       5.6 KB    CountUp.js v2.8.0
+  gsap.min.js          71  KB    GSAP 3.12.5
+  kute.min.js          43  KB    KUTE.js v2.2.4
+  lottie.min.js       299  KB    Lottie / Bodymovin v5.12.2
+  mo.min.js           131  KB    mo.js (@mojs/core)
+  p5.min.js          1005  KB    p5.js v1.9.0
+  scrollreveal.min.js  16  KB    ScrollReveal v4.0.9
+  splitting.min.js    3.7  KB    Splitting.js v1.0.6
+  splitting.min.css   1.8  KB    Splitting.js styles (required)
+  three.min.js        602  KB    Three.js r134
+  typed.min.js         12  KB    Typed.js v2.0.12
+  vivus.min.js         13  KB    Vivus v0.4.6
+
+----------------------------------------------------------------
+  NEW LIBRARIES — CDN ONLY (not yet downloaded locally)
+  Download and add to libs\ when needed
+----------------------------------------------------------------
+  pixi.min.js         ~1.1 MB   PixiJS v8  (2D WebGL renderer)
+  proton.min.js        ~90 KB   Proton.js  (particle engine)
+  ogl.min.js            ~8 KB   OGL.js     (minimal WebGL, shader-first)
+  curtains.min.js      ~80 KB   curtains.js (WebGL on HTML elements)
+  anime.v4.min.js      ~30 KB   Anime.js v4 (ES module version)
+  glslCanvas.min.js    ~20 KB   glslCanvas  (drop-in GLSL shader canvas)
+  tsparticles.min.js  ~150 KB   tsParticles (advanced particles)
+
+  CDN LINKS for each — see individual sections below.
+
+================================================================
+  HOW TO USE IN HTML (local files)
+================================================================
+
+  Adjust the relative path based on where your HTML file sits:
+    If HTML is in: aristokrat-spin-v3/   → use  ../libs/
+    If HTML is in: subfolder/nested/     → use  ../../libs/
+
+  <!-- GSAP (local — preferred) -->
+  <script src="../libs/gsap.min.js"></script>
+
+  <!-- GSAP (CDN — fallback if not serving from parent folder) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <!-- Three.js -->
+  <script src="../libs/three.min.js"></script>
+
+  <!-- p5.js -->
+  <script src="../libs/p5.min.js"></script>
+
+  <!-- anime.js v3 (local) -->
+  <script src="../libs/anime.min.js"></script>
+
+  <!-- anime.js v4 (CDN — ES module) -->
+  <script type="module">
+    import anime from 'https://cdn.jsdelivr.net/npm/animejs@4/lib/anime.min.js';
+  </script>
+
+  <!-- mo.js -->
+  <script src="../libs/mo.min.js"></script>
+
+  <!-- KUTE.js -->
+  <script src="../libs/kute.min.js"></script>
+
+  <!-- Vivus -->
+  <script src="../libs/vivus.min.js"></script>
+
+  <!-- Splitting.js (needs BOTH files) -->
+  <link rel="stylesheet" href="../libs/splitting.min.css">
+  <script src="../libs/splitting.min.js"></script>
+
+  <!-- Typed.js -->
+  <script src="../libs/typed.min.js"></script>
+
+  <!-- Lottie -->
+  <script src="../libs/lottie.min.js"></script>
+
+  <!-- CountUp.js -->
+  <script src="../libs/countup.min.js"></script>
+
+  <!-- ScrollReveal -->
+  <script src="../libs/scrollreveal.min.js"></script>
+
+  <!-- PixiJS v8 (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/pixi.js@8/dist/pixi.min.js"></script>
+
+  <!-- Proton.js (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/proton-engine/build/proton.min.js"></script>
+
+  <!-- OGL.js (CDN — ES module only) -->
+  <script type="module">
+    import { Renderer, Camera, Geometry, Program, Mesh } from 'https://cdn.jsdelivr.net/npm/ogl';
+  </script>
+
+  <!-- curtains.js (CDN) -->
+  <script src="https://www.curtainsjs.com/build/curtains.min.js"></script>
+
+  <!-- glslCanvas (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/glsl-canvas/dist/umd/index.min.js"></script>
+
+  <!-- tsParticles (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles/tsparticles.bundle.min.js"></script>
+
+  <!-- Tailwind CSS (CDN only) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+
+================================================================
+  ★ NEW: PIXIJS v8
+================================================================
+  GitHub     : https://github.com/pixijs/pixijs  (57k stars)
+  CDN        : https://cdn.jsdelivr.net/npm/pixi.js@8/dist/pixi.min.js
+  Version    : 8.x
+  Size       : ~1.1 MB (or ~300 KB with slim build)
+  Renderer   : WebGL / WebGPU (fastest 2D in browser)
+
+  WHAT IT DOES:
+    The fastest 2D renderer in the browser — 5-10× faster than Canvas 2D.
+    Has built-in sprite sheets, filters (blur, glow, displacement, color
+    matrix), and a full scene graph. Pairs perfectly with GSAP for
+    high-performance logo reveals with shader effects.
+
+  KEY FEATURES:
+    - DisplacementFilter  — warp/melt/liquid effects using a grayscale map
+    - BlurFilter          — fast GPU blur
+    - GlowFilter          — neon glow on sprites
+    - ColorMatrixFilter   — hue shift, saturation, brightness
+    - Graphics API        — draw shapes/lines procedurally
+    - Sprite              — display PNG/texture at 60fps
+
+  USAGE EXAMPLES:
+    // Basic setup
+    const app = new PIXI.Application();
+    await app.init({ width:1080, height:1920, backgroundAlpha:0 });
+    document.getElementById('stage').appendChild(app.canvas);
+
+    // Load logo PNG as texture
+    const texture = await PIXI.Assets.load('aristokrat_logo.png');
+    const logo    = new PIXI.Sprite(texture);
+    logo.anchor.set(0.5);
+    logo.x = 540; logo.y = 960;
+    app.stage.addChild(logo);
+
+    // Displacement filter — liquid/warp effect
+    const dispTexture = await PIXI.Assets.load('displacement_map.png');
+    const dispSprite  = new PIXI.Sprite(dispTexture);
+    const dispFilter  = new PIXI.DisplacementFilter(dispSprite);
+    dispFilter.scale.set(80); // intensity
+    logo.filters = [dispFilter];
+    app.stage.addChild(dispSprite);
+
+    // Animate with GSAP — reduce displacement to 0 as logo reveals
+    gsap.to(dispFilter.scale, { x:0, y:0, duration:3, ease:'power2.out' });
+
+    // Glow filter
+    const glowFilter = new PIXI.filters.GlowFilter({
+      distance: 15,
+      outerStrength: 2,
+      innerStrength: 1,
+      color: 0xffd700,
+    });
+    logo.filters = [glowFilter];
+
+  LOGO REVEAL IDEAS WITH PIXI:
+    1. Logo spawns through a liquid displacement warp → displacement fades to 0
+    2. Logo glows gold then color-corrects to white
+    3. Pixelated blocky logo → blur clears → sharp (use ColorMatrix + Blur)
+
+  BEST FOR: Liquid/warp reveals, glow effects, high-performance 2D WebGL
+
+
+================================================================
+  ★ NEW: PROTON.JS  (particle engine)
+================================================================
+  GitHub     : https://github.com/drawcall/Proton
+  CDN        : https://cdn.jsdelivr.net/npm/proton-engine/build/proton.min.js
+  3D version : https://github.com/drawcall/three.proton  (works with Three.js)
+  Size       : ~90 KB
+
+  WHAT IT DOES:
+    A dedicated particle system engine with emitters, forces, behaviors,
+    and renderers. Much more powerful than manual canvas particles.
+    Can render to Canvas 2D or WebGL. Has a Three.js integration for
+    3D particles.
+
+  KEY CONCEPTS:
+    Proton           — the main engine (update loop)
+    Emitter          — emits particles (point, line, sphere zones)
+    Particle         — has position, velocity, life, color, radius
+    Behaviour        — forces applied to particles:
+                       Attraction, Repulsion, Gravity, RandomDrift,
+                       Color (fade color over life), Scale (size over life)
+    Renderer         — CanvasRenderer | WebGLRenderer | DomRenderer
+
+  USAGE EXAMPLES:
+    // Setup
+    const proton   = new Proton();
+    const emitter  = new Proton.Emitter();
+    const renderer = new Proton.CanvasRenderer(canvas);
+
+    // Emit 2000 particles per second for 0.1 seconds (burst)
+    emitter.rate = new Proton.Rate(
+      new Proton.Span(2000),  // particles per emit
+      new Proton.Span(0.1)    // seconds between emits
+    );
+
+    // Behaviours
+    emitter.addBehaviour(new Proton.Alpha(1, 0));         // fade out
+    emitter.addBehaviour(new Proton.Scale(1, 0));         // shrink
+    emitter.addBehaviour(new Proton.Color('#fff','#ffd700')); // white→gold
+    emitter.addBehaviour(new Proton.RandomDrift(3,3,0.05));
+    emitter.addBehaviour(new Proton.Gravity(0.5));
+
+    // Zone — particles start from logo center
+    emitter.addInitialize(new Proton.Position(
+      new Proton.CircleZone(540, 960, 200) // cx, cy, radius
+    ));
+    emitter.addInitialize(new Proton.Life(1, 3));
+    emitter.addInitialize(new Proton.Velocity(
+      new Proton.Span(2,5),
+      new Proton.Span(0, 360), 'polar'
+    ));
+
+    emitter.emit('once'); // burst
+    proton.addEmitter(emitter);
+    proton.addRenderer(renderer);
+
+    // Update in RAF loop
+    function loop(){ proton.update(); requestAnimationFrame(loop); }
+    loop();
+
+    // Logo EXPLODES into particles then reassembles:
+    // 1. Start: logo PNG visible
+    // 2. Sample logo pixels → store as target positions
+    // 3. Emit particles from logo center with outward velocity
+    // 4. Add Attraction behavior pointing to target positions
+    // 5. Particles spiral out then get pulled back into logo shape
+
+  BEST FOR: Explosion + reassembly reveals, fireworks, logo disintegration
+
+
+================================================================
+  ★ NEW: OGL.JS  (minimal WebGL, shader-first)
+================================================================
+  GitHub     : https://github.com/oframe/ogl
+  CDN (ESM)  : https://cdn.jsdelivr.net/npm/ogl
+  Size       : ~8 KB gzipped (zero dependencies)
+
+  WHAT IT DOES:
+    Minimal WebGL wrapper — like Three.js but 70× smaller and closer to
+    raw WebGL. Designed for developers who want to write their own GLSL
+    shaders without Three.js overhead. Perfect for custom shader effects
+    on logos — noise dissolve, glitch, scanlines, chromatic aberration.
+
+  KEY CLASSES:
+    Renderer   — creates WebGL context
+    Camera     — perspective or ortho
+    Geometry   — vertex/uv/normal buffers
+    Program    — vertex + fragment shader
+    Mesh       — geometry + program
+    Texture    — load images as GL textures
+
+  USAGE EXAMPLE (noise dissolve reveal):
+    <script type="module">
+    import { Renderer, Camera, Geometry, Program, Mesh, Texture }
+      from 'https://cdn.jsdelivr.net/npm/ogl';
+
+    const renderer = new Renderer({ alpha:true, antialias:true });
+    const gl       = renderer.gl;
+    document.getElementById('stage').appendChild(gl.canvas);
+    renderer.setSize(1080, 1920);
+
+    const camera = new Camera(gl, { fov:35 });
+    camera.position.z = 5;
+
+    const geometry = new Geometry(gl, {
+      position: { size:2, data: new Float32Array([-1,-1, 3,-1, -1,3]) },
+      uv:       { size:2, data: new Float32Array([0,0, 2,0, 0,2]) },
+    });
+
+    const program = new Program(gl, {
+      vertex: `
+        attribute vec2 position;
+        attribute vec2 uv;
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = vec4(position, 0, 1);
+        }
+      `,
+      fragment: `
+        precision highp float;
+        uniform sampler2D uTexture;
+        uniform float uProgress;  /* 0=hidden, 1=revealed */
+        varying vec2 vUv;
+
+        /* Simple pseudo-random noise */
+        float rand(vec2 co){
+          return fract(sin(dot(co,vec2(12.9898,78.233)))*43758.5453);
+        }
+
+        void main() {
+          vec4 color = texture2D(uTexture, vUv);
+          /* Dissolve: pixel appears when noise < uProgress */
+          float noise = rand(vUv * 8.0);
+          if(noise > uProgress) discard;
+          gl_FragColor = color;
+        }
+      `,
+      uniforms: {
+        uTexture:  { value: logoTexture },
+        uProgress: { value: 0.0 },       /* GSAP tweens this 0 → 1 */
+      },
+    });
+
+    const mesh = new Mesh(gl, { geometry, program });
+    gsap.to(program.uniforms.uProgress, { value:1, duration:3 });
+    </script>
+
+  SHADER EFFECTS YOU CAN BUILD:
+    - Noise dissolve (pixels appear one by one via noise threshold)
+    - Chromatic aberration (RGB channels offset — glitch look)
+    - Scanline / CRT effect (horizontal lines sweep)
+    - Radial wipe (circular reveal from center)
+    - Fire/plasma background (mathematical fragment shader)
+
+  BEST FOR: Custom GLSL shader reveals, raw GPU effects, lightweight 3D
+
+
+================================================================
+  ★ NEW: CURTAINS.JS  (WebGL shaders on HTML elements)
+================================================================
+  GitHub     : https://github.com/martinlaxenaire/curtainsjs
+  CDN        : https://www.curtainsjs.com/build/curtains.min.js
+  Docs       : https://www.curtainsjs.com
+  Size       : ~80 KB
+
+  WHAT IT DOES:
+    Turns regular HTML img/video/canvas elements into WebGL textured
+    planes that you can distort with custom GLSL fragment shaders.
+    Great for displacement map reveals — logo appears through a wavy,
+    melting, or noisy distortion that clears away.
+
+  KEY CONCEPT:
+    HTML element (img tag)  →  curtains converts to WebGL plane
+    You write a fragment shader that reads the image texture + a
+    displacement texture, offsetting pixel coords to create distortion.
+    Animate a uProgress uniform from 1 (max distortion) → 0 (clear).
+
+  USAGE EXAMPLE:
+    <div id="canvas"></div>
+    <div class="plane">
+      <img src="aristokrat_logo.png" data-sampler="uLogoTexture">
+      <img src="displacement.png"    data-sampler="uDisplacement" hidden>
+    </div>
+
+    <script>
+    const curtains = new Curtains({ container: 'canvas' });
+
+    const params = {
+      vertexShader: `
+        precision mediump float;
+        attribute vec3 aVertexPosition;
+        attribute vec2 aTextureCoord;
+        uniform mat4 uMVMatrix, uPMatrix;
+        uniform mat4 uLogoTextureMatrix;
+        varying vec2 vLogoUv;
+        void main() {
+          vLogoUv = (uLogoTextureMatrix * vec4(aTextureCoord, 0, 1)).xy;
+          gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1);
+        }
+      `,
+      fragmentShader: `
+        precision mediump float;
+        uniform sampler2D uLogoTexture;
+        uniform sampler2D uDisplacement;
+        uniform float     uProgress;   /* 1=max warp → 0=clear */
+        varying vec2 vLogoUv;
+        void main() {
+          vec4 disp   = texture2D(uDisplacement, vLogoUv);
+          vec2 offset = uProgress * (disp.rg - 0.5) * 0.4;
+          gl_FragColor = texture2D(uLogoTexture, vLogoUv + offset);
+        }
+      `,
+      uniforms: {
+        progress: { name:'uProgress', type:'1f', value:1.0 }
+      }
+    };
+
+    const plane = curtains.addPlane(document.querySelector('.plane'), params);
+    plane.onReady(() => {
+      // GSAP: warp disappears → logo reveals cleanly
+      gsap.to(plane.uniforms.progress, { value:0, duration:3, ease:'power2.out' });
+    });
+    </script>
+
+  BEST FOR: Displacement warp reveals, melting transitions, video distortion
+
+
+================================================================
+  ★ NEW: ANIME.JS v4  (updated major version)
+================================================================
+  GitHub     : https://github.com/juliangarnier/anime  (50k stars)
+  CDN (ESM)  : https://cdn.jsdelivr.net/npm/animejs@4/lib/anime.min.js
+  v3 CDN     : https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js
+  Version    : 4.x (breaking change from v3 — ES modules only)
+
+  WHAT'S NEW IN v4:
+    - ES module import only (no global anime object)
+    - Built-in spring physics: ease:'spring(mass, stiffness, damping)'
+    - Better stagger with grid support
+    - Cleaner API
+
+  USAGE EXAMPLES (v4 ES module):
+    <script type="module">
+    import { animate, stagger, createTimeline } from
+      'https://cdn.jsdelivr.net/npm/animejs@4/lib/anime.min.js';
+
+    // Stagger text chars with spring
+    animate('.char', {
+      opacity:    [0, 1],
+      translateY: [20, 0],
+      delay:      stagger(40),
+      ease:       'spring(1, 80, 10)',
+    });
+
+    // Timeline
+    const tl = createTimeline();
+    tl.add('.logo',   { scale:[0,1], duration:800, ease:'outElastic(1,0.6)' })
+      .add('.tagline',{ opacity:[0,1], duration:500 }, '-=200');
+
+    // Draw SVG path (same as v3)
+    animate('.path', {
+      strokeDashoffset: [anime.setDashoffset, 0],
+      duration: 1200,
+      ease: 'inOutSine',
+    });
+    </script>
+
+  NOTE: v3 (local anime.min.js in libs/) uses old global API.
+        v4 (CDN) uses ES module import. They are NOT compatible.
+        Use v3 for projects that already use it. Use v4 for new projects.
+
+  BEST FOR: Spring-physics reveals, character stagger, SVG path drawing
+
+
+================================================================
+  ★ NEW: GLSLCANVAS  (raw GLSL fragment shaders on <canvas>)
+================================================================
+  GitHub     : https://github.com/patriciogonzalezvivo/glslCanvas
+  CDN        : https://cdn.jsdelivr.net/npm/glsl-canvas/dist/umd/index.min.js
+  Size       : ~20 KB
+
+  WHAT IT DOES:
+    The simplest way to run a GLSL fragment shader in the browser.
+    Just add data-fragment attribute to a canvas with your shader code
+    (or a URL to a .glsl file). Library handles WebGL context, clock,
+    resolution uniforms automatically.
+
+  AUTO-PROVIDED UNIFORMS:
+    u_time       — seconds since start (float)
+    u_resolution — canvas size in pixels (vec2)
+    u_mouse      — mouse position (vec2)
+    u_tex0..9    — textures from data-textures attribute
+
+  USAGE EXAMPLE (fire/plasma background):
+    <canvas class="glslCanvas" data-fragment="
+      #ifdef GL_ES
+      precision mediump float;
+      #endif
+      uniform float u_time;
+      uniform vec2  u_resolution;
+
+      float noise(vec2 p){
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+      }
+
+      void main(){
+        vec2 uv = gl_FragCoord.xy / u_resolution;
+        float n = noise(uv * 5.0 + u_time * 0.3);
+        vec3 col = mix(vec3(0.0,0.02,0.08), vec3(0.9,0.7,0.1), n);
+        gl_FragColor = vec4(col, 1.0);
+      }
+    " width="1080" height="1920"></canvas>
+    <script src="glslCanvas.min.js"></script>
+
+  USAGE WITH LOGO TEXTURE (dissolve reveal):
+    <canvas class="glslCanvas"
+      data-fragment-url="dissolve.glsl"
+      data-textures="aristokrat_logo.png"
+      width="1080" height="1920">
+    </canvas>
+
+    // In dissolve.glsl:
+    uniform sampler2D u_tex0;
+    uniform float u_time;
+    void main(){
+      vec2 uv = gl_FragCoord.xy / u_resolution;
+      vec4 logo = texture2D(u_tex0, uv);
+      float noise = fract(sin(dot(uv*20.0, vec2(12.98,78.23)))*43758.5);
+      float reveal = smoothstep(noise, noise+0.1, u_time * 0.2);
+      gl_FragColor = logo * reveal;
+    }
+
+  BEST FOR: Fire/plasma backgrounds, noise dissolve reveals, GPU effects
+
+
+================================================================
+  ★ NEW: TSPARTICLES  (advanced configurable particles)
+================================================================
+  GitHub     : https://github.com/tsparticles/tsparticles  (8k stars)
+  CDN        : https://cdn.jsdelivr.net/npm/tsparticles/tsparticles.bundle.min.js
+  Docs       : https://particles.js.org/samples/
+  Size       : ~150 KB (bundle includes all effects)
+
+  WHAT IT DOES:
+    Drop-in configurable particle system. Hundreds of pre-built presets —
+    fireworks, confetti, snow, neon, star field, polygon network, etc.
+    All controlled by a JSON config object.
+
+  USAGE EXAMPLE:
+    <div id="tsparticles"></div>
+    <script src="tsparticles.bundle.min.js"></script>
+    <script>
+    tsParticles.load({
+      id: 'tsparticles',
+      options: {
+        background: { color: { value: 'transparent' } },
+        particles: {
+          number:    { value: 120 },
+          color:     { value: ['#ffd700', '#ffb300', '#fff'] },
+          shape:     { type: 'circle' },
+          opacity:   { value: { min:0.1, max:0.8 },
+                       animation: { enable:true, speed:1 } },
+          size:      { value: { min:1, max:4 } },
+          move: {
+            enable: true, speed: 0.5, direction: 'top',
+            random: true, outModes: { default:'out' },
+          },
+        },
+      },
+    });
+    </script>
+
+  PRE-BUILT PRESETS (one-liner):
+    await loadFireworksPreset(tsParticles);
+    await loadConfettiPreset(tsParticles);
+    await loadSnowPreset(tsParticles);
+    // see https://particles.js.org/samples for full list
+
+  BEST FOR: Quick rich particle backgrounds, no coding required for basics
+
+
+================================================================
+  ★ NEW: MOTION CANVAS  (code → export video file)
+================================================================
+  GitHub     : https://github.com/motion-canvas/motion-canvas  (★ Key tool)
+  Website    : http://www.motioncanvas.io/
+  Type       : Node.js dev tool (not a browser CDN lib)
+
+  WHAT IT DOES:
+    Write animations in TypeScript → they render and export directly as
+    MP4 or WebM via FFmpeg. No screen recording. No OBS. Perfect quality.
+    Like After Effects but entirely in code.
+
+  HOW IT WORKS:
+    1. npm create motion-canvas@latest my-animation
+    2. Write your animation in TypeScript (similar to GSAP syntax)
+    3. Preview in browser at localhost:9000
+    4. Press "Export" → generates PNG sequence or MP4
+
+  BASIC ANIMATION EXAMPLE:
+    import {makeScene2D, Img, waitFor} from '@motion-canvas/2d';
+    import {createRef, tween, easeInOutCubic} from '@motion-canvas/core';
+
+    export default makeScene2D(function*(view) {
+      const logo = createRef<Img>();
+      view.add(<Img ref={logo} src="/aristokrat_logo.png" opacity={0} />);
+
+      // Fade in
+      yield* tween(1.0, v => logo().opacity(easeInOutCubic(v)));
+      yield* waitFor(2);
+
+      // Scale up
+      yield* tween(0.8, v => logo().scale(1 + easeInOutCubic(v) * 0.2));
+    });
+
+  SETUP:
+    npm create motion-canvas@latest
+    cd my-animation
+    npm install
+    npm run dev   # opens preview at localhost:9000
+
+  NOTE: Requires Node.js. Not a browser script. Separate from the
+        existing HTML-based animation workflow. But output video can
+        be used anywhere — OBS, Premiere, DaVinci Resolve, etc.
+
+  BEST FOR: When you need an actual MP4 file without screen recording
+
+
+================================================================
+  GSAP (Green Sock Animation Platform)
+================================================================
+  File        : gsap.min.js  (in libs/)
+  CDN         : https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js
+  Version     : 3.12.5  (now 100% free as of April 2025)
+  Size        : ~71 KB
+
+  WHAT IT DOES:
+    Industry-standard JS animation library. Animates any CSS property,
+    SVG attribute, DOM element, or JS object with a clean timeline API.
+    Used as the master timeline controller in ALL project versions.
+
+  KEY FEATURES:
+    - gsap.to() / gsap.from() / gsap.fromTo()
+    - gsap.timeline() — sequence multiple animations
+    - Easing: power1-4, back, bounce, elastic, sine, expo, circ
+    - Staggers: animate multiple targets with delay between each
+    - Can tween any JS object property (used for Three.js uniforms)
+
+  USAGE EXAMPLES:
+    // Fade in + move up
+    gsap.from('.logo', { opacity:0, y:40, duration:1, ease:'power3.out' });
+
+    // Timeline sequence
+    const tl = gsap.timeline();
+    tl.to('.line',  { scaleX:1, duration:0.8 })
+      .to('.logo',  { opacity:1, scale:1, duration:1.2 }, '-=0.3')
+      .to('.text',  { opacity:1, y:0, duration:0.6 }, '-=0.2');
+
+    // Stagger multiple elements
+    gsap.to('.char', { opacity:1, y:0, stagger:0.05, duration:0.4 });
+
+    // Tween a plain object (for Three.js / custom progress)
+    const prog = { p:0 };
+    gsap.to(prog, { p:1, duration:5, onUpdate(){ /* use prog.p */ } });
+
+    // Infinite loop
+    gsap.to('.glow', { opacity:0.3, duration:2, repeat:-1, yoyo:true });
+
+  BEST FOR: Master timelines, complex sequences, logo reveals
+
+
+================================================================
+  ANIME.JS  (v3 — local file)
+================================================================
+  File        : anime.min.js  (in libs/)
+  CDN         : https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js
+  Version     : 3.2.1
+  Size        : ~17 KB
+
+  WHAT IT DOES:
+    Lightweight animation engine. Excellent for SVG path drawing,
+    staggered text effects, and property-based animations.
+
+  KEY FEATURES:
+    - anime({ targets, properties, easing, duration, delay })
+    - anime.stagger() — elegant stagger control
+    - SVG stroke-dashoffset animation (draw paths)
+    - anime.setDashoffset() — auto-measure SVG path length
+
+  USAGE EXAMPLES:
+    // Draw SVG path
+    anime({
+      targets: '.corner-path',
+      strokeDashoffset: [anime.setDashoffset, 0],
+      easing: 'easeInOutSine',
+      duration: 1400,
+    });
+
+    // Char-by-char text stagger
+    anime({
+      targets: '.char',
+      opacity:    [0, 1],
+      translateY: [12, 0],
+      easing:     'easeOutCubic',
+      duration:   420,
+      delay:      anime.stagger(52),
+    });
+
+  BEST FOR: SVG drawing, character-by-character text, staggered reveals
+
+
+================================================================
+  TYPED.JS
+================================================================
+  File        : typed.min.js
+  CDN         : https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js
+  Version     : 2.0.12  |  Size: ~12 KB
+
+  WHAT IT DOES:
+    Typewriter effect. Types strings, backspaces, types next string.
+
+  USAGE EXAMPLES:
+    new Typed('#el', {
+      strings:   ['Luxury Travel', 'Premium Experiences'],
+      typeSpeed: 50,
+      backSpeed: 30,
+      loop:      true,
+    });
+
+    new Typed('#tagline', {
+      strings:    ['Crafted Journeys. Timeless Memories.'],
+      typeSpeed:  55,
+      showCursor: true,
+      cursorChar: '|',
+      onComplete: (self) => self.cursor.remove(),
+    });
+
+  BEST FOR: Simple typewriter without Splitting.js complexity
+
+
+================================================================
+  SPLITTING.JS
+================================================================
+  Files       : splitting.min.js + splitting.min.css
+  Version     : 1.0.6  |  Size: 3.7 KB + 1.8 KB
+
+  WHAT IT DOES:
+    Splits text into individual <span> per char/word/line.
+    Each gets CSS custom properties for pure-CSS stagger animations.
+
+  USAGE EXAMPLES:
+    Splitting();  // auto-detects [data-splitting]
+
+    // HTML
+    <h1 data-splitting>Aristokrat Travel</h1>
+
+    // CSS stagger
+    .char {
+      animation: fadeUp 0.5s both;
+      animation-delay: calc(var(--char-index) * 0.04s);
+    }
+
+  SETUP: Must include BOTH .js AND .css files
+  BEST FOR: Pure-CSS character animations, word reveals
+
+
+================================================================
+  VIVUS
+================================================================
+  File : vivus.min.js  |  Version: 0.4.6  |  Size: ~13 KB
+
+  WHAT IT DOES:
+    Animates inline SVG paths — draws them as if hand-drawn.
+
+  USAGE EXAMPLES:
+    new Vivus('my-svg', { type:'delayed', duration:200 });
+    new Vivus('logo-svg', { type:'oneByOne', duration:150,
+      animTimingFunction: Vivus.EASE_OUT });
+
+  TYPES: 'delayed' | 'async' | 'oneByOne' | 'scenario' | 'scenario-sync'
+  BEST FOR: Logo line-drawing animation, SVG corner ornaments
+
+
+================================================================
+  KUTE.JS
+================================================================
+  File : kute.min.js  |  Version: 2.2.4  |  Size: ~43 KB
+
+  WHAT IT DOES:
+    Tween engine with strong SVG morphing and CSS variable animation.
+
+  USAGE EXAMPLES:
+    KUTE.to('.el', { opacity:1, translateY:0 }, { duration:800 }).start();
+
+    // SVG path morphing
+    KUTE.fromTo('#shape', { path:'#shape' }, { path:'#shape2' },
+      { duration:600, easing:'easingCubicInOut' }).start();
+
+  BEST FOR: SVG morphing, chained sequences
+
+
+================================================================
+  THREE.JS
+================================================================
+  File : three.min.js  |  Version: r134  |  Size: ~602 KB
+
+  WHAT IT DOES:
+    Full 3D rendering in the browser via WebGL.
+
+  USAGE EXAMPLES:
+    const scene    = new THREE.Scene();
+    const camera   = new THREE.PerspectiveCamera(75, W/H, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ alpha:true, antialias:true });
+    renderer.setSize(1080, 1920);
+    document.getElementById('stage').appendChild(renderer.domElement);
+
+    // Gold point particles
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+    const mat = new THREE.PointsMaterial({ color:0xffffff, size:2.8 });
+    scene.add(new THREE.Points(geo, mat));
+
+  NOTE: Large file (602 KB) — only use when 3D effects needed.
+  BEST FOR: 3D particle assembly, camera push-in reveals
+
+
+================================================================
+  P5.JS
+================================================================
+  File : p5.min.js  |  Version: 1.9.0  |  Size: ~1 MB
+
+  WHAT IT DOES:
+    Creative coding / generative art. Excellent for Perlin noise
+    flow fields, organic particle motion, procedural visuals.
+
+  USAGE EXAMPLES:
+    // Instance mode (recommended — avoids global pollution)
+    new p5((p) => {
+      p.setup = () => {
+        p.pixelDensity(1);
+        const cv = p.createCanvas(1080, 1920);
+        cv.parent(stageEl);
+      };
+      p.draw = () => {
+        p.clear();
+        const angle = p.noise(x*0.003, y*0.003, p.millis()*0.0003)
+                      * p.TWO_PI * 4;
+        // draw particles following noise field...
+      };
+    });
+
+  NOTE: Very large (1 MB) — use raw canvas for simple particles.
+  BEST FOR: Flow fields, noise-based organic motion, generative art
+
+
+================================================================
+  MO.JS
+================================================================
+  File : mo.min.js  |  Version: @mojs/core  |  Size: ~131 KB
+
+  WHAT IT DOES:
+    Motion graphics library for burst effects, shape animations,
+    and physics-based sparkles. Great for logo pop moments.
+
+  USAGE EXAMPLES:
+    const burst = new mojs.Burst({
+      left:0, top:0,
+      radius:   { 0: 80 },
+      count:    8,
+      children: {
+        shape:'circle', fill:'#C9922A',
+        radius: { 4: 0 }, duration: 600,
+      }
+    });
+    burst.generate().replay();
+
+  BEST FOR: Burst/explosion on flash moments, sparkle reveals
+
+
+================================================================
+  LOTTIE (Bodymovin)
+================================================================
+  File : lottie.min.js  |  Version: 5.12.2  |  Size: ~299 KB
+
+  WHAT IT DOES:
+    Plays After Effects animations exported as JSON (Lottie format).
+
+  USAGE EXAMPLES:
+    const anim = lottie.loadAnimation({
+      container: document.getElementById('lottie-container'),
+      renderer:  'svg',   // 'svg' | 'canvas' | 'html'
+      loop:      true,
+      autoplay:  true,
+      path:      'animation.json',
+    });
+    anim.setSpeed(1.5);
+    anim.goToAndPlay(30, true); // go to frame 30
+
+  NOTE: Needs a .json file from After Effects + Bodymovin plugin.
+  BEST FOR: Playing After Effects animations in browser
+
+
+================================================================
+  SCROLLREVEAL
+================================================================
+  File : scrollreveal.min.js  |  Version: 4.0.9  |  Size: ~16 KB
+
+  NOTE: Not useful for standalone logo animations.
+  BEST FOR: Web landing pages with scroll-triggered reveals only
+
+  USAGE:
+    ScrollReveal().reveal('.logo', {
+      delay:200, distance:'30px', origin:'bottom', duration:800 });
+
+
+================================================================
+  COUNTUP.JS
+================================================================
+  File : countup.min.js  |  Version: 2.8.0  |  Size: ~5.6 KB
+
+  BEST FOR: Animated number counters, year labels on intros
+
+  USAGE:
+    const cu = new CountUp('year-el', 2003, {
+      startVal:2000, duration:2, useEasing:true });
+    cu.start();
+
+
+================================================================
+  QUICK REFERENCE — WHICH LIBRARY FOR WHAT
+================================================================
+
+  TASK                                LIBRARY
+  ----------------------------------  ----------------------------
+  Master animation timeline           GSAP
+  Complex 3D / camera reveal          Three.js
+  Particle assembly from logo pixels  Three.js  (aristokrat-threejs)
+  Flow field organic particles        p5.js     (aristokrat-p5flow)
+  Liquid / warp displacement reveal   PixiJS v8  ← NEW
+  GLSL shader noise dissolve          OGL.js  or  glslCanvas  ← NEW
+  Displacement warp on HTML element   curtains.js  ← NEW
+  Logo explode + reassemble           Proton.js  ← NEW
+  Spring-physics bounce reveals       Anime.js v4  ← NEW
+  Quick configurable particle bg      tsParticles  ← NEW
+  Export animation as real MP4        Motion Canvas  ← NEW
+  SVG path hand-draw animation        Vivus  or  anime.js
+  SVG shape morphing                  KUTE.js
+  Character-by-character text         anime.js  or  Splitting.js
+  Simple typewriter effect            Typed.js
+  Burst / sparkle flash moment        mo.js
+  Play After Effects animation        Lottie
+  Number counter animation            CountUp.js
+  Scroll-triggered web reveals        ScrollReveal
+
+
+================================================================
+  VERSION IDEAS USING EACH LIBRARY
+================================================================
+
+  V1  aristokrat-logo-reveal   — GSAP blur/lens flare reveal
+  V2  aristokrat-spin          — GSAP Z-axis spin
+  V3  aristokrat-spin-v2       — GSAP Y-axis 3D spin + blur
+  V4  aristokrat-spin-v3       — 9:16 portrait Y-axis spin
+  V5  aristokrat-spin-v4       — 9:16 + white lines + sparkles
+  V6  aristokrat-threejs       — Three.js 3D particle assembly
+  V7  aristokrat-p5flow        — p5.js Perlin noise flow field
+  ---
+  V8  [todo] PixiJS displacement   — Logo warps in from liquid/melt state
+  V9  [todo] curtains.js GLSL      — Noise/chromatic aberration dissolve
+  V10 [todo] Proton.js             — Logo explodes → particles → reassembles
+  V11 [todo] OGL.js shader         — Raw GLSL: scanline/glitch → resolve
+  V12 [todo] Anime.js v4           — Stagger-slice spring reveal
+  V13 [todo] Motion Canvas         — Export direct MP4, no screen record
+
+
+================================================================
+  GITHUB RESOURCES TO BOOKMARK
+================================================================
+
+  Particle animations:
+    https://github.com/topics/logo-animation
+    https://github.com/topics/particle?o=desc&s=updated
+    https://github.com/topics/particles-animations
+    https://github.com/drawcall/Proton
+    https://github.com/drawcall/three.proton
+
+  WebGL / Shaders:
+    https://github.com/oframe/ogl
+    https://github.com/martinlaxenaire/curtainsjs
+    https://github.com/patriciogonzalezvivo/glslCanvas
+
+  Animation engines:
+    https://github.com/juliangarnier/anime
+    https://github.com/theatre-js/theatre
+    https://github.com/motion-canvas/motion-canvas
+    https://github.com/pixijs/pixijs
+    https://github.com/tsparticles/tsparticles
+
+  Effect inspiration:
+    https://tympanus.net/codrops  (Codrops — best source for demos)
+    https://codepen.io            (search: logo reveal, particle text)
+    https://particles.js.org/samples
+
+
+================================================================
+  SOURCES / CDN INDEX
+================================================================
+  cdnjs      : https://cdnjs.cloudflare.com
+  unpkg      : https://unpkg.com
+  jsdelivr   : https://cdn.jsdelivr.net
+  PixiJS     : https://cdn.jsdelivr.net/npm/pixi.js@8/dist/pixi.min.js
+  Proton.js  : https://cdn.jsdelivr.net/npm/proton-engine/build/proton.min.js
+  OGL.js     : https://cdn.jsdelivr.net/npm/ogl  (ES module)
+  curtains   : https://www.curtainsjs.com/build/curtains.min.js
+  Anime v4   : https://cdn.jsdelivr.net/npm/animejs@4/lib/anime.min.js
+  glslCanvas : https://cdn.jsdelivr.net/npm/glsl-canvas/dist/umd/index.min.js
+  tsParticles: https://cdn.jsdelivr.net/npm/tsparticles/tsparticles.bundle.min.js
+  GSAP       : https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js
+  Anime v3   : https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js
+
+================================================================

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scene 01 — Cold Open</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--gold:#c9922a;--gold-l:#f5d98e;--deep:#060402}
+body{background:var(--deep);display:flex;align-items:center;justify-content:center;width:100vw;height:100vh;overflow:hidden}
+.scene{position:relative;width:820px;height:820px;overflow:hidden;background:var(--deep)}
+
+canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+
+.vignette{position:absolute;inset:0;z-index:2;
+  background:radial-gradient(ellipse 75% 75% at 50% 50%,transparent 20%,rgba(6,4,2,.5) 65%,rgba(6,4,2,.96) 100%)}
+
+.content{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px}
+
+.pre-line{font-family:'Cinzel',serif;font-size:11px;letter-spacing:10px;color:rgba(245,217,142,.0);
+  text-transform:uppercase;
+  animation:fadeUp .8s .4s ease forwards}
+
+.hungry{font-family:'Great Vibes',cursive;font-size:148px;line-height:1;
+  background:linear-gradient(160deg,#fff8e7 0%,#f5d98e 25%,#c9922a 50%,#f5d98e 68%,#fff8e7 85%);
+  background-size:300% 300%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  opacity:0;transform:scale(.82) translateY(30px);
+  filter:drop-shadow(0 0 40px rgba(201,146,42,.6));
+  animation:hunIn 1.4s .8s cubic-bezier(.22,1,.36,1) forwards,shimmer 4s 2.5s ease-in-out infinite}
+
+@keyframes hunIn{to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes shimmer{0%,100%{background-position:0% 60%}50%{background-position:100% 40%}}
+
+.sub-line{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;
+  letter-spacing:5px;color:rgba(255,248,231,.42);
+  opacity:0;transform:translateY(12px);
+  animation:fadeUp .9s 2.0s ease forwards}
+
+/* Ornamental SVG divider */
+.orn{opacity:0;animation:fadeUp .6s 2.4s ease forwards;margin-top:4px}
+.orn-path{stroke:var(--gold);stroke-width:.9;fill:none;opacity:.55;
+  stroke-dasharray:360;stroke-dashoffset:360;
+  animation:draw 1.4s 2.4s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+.place{font-family:'Cinzel',serif;font-size:10px;letter-spacing:6px;
+  color:rgba(201,146,42,.55);text-transform:uppercase;
+  opacity:0;animation:fadeUp .7s 3.2s ease forwards}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="scene">
+  <canvas id="c"></canvas>
+  <div class="vignette"></div>
+  <div class="content">
+    <div class="pre-line">Bukhara Indian Restoran Presents</div>
+    <div class="hungry">Hungry?</div>
+    <div class="sub-line">Flavours of the Silk Road</div>
+    <div class="orn">
+      <svg width="280" height="20" viewBox="0 0 280 20">
+        <path class="orn-path" d="M0,10 L40,10 Q55,10 62,4 Q75,0 88,4 Q96,10 140,10 Q184,10 192,4 Q205,0 218,4 Q225,10 240,10 L280,10"/>
+      </svg>
+    </div>
+    <div class="place">Baku &nbsp;·&nbsp; Azerbaijan</div>
+  </div>
+</div>
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+canvas.width=canvas.height=820;
+const C=['#c9922a','#f5d98e','#ff8c00','#fff3c4','#e65c00'];
+class E{
+  constructor(){this.reset(true)}
+  reset(init){
+    this.x=Math.random()*820;this.y=init?Math.random()*820:830;
+    this.vx=(Math.random()-.5)*.55;this.vy=-(0.3+Math.random()*1.1);
+    this.r=.5+Math.random()*2;this.col=C[Math.floor(Math.random()*C.length)];
+    this.alpha=0;this.life=0;this.maxLife=140+Math.random()*220;
+    this.flicker=Math.random()*Math.PI*2;
+  }
+  update(){
+    this.life++;this.x+=this.vx+Math.sin(this.life*.04+this.flicker)*.28;this.y+=this.vy;
+    const t=this.life/this.maxLife;
+    this.alpha=(t<.15?t/.15:t>.75?(1-t)/.25:1)*.52;
+    if(this.life>=this.maxLife||this.y<-10)this.reset(false);
+  }
+  draw(){ctx.save();ctx.globalAlpha=this.alpha;ctx.shadowColor=this.col;ctx.shadowBlur=this.r*5;
+    ctx.fillStyle=this.col;ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();ctx.restore();}
+}
+const embers=Array.from({length:70},()=>new E());
+(function loop(){ctx.clearRect(0,0,820,820);embers.forEach(e=>{e.update();e.draw()});requestAnimationFrame(loop)})();
+</script>
+</body>
+</html>

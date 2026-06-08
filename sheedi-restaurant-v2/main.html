@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Sheedi's Restaurant — Fire Awakening</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:     #000000;
+  --saffron:#FF7800;
+  --gold:   #C9922A;
+  --gold-l: #FFD060;
+  --crimson:#8B0018;
+  --glow:   rgba(255,120,0,.60);
+}
+body{
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  width:100vw;height:100vh;overflow:hidden;
+}
+
+/* ── Stage ─────────────────────────────────────── */
+.stage{
+  position:relative;width:820px;height:820px;overflow:hidden;
+  background:#000;
+}
+
+/* ── Breathing ambient fire-glow from centre ────
+   Pure CSS — NO background image.
+   A saffron/crimson radial gradient that pulses
+   like a hearth flame behind the logo.
+──────────────────────────────────────────────── */
+.ambient{
+  position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 52% 46% at 50% 47%,
+      rgba(200,70,0,.18) 0%,
+      rgba(120,20,0,.10) 44%,
+      transparent 72%);
+  animation:ambientBreathe 3.8s ease-in-out infinite;
+}
+@keyframes ambientBreathe{
+  0%,100%{opacity:.55;transform:scale(1)   }
+  50%    {opacity:1;  transform:scale(1.14)}
+}
+
+canvas{
+  position:absolute;inset:0;width:100%;height:100%;
+  pointer-events:none;z-index:2;
+}
+
+/* ── One-time ripple burst when logo appears ────
+   Three rings expand outward from centre like a
+   stone dropped in water — appear ONCE then vanish.
+   (Trust DMC uses persistent static corner brackets;
+    Aristokrat uses persistent rotating rings —
+    this is single-burst, completely different.)
+──────────────────────────────────────────────── */
+.ripple{
+  position:absolute;border-radius:50%;
+  left:50%;top:47%;
+  transform:translate(-50%,-50%) scale(0);
+  pointer-events:none;z-index:3;opacity:0;
+}
+.rpl-a{
+  width:280px;height:280px;
+  border:1.5px solid rgba(255,120,0,.70);
+  animation:rippleOut 1.0s 1.45s ease-out forwards;
+}
+.rpl-b{
+  width:420px;height:420px;
+  border:1px   solid rgba(255,100,0,.45);
+  animation:rippleOut 1.25s 1.55s ease-out forwards;
+}
+.rpl-c{
+  width:570px;height:570px;
+  border:1px   solid rgba(255,80,0,.25);
+  animation:rippleOut 1.50s 1.65s ease-out forwards;
+}
+@keyframes rippleOut{
+  0%  {transform:translate(-50%,-50%) scale(0);  opacity:.90}
+  65% {opacity:.30}
+  100%{transform:translate(-50%,-50%) scale(1);  opacity:0 }
+}
+
+/* ── Flash overlay (saffron-crimson burst) ───── */
+.flash{
+  position:absolute;inset:0;z-index:30;pointer-events:none;opacity:0;
+  background:radial-gradient(ellipse 62% 50% at 50% 42%,
+    rgba(255,220,120,.92) 0%,
+    rgba(255,90,0,.62)    36%,
+    rgba(100,0,12,.38)    66%,
+    transparent 84%);
+}
+@keyframes flashBurst{
+  0%  {opacity:.90}
+  14% {opacity:.52}
+  44% {opacity:.12}
+  100%{opacity:0}
+}
+.flash.pop{animation:flashBurst .55s ease-out forwards}
+
+/* ── Content block ─────────────────────────────── */
+.content{
+  position:absolute;
+  top:110px;left:0;right:0;
+  display:flex;flex-direction:column;align-items:center;
+  z-index:8;pointer-events:none;
+}
+
+/* ── Eyebrow ────────────────────────────────────
+   Each word flares in with a fire-burst scale
+   — NOT typewriter (used in other brands).
+──────────────────────────────────────────────── */
+.eyebrow{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:8px;
+}
+.ey-line{
+  height:1px;width:55px;
+  background:linear-gradient(90deg,transparent,rgba(255,120,0,.48),transparent);
+}
+.ey-words{
+  display:flex;gap:6px;
+  font-family:'Cinzel',serif;font-size:9.5px;letter-spacing:7px;
+  color:rgba(255,120,0,.56);text-transform:uppercase;
+}
+
+/* ── Word Flare-In ──────────────────────────────
+   Each word scales from 200% overexposed/blurred
+   down to natural — like materialising from fire.
+   Completely unlike typewriter or scatter-merge
+   used in Trust DMC / Aristokrat.
+──────────────────────────────────────────────── */
+.fw{display:inline-block;opacity:0}
+.fw.flare{animation:wordFlare .68s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes wordFlare{
+  0%  {opacity:0;transform:scale(1.90);filter:brightness(3.5) blur(7px)}
+  25% {opacity:1;filter:brightness(1.6) blur(1px)}
+  62% {transform:scale(.97)}
+  100%{opacity:1;transform:scale(1);filter:brightness(1) blur(0)}
+}
+
+/* ── Logo image — IRIS / SPOTLIGHT OPENING ──────
+   A circle expands from the centre of the mandala
+   outward, uncovering it like a stage spotlight
+   opening on a performer.
+   • No flash before or after
+   • No rise/rotation
+   • clip-path circle grows 0% → 150%
+   Completely unique — neither Trust DMC nor
+   Aristokrat uses clip-path reveal.
+──────────────────────────────────────────────── */
+.logo-wrap{
+  position:relative;width:400px;overflow:visible;
+  z-index:5;margin-top:4px;
+}
+.logo-img{
+  display:block;width:400px;border-radius:3px;
+  opacity:1;
+  clip-path:circle(0% at 50% 50%);
+}
+.logo-img.iris{
+  animation:logoIris  2.0s cubic-bezier(.4,0,.2,1) forwards,
+            logoPulse 7s   2.2s ease-in-out infinite;
+}
+@keyframes logoIris{
+  0%  {clip-path:circle(  0% at 50% 50%)}
+  55% {clip-path:circle( 68% at 50% 50%)}   /* mid-open, mandala visible */
+  85% {clip-path:circle(115% at 50% 50%)}   /* slight overshoot */
+  100%{clip-path:circle(150% at 50% 50%)}   /* fully open, corners cleared */
+}
+@keyframes logoPulse{
+  0%,100%{filter:drop-shadow(0 0 12px rgba(255,100,0,.20))}
+  50%    {filter:drop-shadow(0 0 44px rgba(255,100,0,.75))
+                 drop-shadow(0 0 90px rgba(139,0,20,.22))}
+}
+/* Shimmer sweep */
+.logo-wrap::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(110deg,
+    transparent 16%,rgba(255,220,130,.22) 50%,transparent 84%);
+  transform:translateX(-160%);
+  animation:logoShimmer 1.1s ease-out forwards;
+  animation-play-state:paused;
+}
+.logo-wrap.shimmer::after{animation-play-state:running}
+@keyframes logoShimmer{to{transform:translateX(260%)}}
+
+/* ── Ornamental SVG divider ─────────────────── */
+.orn-div{margin:16px 0 4px;opacity:0;transition:opacity .6s}
+.orn-div.show{opacity:1}
+.orn-path{
+  stroke:var(--saffron);stroke-width:.9;fill:none;opacity:.48;
+  stroke-dasharray:300;stroke-dashoffset:300;
+}
+.orn-div.show .orn-path{animation:drawOrn 1.3s ease-out forwards}
+@keyframes drawOrn{to{stroke-dashoffset:0}}
+
+/* ── Tagline — same word-flare mechanic ─────── */
+.tagline{
+  font-family:'Cormorant Garamond',serif;font-style:italic;font-size:23px;
+  color:rgba(255,246,220,.78);letter-spacing:2px;text-align:center;
+  filter:drop-shadow(0 0 12px rgba(255,100,0,.22));
+  display:flex;flex-wrap:wrap;justify-content:center;gap:8px;
+  min-height:36px;margin-top:4px;
+}
+
+/* ── Sub caption ─────────────────────────────── */
+.sub-line{
+  font-family:'Cinzel',serif;font-size:9px;letter-spacing:6px;
+  color:rgba(255,120,0,.40);text-transform:uppercase;
+  margin-top:18px;
+  opacity:0;transition:opacity .8s ease;
+}
+.sub-line.show{opacity:1}
+
+/* ── Bottom ornament ─────────────────────────── */
+.bot-orn{
+  display:flex;align-items:center;gap:8px;
+  margin-top:14px;
+  opacity:0;transition:opacity .6s .25s ease;
+}
+.bot-orn.show{opacity:1}
+.bo-ln{width:52px;height:1px;
+       background:linear-gradient(90deg,transparent,rgba(255,120,0,.42),transparent)}
+.bo-gm{width:6px;height:6px;background:var(--saffron);
+       transform:rotate(45deg);box-shadow:0 0 8px var(--glow)}
+.bo-sm{width:4px;height:4px;background:var(--gold-l);transform:rotate(45deg)}
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <!-- Breathing saffron fire-glow — no image, pure CSS gradient -->
+  <div class="ambient"></div>
+
+  <!-- Canvas: fountain sparks + orbital glow dots -->
+  <canvas id="cv"></canvas>
+
+  <!-- One-time ripple rings (burst outward when logo appears) -->
+  <div class="ripple rpl-a"></div>
+  <div class="ripple rpl-b"></div>
+  <div class="ripple rpl-c"></div>
+
+  <!-- Saffron-crimson flash burst -->
+  <div class="flash" id="fl"></div>
+
+  <!-- ══ Content ══════════════════════════════ -->
+  <div class="content">
+
+    <!-- Eyebrow — 4 words each flare in separately -->
+    <div class="eyebrow">
+      <div class="ey-line"></div>
+      <div class="ey-words">
+        <span class="fw" id="ew0">Fine</span>
+        <span class="fw" id="ew1">Dining</span>
+        <span class="fw" id="ew2">&amp;</span>
+        <span class="fw" id="ew3">Catering</span>
+      </div>
+      <div class="ey-line"></div>
+    </div>
+
+    <!-- Logo: rises from below, overexposed → normal -->
+    <div class="logo-wrap" id="logoWrap">
+      <img class="logo-img" id="logoImg"
+           src="../SHEEDI RESTAURANT.jpeg"
+           alt="The Sheedi's Restaurant">
+    </div>
+
+    <!-- Ornamental divider draws on after logo settles -->
+    <div class="orn-div" id="ornDiv">
+      <svg width="300" height="18" viewBox="0 0 300 18">
+        <path class="orn-path"
+          d="M0,9 L40,9 Q55,9 65,3 Q80,0 95,3 Q105,9 150,9
+             Q195,9 205,3 Q220,0 235,3 Q245,9 260,9 L300,9"/>
+      </svg>
+    </div>
+
+    <!-- Tagline: 4 words flare in one by one -->
+    <div class="tagline">
+      <span class="fw" id="tw0">Authentic</span>
+      <span class="fw" id="tw1">Flavours.</span>
+      <span class="fw" id="tw2">Timeless</span>
+      <span class="fw" id="tw3">Hospitality.</span>
+    </div>
+
+    <div class="sub-line" id="sub">
+      Fine Dining &nbsp;·&nbsp; Authentic Flavours &nbsp;·&nbsp; Catering
+    </div>
+
+    <div class="bot-orn" id="bot">
+      <div class="bo-ln"></div>
+      <div class="bo-sm"></div>
+      <div class="bo-gm"></div>
+      <div class="bo-sm"></div>
+      <div class="bo-ln"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   CANVAS — two particle systems, both unique:
+
+   1. FOUNTAIN SPARKS
+      Physics-based: shoot upward from below the
+      logo with initial velocity, decelerate under
+      gravity, spread laterally.
+      Completely unlike gentle rising embers (Trust DMC
+      / Aristokrat) — these have arc trajectories.
+
+   2. ORBITAL GLOW DOTS
+      Small dots orbit the logo in a perspective-
+      squashed ellipse (looks 3D).
+      Not in any other brand scene.
+
+   Canvas only starts ticking after 1.8 s so nothing
+   appears before the logo does.
+═══════════════════════════════════════════════════ */
+const cv  = document.getElementById('cv');
+cv.width  = cv.height = 820;
+const ctx = cv.getContext('2d');
+
+/* Logo centre on 820×820 canvas
+   content top=110, eyebrow≈26px, logo margin≈4px,
+   logo height≈254px (400×254/396 ratio from JPEG) → centre ≈ 267 */
+const LCX = 410;
+const LCY = 270;
+
+/* ── 1. Fountain sparks ──────────────────────── */
+const SPARK_COLS = ['#FF7400','#FF9500','#FFD060','#FF4020','#FFBB30','#FF6000'];
+
+class Spark {
+  constructor(){ this.reset() }
+  reset(){
+    /* Launch from near-bottom of logo */
+    this.x   = LCX + (Math.random() - .5) * 180;
+    this.y   = LCY + 140;
+    this.vx  = (Math.random() - .5) * 4.0;
+    this.vy  = -(6 + Math.random() * 11);   /* fast upward */
+    this.g   = 0.13 + Math.random() * .09;  /* gravity */
+    this.r   = 0.7 + Math.random() * 2.0;
+    this.life = 0;
+    this.maxLife = 55 + Math.random() * 65 | 0;
+    this.c   = SPARK_COLS[Math.floor(Math.random() * SPARK_COLS.length)];
+  }
+  tick(){
+    this.life++;
+    this.x  += this.vx;
+    this.y  += this.vy;
+    this.vy += this.g;    /* gravity slows then pulls down */
+    this.vx *= .986;      /* slight air resistance */
+    if(this.life >= this.maxLife || this.y > 840) this.reset();
+  }
+  draw(){
+    const t = this.life / this.maxLife;
+    const a = (1 - t) * .88;
+    ctx.save();
+    ctx.globalAlpha  = a;
+    ctx.shadowColor  = this.c;
+    ctx.shadowBlur   = this.r * 8;
+    ctx.fillStyle    = this.c;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+/* ── 2. Orbital glow dots ────────────────────── */
+class OrbDot {
+  constructor(radius, speed, phase, size, col){
+    this.radius = radius;
+    this.speed  = speed;
+    this.angle  = phase;
+    this.size   = size;
+    this.col    = col;
+    this.squash = 0.36;   /* perspective squash → looks like 3D orbit */
+  }
+  tick(){ this.angle += this.speed }
+  draw(){
+    const x = LCX + Math.cos(this.angle) * this.radius;
+    const y = LCY + Math.sin(this.angle) * this.radius * this.squash;
+    /* dot fades as it "goes behind" (top half = far, bot half = near) */
+    const depth = .5 + Math.sin(this.angle) * .5;   /* 0..1 */
+    const a = .18 + depth * .52;
+    const r = this.size * (.7 + depth * .5);
+    ctx.save();
+    ctx.globalAlpha = a;
+    ctx.shadowColor = this.col;
+    ctx.shadowBlur  = r * 6;
+    ctx.fillStyle   = this.col;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+const ORB_C = ['#FFD060','#FF9500','#FF7400','#C9922A'];
+const orbs  = [
+  new OrbDot(200, .0042,  0,             2.2, ORB_C[0]),
+  new OrbDot(200, .0042,  Math.PI,       2.2, ORB_C[1]),
+  new OrbDot(200, .0042,  Math.PI / 2,   1.5, ORB_C[2]),
+  new OrbDot(200, .0042,  Math.PI * 1.5, 1.5, ORB_C[3]),
+  new OrbDot(238, .0028,  0.9,           1.8, ORB_C[0]),
+  new OrbDot(238, .0028,  0.9 + Math.PI, 1.8, ORB_C[1]),
+];
+
+const sparks = Array.from({length: 80}, () => new Spark());
+
+/* Start canvas activity 0.8 s in — sparks build ambient energy before logo opens */
+let active = false;
+setTimeout(() => { active = true; }, 800);
+
+(function loop(){
+  ctx.clearRect(0, 0, 820, 820);
+  if(active){
+    orbs  .forEach(o => { o.tick(); o.draw(); });
+    sparks.forEach(s => { s.tick(); s.draw(); });
+  }
+  requestAnimationFrame(loop);
+})();
+
+/* ═══════════════════════════════════════════════════
+   FLASH
+═══════════════════════════════════════════════════ */
+const flEl = document.getElementById('fl');
+function doFlash(){
+  flEl.classList.remove('pop');
+  void flEl.offsetWidth;
+  flEl.classList.add('pop');
+}
+
+/* ═══════════════════════════════════════════════════
+   WORD FLARE HELPER
+   Adds .flare class after `delay` ms
+═══════════════════════════════════════════════════ */
+function flareWord(id, delay){
+  setTimeout(() => document.getElementById(id).classList.add('flare'), delay);
+}
+
+/* ═══════════════════════════════════════════════════
+   TIMELINE
+   -----------------------------------------------
+   0.00 s  saffron-crimson flash (scene ignites)
+   0.38 s  eyebrow words flare in  (4 × 130 ms stagger)
+   0.80 s  canvas sparks begin (ambient fire energy builds)
+   1.40 s  logo SPOTLIGHT IRIS opens (2 s, clip-path circle grow)
+            + 3 ripple rings burst outward (NO flash — unique reveal)
+   2.20 s  shimmer sweeps across logo (mid-iris)
+   3.80 s  flash #3  +  ornament divider draws on
+   4.10 s  tagline words flare in  (4 × 165 ms stagger)
+   6.30 s  flash #4  +  sub caption  +  bottom ornament
+═══════════════════════════════════════════════════ */
+const logoWrap = document.getElementById('logoWrap');
+const logoImg  = document.getElementById('logoImg');
+const ornDiv   = document.getElementById('ornDiv');
+const sub      = document.getElementById('sub');
+const bot      = document.getElementById('bot');
+
+// t = 0 s — scene ignites
+doFlash();
+
+// t = 0.38 s — eyebrow words flare in
+flareWord('ew0', 380);
+flareWord('ew1', 510);
+flareWord('ew2', 640);
+flareWord('ew3', 770);
+
+// t = 1.4 s — spotlight iris opens on logo (no flash — completely different from Aristokrat)
+setTimeout(() => logoImg.classList.add('iris'), 1400);
+
+// t = 2.2 s — shimmer sweeps (mid-iris reveal)
+setTimeout(() => logoWrap.classList.add('shimmer'), 2200);
+
+// t = 3.8 s — flash + ornament divider
+setTimeout(() => {
+  doFlash();
+  ornDiv.classList.add('show');
+}, 3800);
+
+// t = 4.1 s — tagline words flare in
+flareWord('tw0', 4100);
+flareWord('tw1', 4265);
+flareWord('tw2', 4430);
+flareWord('tw3', 4595);
+
+// t = 6.3 s — flash + sub + bottom ornament
+setTimeout(() => {
+  doFlash();
+  sub.classList.add('show');
+  bot.classList.add('show');
+}, 6300);
+</script>
+</body>
+</html>

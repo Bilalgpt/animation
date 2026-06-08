@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aristokrat Travel — Logo Reveal v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  width:100vw; height:100vh;
+  background:#000;
+  overflow:hidden;
+}
+
+.stage {
+  position:absolute;
+  width:1920px; height:1080px;
+  transform-origin:top left;
+  overflow:hidden;
+  /* Navy-black backdrop — same as v1 */
+  background:
+    radial-gradient(ellipse 75% 80% at 50% 46%,
+      #0c1230 0%, #080d22 28%, #04061a 55%, #010210 78%, #000008 100%);
+}
+
+/* Golden ember canvas */
+#emberCv {
+  position:absolute; inset:0;
+  z-index:2; pointer-events:none;
+}
+
+/* Subtle glow that blooms when logo settles */
+.logo-glow {
+  position:absolute; z-index:3; pointer-events:none;
+  left:50%; top:50%;
+  width:920px; height:540px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:radial-gradient(ellipse 55% 55% at 50% 50%,
+    rgba(200,215,255,0.06) 0%,
+    rgba(160,185,255,0.02) 48%,
+    transparent 72%);
+  filter:blur(32px);
+  opacity:0;
+}
+
+/* Logo container — GSAP drives scale + rotationY + blur */
+.logo-wrap {
+  position:absolute; z-index:5; pointer-events:none;
+  left:50%; top:50%;
+}
+
+.logo-img {
+  width:640px;
+  display:block;
+  /* White PNG on transparent — no filter needed */
+}
+
+/* Vignette */
+.vignette {
+  position:absolute; inset:0; z-index:10; pointer-events:none;
+  background:radial-gradient(ellipse 80% 72% at 50% 50%,
+    transparent 25%, rgba(0,0,10,0.50) 68%, rgba(0,0,6,0.92) 100%);
+}
+
+/* Cinematic letterbox */
+.bar { position:absolute; left:0; right:0; z-index:15; height:48px; background:#000; }
+.bar.t { top:0; }
+.bar.b { bottom:0; }
+
+/* Credit */
+.credit {
+  position:absolute; bottom:14px; left:0; right:0;
+  z-index:16; pointer-events:none;
+  text-align:center;
+  font-family:'Cinzel',serif;
+  font-size:11px; font-weight:300;
+  letter-spacing:9px;
+  color:rgba(255,255,255,0.35);
+  text-transform:uppercase;
+  opacity:0;
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <canvas id="emberCv" width="1920" height="1080"></canvas>
+
+  <div class="logo-glow" id="logoGlow"></div>
+
+  <div class="logo-wrap" id="logoWrap">
+    <img class="logo-img" id="logoImg"
+         src="aristokrat_logo.png"
+         alt="Aristokrat Travel Azerbaijan">
+  </div>
+
+  <div class="vignette"></div>
+  <div class="bar t"></div>
+  <div class="bar b"></div>
+  <div class="credit" id="credit">Aristokrat Travel &nbsp;·&nbsp; Azerbaijan</div>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+/* ── Stage scale ─────────────────────────────── */
+(function(){
+  const s = document.getElementById('stage');
+  function fit(){
+    const scl = Math.min(window.innerWidth/1920, window.innerHeight/1080);
+    s.style.transform = `scale(${scl})`;
+    s.style.left = Math.max(0,(window.innerWidth -1920*scl)/2)+'px';
+    s.style.top  = Math.max(0,(window.innerHeight-1080*scl)/2)+'px';
+  }
+  fit(); window.addEventListener('resize',fit);
+})();
+
+/* ── Golden ember particles ──────────────────── */
+const eCv  = document.getElementById('emberCv');
+const eCtx = eCv.getContext('2d');
+
+const EMBER_COLS = [
+  [255,215,  0],[255,190,  0],[255,160, 20],
+  [255,140, 30],[255,120, 40],[255,200, 80],[240,180,  0],
+];
+
+class Ember {
+  constructor(init){ this.reset(init); }
+  reset(init){
+    this.x  = 30 + Math.random()*1860;
+    this.y  = init ? Math.random()*1080 : 1090+Math.random()*60;
+    this.r  = 0.7+Math.random()*2.4;
+    this.gr = this.r*(3.5+Math.random()*4.5);
+    this.vx = (Math.random()-.5)*0.38;
+    this.vy = -(0.28+Math.random()*0.85);
+    this.wb = Math.random()*Math.PI*2;
+    this.wbSpd = 0.012+Math.random()*0.022;
+    this.wbAmp = 0.25 +Math.random()*0.70;
+    this.life=0; this.maxLife=180+Math.random()*720;
+    this.peakA=0.38+Math.random()*0.58;
+    this.col=EMBER_COLS[Math.floor(Math.random()*EMBER_COLS.length)];
+    if(Math.random()<0.08){ this.r*=2.2; this.gr*=1.8; this.peakA*=0.7; }
+  }
+  tick(){
+    this.life++; this.wb+=this.wbSpd;
+    this.x+=this.vx+Math.sin(this.wb)*this.wbAmp; this.y+=this.vy;
+    const t=this.life/this.maxLife;
+    this.a=(t<.10?t/.10:t>.68?(1-t)/.32:1)*this.peakA;
+    if(this.life>=this.maxLife||this.y<-20||this.x<-20||this.x>1940) this.reset(false);
+  }
+  draw(){
+    if(this.a<0.005) return;
+    const [r,g,b]=this.col;
+    const grd=eCtx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.gr);
+    grd.addColorStop(0,  `rgba(${r},${g},${b},${(this.a*.55).toFixed(4)})`);
+    grd.addColorStop(.35,`rgba(${r},${g},${b},${(this.a*.18).toFixed(4)})`);
+    grd.addColorStop(.70,`rgba(${r},${g},${b},${(this.a*.04).toFixed(4)})`);
+    grd.addColorStop(1,  'transparent');
+    eCtx.save();
+    eCtx.fillStyle=grd;
+    eCtx.beginPath(); eCtx.arc(this.x,this.y,this.gr,0,Math.PI*2); eCtx.fill();
+    const ca=Math.min(this.a*2.2,1);
+    eCtx.fillStyle=`rgba(${r},${g},${b},${ca.toFixed(4)})`;
+    eCtx.beginPath(); eCtx.arc(this.x,this.y,this.r,0,Math.PI*2); eCtx.fill();
+    eCtx.restore();
+  }
+}
+
+const emberPool = Array.from({length:110},()=>new Ember(true));
+
+(function loop(){
+  eCtx.clearRect(0,0,1920,1080);
+  emberPool.forEach(e=>{ e.tick(); e.draw(); });
+  requestAnimationFrame(loop);
+})();
+
+/* ══════════════════════════════════════════════
+   GSAP — AXIS SPIN REVEAL
+
+   Key differences from v1:
+   • rotationY  — logo spins on its OWN vertical axis
+                  (like a coin/door spinning toward you)
+   • transformPerspective — gives real 3D depth
+   • Heavy blur (28px) when tiny/far, clears to 0
+     perfectly in sync with the zoom
+   • scale 0.02 → 1 with power4.out deceleration
+══════════════════════════════════════════════ */
+const tl = gsap.timeline();
+
+/* Initial state — tiny dot deep in background,
+   spinning on its Y axis, heavily blurred       */
+gsap.set('#logoWrap', {
+  xPercent         : -50,
+  yPercent         : -50,
+  transformPerspective: 1800,  /* 3D perspective depth */
+  rotationY        : 720,      /* 2 full Y-axis spins  */
+  scale            : 0.02,     /* deep background size */
+  filter           : 'blur(28px)', /* out-of-focus      */
+  opacity          : 1,
+});
+gsap.set('#logoGlow', { opacity:0 });
+gsap.set('#credit',   { opacity:0, y:6 });
+
+/* ─── SPIN IN: 0.4 → 6.4s ───────────────────
+   All three properties ease together:
+   - scale    : 0.02  → 1.0   (zooms toward viewer)
+   - rotationY: 720°  → 0°    (unspins on own axis)
+   - filter   : 28px  → 0px   (sharpens as it nears)
+   power4.out: explosive fast start, smooth settle  */
+tl.to('#logoWrap', {
+  scale     : 1,
+  rotationY : 0,
+  filter    : 'blur(0px)',
+  duration  : 6.0,
+  ease      : 'power4.out',
+}, 0.4);
+
+/* ─── GLOW blooms as logo lands ─────────────── */
+tl.to('#logoGlow', {
+  opacity  : 1,
+  duration : 2.5,
+  ease     : 'power2.out',
+}, 5.0);
+
+/* ─── CREDIT fades in on freeze frame ──────── */
+tl.to('#credit', {
+  opacity  : 1,
+  y        : 0,
+  duration : 1.4,
+  ease     : 'power2.out',
+}, 7.2);
+
+/* Hold to ~10s then replay */
+tl.to({}, { duration:1.0 }, 9.8);
+
+tl.eventCallback('onComplete', () => {
+  gsap.delayedCall(3.0, () => { tl.restart(); });
+});
+</script>
+</body>
+</html>

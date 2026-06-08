@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Sheedi's Restaurant — Petal Fall</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#000000;
+  --saffron:#FF7800;
+  --crimson:#8B0018;
+  --gold:#C9922A;
+  --gold-l:#F5D98E;
+  --glow:rgba(255,120,0,.50);
+}
+body{background:var(--bg);display:flex;align-items:center;justify-content:center;
+     width:100vw;height:100vh;overflow:hidden}
+
+.stage{
+  position:relative;width:820px;height:820px;overflow:hidden;
+  background:var(--bg);
+}
+
+/* Canvas sits behind content */
+canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+
+/* ── Ambient breathing glow — deep crimson heart ── */
+.ambient{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse 64% 56% at 50% 52%,
+    rgba(100,0,10,.28) 0%,
+    rgba(60,0,6,.12)  45%,
+    transparent 70%);
+  animation:ambientBreathe 5s 1.5s ease-in-out infinite;
+}
+@keyframes ambientBreathe{
+  0%,100%{opacity:.6}
+  50%    {opacity:1.0}
+}
+
+/* ── Content ──────────────────────────────────────── */
+.content{
+  position:absolute;
+  top:108px;left:0;right:0;
+  display:flex;flex-direction:column;align-items:center;
+  z-index:8;pointer-events:none;
+}
+
+/* ── Eyebrow ── */
+.eyebrow{display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+.ey-line{
+  height:1px;width:60px;
+  background:linear-gradient(90deg,transparent,rgba(255,120,0,.46),transparent);
+}
+.ey-words{
+  display:flex;gap:7px;
+  font-family:'Cinzel',serif;font-size:9.5px;letter-spacing:7px;
+  color:rgba(255,120,0,.54);text-transform:uppercase;
+}
+
+/* ── Word Flare-In ──
+   Same fire-materialise technique as v2 — consistent brand language
+─────────────────────── */
+.fw{display:inline-block;opacity:0}
+.fw.flare{animation:wordFlare .68s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes wordFlare{
+  0%  {opacity:0;transform:scale(1.90);filter:brightness(3.5) blur(7px)}
+  25% {opacity:1;filter:brightness(1.6) blur(1px)}
+  62% {transform:scale(.97)}
+  100%{opacity:1;transform:scale(1);filter:brightness(1) blur(0)}
+}
+
+/* ── Logo — 3-D Tumble-In from Behind ────────────────
+   Logo starts:  tiny + rotateY(-180°) = "face-down behind"
+   Tumbles:      spins forward through space, growing
+   Settles:      natural bounce to rest position
+   Nothing in Trust DMC or Aristokrat uses rotateY 3-D flip.
+──────────────────────────────────────────────────────── */
+.logo-wrap{
+  position:relative;width:400px;overflow:visible;
+  z-index:5;margin-top:2px;
+}
+.logo-img{
+  display:block;width:400px;border-radius:3px;
+  opacity:0;
+  transform:perspective(700px) rotateY(-180deg) scale(0.06);
+  filter:blur(12px);
+}
+.logo-img.tumble{
+  animation:
+    logoTumbleIn 1.9s cubic-bezier(.22,1,.36,1) forwards,
+    logoPulse    7s  2.2s ease-in-out infinite;
+}
+@keyframes logoTumbleIn{
+  0%  {opacity:0; transform:perspective(700px) rotateY(-180deg) scale(0.06); filter:blur(12px)}
+  18% {opacity:.7;filter:blur(3px)}
+  62% {           transform:perspective(700px) rotateY(11deg)   scale(1.07); opacity:1;filter:blur(0)}
+  78% {           transform:perspective(700px) rotateY(-6deg)   scale(0.96)}
+  90% {           transform:perspective(700px) rotateY(3deg)    scale(1.02)}
+  100%{opacity:1; transform:perspective(700px) rotateY(0deg)    scale(1);    filter:blur(0)}
+}
+@keyframes logoPulse{
+  0%,100%{filter:drop-shadow(0 0 10px rgba(255,80,0,.18))}
+  50%    {filter:drop-shadow(0 0 44px rgba(255,100,0,.70))
+                 drop-shadow(0 0 88px rgba(139,0,20,.20))}
+}
+
+/* Shimmer sweep */
+.logo-wrap::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(110deg,
+    transparent 16%,rgba(255,220,130,.24) 50%,transparent 84%);
+  transform:translateX(-160%);
+  animation:logoShimmer 1.15s ease-out forwards;
+  animation-play-state:paused;
+}
+.logo-wrap.shimmer::after{animation-play-state:running}
+@keyframes logoShimmer{to{transform:translateX(260%)}}
+
+/* ── Ornamental divider ── */
+.orn-div{margin:18px 0 4px;opacity:0;transition:opacity .6s}
+.orn-div.show{opacity:1}
+.orn-path{
+  stroke:var(--saffron);stroke-width:.9;fill:none;opacity:.46;
+  stroke-dasharray:300;stroke-dashoffset:300;
+}
+.orn-div.show .orn-path{animation:drawOrn 1.4s ease-out forwards}
+@keyframes drawOrn{to{stroke-dashoffset:0}}
+
+/* ── Tagline ── */
+.tagline{
+  font-family:'Cormorant Garamond',serif;font-style:italic;font-size:23px;
+  color:rgba(255,246,220,.78);letter-spacing:2px;text-align:center;
+  filter:drop-shadow(0 0 12px rgba(255,100,0,.20));
+  display:flex;flex-wrap:wrap;justify-content:center;gap:8px;
+  min-height:36px;margin-top:4px;
+}
+
+/* ── Sub caption ── */
+.sub-line{
+  font-family:'Cinzel',serif;font-size:9px;letter-spacing:6px;
+  color:rgba(255,120,0,.38);text-transform:uppercase;
+  margin-top:18px;
+  opacity:0;transition:opacity .8s ease;
+}
+.sub-line.show{opacity:1}
+
+/* ── Bottom ornament ── */
+.bot-orn{
+  display:flex;align-items:center;gap:8px;margin-top:14px;
+  opacity:0;transition:opacity .7s .3s ease;
+}
+.bot-orn.show{opacity:1}
+.bo-ln{width:54px;height:1px;
+       background:linear-gradient(90deg,transparent,rgba(255,120,0,.36),transparent)}
+.bo-gm{width:6px;height:6px;background:var(--saffron);
+       transform:rotate(45deg);box-shadow:0 0 8px rgba(255,120,0,.5)}
+.bo-sm{width:4px;height:4px;background:var(--gold-l);transform:rotate(45deg)}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="ambient"></div>
+  <canvas id="cv"></canvas>
+
+  <!-- ══ Content ══════════════════════════════════════ -->
+  <div class="content">
+
+    <div class="eyebrow">
+      <div class="ey-line"></div>
+      <div class="ey-words">
+        <span class="fw" id="ew0">The</span>
+        <span class="fw" id="ew1">Sheedi's</span>
+        <span class="fw" id="ew2">Restaurant</span>
+      </div>
+      <div class="ey-line"></div>
+    </div>
+
+    <div class="logo-wrap" id="logoWrap">
+      <img class="logo-img" id="logoImg"
+           src="../SHEEDI RESTAURANT.jpeg"
+           alt="The Sheedi's Restaurant">
+    </div>
+
+    <div class="orn-div" id="ornDiv">
+      <svg width="280" height="20" viewBox="0 0 280 20">
+        <path class="orn-path" d="M10,10 L116,10"/>
+        <path class="orn-path" d="M164,10 L270,10"/>
+        <circle cx="140" cy="10" r="5"   fill="none" stroke="rgba(255,120,0,.44)" stroke-width=".8"/>
+        <circle cx="128" cy="10" r="2.5" fill="rgba(255,120,0,.30)"/>
+        <circle cx="152" cy="10" r="2.5" fill="rgba(255,120,0,.30)"/>
+        <polygon points="140,5 145,10 140,15 135,10"
+                 fill="none" stroke="rgba(255,120,0,.52)" stroke-width=".8"/>
+      </svg>
+    </div>
+
+    <div class="tagline">
+      <span class="fw" id="tw0">Where</span>
+      <span class="fw" id="tw1">Every</span>
+      <span class="fw" id="tw2">Bite</span>
+      <span class="fw" id="tw3">Tells</span>
+      <span class="fw" id="tw4">a</span>
+      <span class="fw" id="tw5">Story.</span>
+    </div>
+
+    <div class="sub-line" id="sub">Authentic &nbsp;·&nbsp; Flavourful &nbsp;·&nbsp; Unforgettable</div>
+
+    <div class="bot-orn" id="bot">
+      <div class="bo-ln"></div>
+      <div class="bo-sm"></div>
+      <div class="bo-gm"></div>
+      <div class="bo-sm"></div>
+      <div class="bo-ln"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   CANVAS  —  two layers
+   1. Falling petals  (crimson + gold, always running)
+   2. Burst sparks    (one-time explosion when logo tumbles in)
+═══════════════════════════════════════════════════════ */
+const cv  = document.getElementById('cv');
+cv.width  = cv.height = 820;
+const ctx = cv.getContext('2d');
+
+/* ── Petal colours: deep crimsons + warm gold accents ── */
+const PETAL_C = [
+  '#7B0016','#8B0018','#A31020','#B81428',
+  '#C9922A','#B08030','#D4A843'
+];
+
+class Petal {
+  constructor(init){ this.reset(init ?? true) }
+  reset(init){
+    this.x     = Math.random() * 820;
+    this.y     = init ? Math.random() * 820 : -24;
+    this.vy    = 0.55 + Math.random() * 1.20;
+    this.vx    = (Math.random() - .5) * 0.55;
+    this.rot   = Math.random() * Math.PI * 2;
+    this.rotV  = (Math.random() - .5) * 0.038;
+    this.w     = 9  + Math.random() * 15;   /* petal half-width */
+    this.h     = 5  + Math.random() * 8;    /* petal half-height */
+    this.sway  = Math.random() * Math.PI * 2;
+    this.swayS = 0.012 + Math.random() * 0.018;
+    this.a     = init ? Math.random() * 0.68 : 0;
+    this.maxA  = 0.55 + Math.random() * 0.28;
+    this.c     = PETAL_C[Math.floor(Math.random() * PETAL_C.length)];
+  }
+  tick(){
+    this.y    += this.vy;
+    this.sway += this.swayS;
+    this.x    += this.vx + Math.sin(this.sway) * 0.48;
+    this.rot  += this.rotV;
+    this.a     = Math.min(this.maxA, this.a + 0.022);
+    if(this.y > 844) this.reset(false);
+  }
+  draw(){
+    ctx.save();
+    ctx.globalAlpha = this.a;
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.rot);
+    ctx.shadowColor = this.c;
+    ctx.shadowBlur  = 3;
+    ctx.fillStyle   = this.c;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, this.w/2, this.h/2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+/* ── Burst sparks — one-time explosion from logo centre ── */
+const SPARK_C = ['#FF7800','#FFB940','#FF4500','#FFD060','#C9922A','#FF6020'];
+
+class BurstSpark {
+  constructor(cx, cy){
+    const angle = Math.random() * Math.PI * 2;
+    const spd   = 2.5 + Math.random() * 7;
+    this.x  = cx + (Math.random() - .5) * 70;
+    this.y  = cy + (Math.random() - .5) * 50;
+    this.vx = Math.cos(angle) * spd;
+    this.vy = Math.sin(angle) * spd - 1.5;
+    this.g  = 0.10 + Math.random() * 0.06;   /* gravity */
+    this.r  = 1.0  + Math.random() * 2.8;
+    this.a  = 0.9  + Math.random() * 0.1;
+    this.c  = SPARK_C[Math.floor(Math.random() * SPARK_C.length)];
+    this.dead = false;
+  }
+  tick(){
+    this.vy += this.g;
+    this.x  += this.vx;
+    this.y  += this.vy;
+    this.vx *= 0.978;
+    this.a  -= 0.018 + Math.random() * 0.008;
+    if(this.a <= 0) this.dead = true;
+  }
+  draw(){
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, this.a);
+    ctx.shadowColor = this.c;
+    ctx.shadowBlur  = this.r * 5;
+    ctx.fillStyle   = this.c;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+/* 60 petals fill the stage from start */
+const petals = Array.from({length: 60}, () => new Petal(true));
+let burstPool = [];
+
+function triggerBurst(cx, cy, count){
+  for(let i = 0; i < count; i++) burstPool.push(new BurstSpark(cx, cy));
+}
+
+(function loop(){
+  ctx.clearRect(0, 0, 820, 820);
+  petals.forEach(p => { p.tick(); p.draw(); });
+  burstPool = burstPool.filter(s => !s.dead);
+  burstPool.forEach(s => { s.tick(); s.draw(); });
+  requestAnimationFrame(loop);
+})();
+
+/* ═══════════════════════════════════════════════════════
+   WORD FLARE HELPER
+═══════════════════════════════════════════════════════ */
+function flareWord(id, delay){
+  setTimeout(() => document.getElementById(id).classList.add('flare'), delay);
+}
+
+/* ═══════════════════════════════════════════════════════
+   TIMELINE
+   --------------------------------------------------------
+   0.00 s  petals begin falling (canvas starts immediately)
+   0.55 s  eyebrow words flare in  (3 × 140 ms stagger)
+   2.40 s  logo TUMBLES IN from behind — 3-D rotateY spin
+            + burst of 65 sparks from logo centre
+   3.50 s  shimmer sweeps logo
+   4.50 s  ornament divider draws on  + 2nd smaller burst
+   4.80 s  tagline words flare in   (6 × 165 ms stagger)
+   7.10 s  sub caption  + bottom ornament
+═══════════════════════════════════════════════════════ */
+const logoWrap = document.getElementById('logoWrap');
+const logoImg  = document.getElementById('logoImg');
+const ornDiv   = document.getElementById('ornDiv');
+const sub      = document.getElementById('sub');
+const bot      = document.getElementById('bot');
+
+/* Logo centre on the 820×820 canvas:
+   content starts at top:108, logo-wrap margin-top:2px,
+   logo is 400px wide → x centre ≈ 410
+   eyebrow ~38px + logo half-height (~200px) → y centre ≈ 340 */
+const LOGO_CX = 410;
+const LOGO_CY = 355;
+
+// t = 0.55 s — eyebrow
+flareWord('ew0',  550);
+flareWord('ew1',  690);
+flareWord('ew2',  830);
+
+// t = 2.4 s — logo tumbles in + burst
+setTimeout(() => {
+  logoImg.classList.add('tumble');
+  triggerBurst(LOGO_CX, LOGO_CY, 65);
+}, 2400);
+
+// t = 3.5 s — shimmer
+setTimeout(() => logoWrap.classList.add('shimmer'), 3500);
+
+// t = 4.5 s — ornament + soft burst
+setTimeout(() => {
+  ornDiv.classList.add('show');
+  triggerBurst(LOGO_CX, LOGO_CY + 200, 28);
+}, 4500);
+
+// t = 4.8 s — tagline words
+flareWord('tw0', 4800);
+flareWord('tw1', 4965);
+flareWord('tw2', 5130);
+flareWord('tw3', 5295);
+flareWord('tw4', 5460);
+flareWord('tw5', 5625);
+
+// t = 7.1 s — sub + bottom ornament
+setTimeout(() => {
+  sub.classList.add('show');
+  bot.classList.add('show');
+}, 7100);
+</script>
+</body>
+</html>

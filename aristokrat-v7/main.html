@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aristokrat İrove — Gentleman Scene</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#05060A;
+  --gold:#C9922A;
+  --gold-l:#F5D98E;
+  --glow:rgba(201,146,42,.50);
+}
+body{background:var(--bg);display:flex;align-items:center;justify-content:center;
+     width:100vw;height:100vh;overflow:hidden}
+
+/* ── Stage ─────────────────────────────────────── */
+.stage{
+  position:relative;width:820px;height:820px;overflow:hidden;
+  background:var(--bg);
+}
+
+/* ── Background scenic photos — Baku / Azerbaijan ──
+   3 images crossfade:
+     1. Azerbaijan mountain valley (golden hour)
+     2. Baku city aerial at night
+     3. Heydar Aliyev Centre (drone)
+──────────────────────────────────────────────────── */
+.az-bg{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  opacity:0;z-index:0;
+}
+.az-bg1{
+  background-image:url('https://images.pexels.com/photos/9356284/pexels-photo-9356284.jpeg?auto=compress&cs=tinysrgb&w=1280');
+  animation:azBg1 10s .2s ease-in-out forwards;
+}
+.az-bg2{
+  background-image:url('https://images.pexels.com/photos/19544256/pexels-photo-19544256.jpeg?auto=compress&cs=tinysrgb&w=1280');
+  animation:azBg2 10s .2s ease-in-out forwards;
+}
+@keyframes azBg1{
+  0%  {opacity:0;transform:scale(1.00)}
+  6%  {opacity:1}
+  44% {opacity:1;transform:scale(1.08)}
+  56% {opacity:0}
+  100%{opacity:0;transform:scale(1.12)}
+}
+@keyframes azBg2{
+  0%  {opacity:0;transform:scale(1.02)}
+  44% {opacity:0}
+  56% {opacity:1}
+  100%{opacity:1;transform:scale(1.10)}
+}
+
+/* Dark overlay — keeps text readable + gold vignette edges */
+.az-overlay{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(ellipse 72% 68% at 50% 46%,
+      rgba(6,4,2,.10) 0%,rgba(6,4,2,.52) 100%),
+    linear-gradient(180deg,
+      rgba(5,6,10,.72) 0%,
+      rgba(5,6,10,.06) 36%,
+      rgba(5,6,10,.06) 64%,
+      rgba(5,6,10,.80) 100%);
+}
+canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+.wm{
+  position:absolute;font-family:'Great Vibes',cursive;font-size:310px;
+  color:rgba(201,146,42,.018);pointer-events:none;user-select:none;z-index:0;
+  top:50%;left:50%;transform:translate(-50%,-52%);white-space:nowrap;
+}
+
+/* ── Flash overlay ─────────────────────────────── */
+.flash{
+  position:absolute;inset:0;z-index:30;pointer-events:none;opacity:0;
+  background:radial-gradient(ellipse 70% 55% at 50% 38%,
+    rgba(255,248,231,.95) 0%,rgba(245,217,142,.75) 30%,
+    rgba(201,146,42,.40) 60%,transparent 85%);
+}
+@keyframes flashBurst{
+  0%  {opacity:.90}
+  15% {opacity:.55}
+  45% {opacity:.18}
+  100%{opacity:0}
+}
+.flash.pop{animation:flashBurst .55s ease-out forwards}
+
+/* ── Logo ──────────────────────────────────────── */
+.logo-wrap{
+  position:relative;
+  width:300px;
+  margin:16px 0 0;
+  overflow:visible;
+  z-index:2;
+}
+
+/* Spin-in from background: starts tiny + spinning, grows + unspins */
+.logo-img{
+  display:block;width:300px;
+  opacity:0;
+  transform:scale(.04) rotate(540deg);
+  filter:blur(22px);
+  animation:logoSpinIn 1.6s cubic-bezier(.22,1,.36,1) forwards;
+  animation-play-state:paused;
+}
+.logo-img.spin{animation-play-state:running}
+
+@keyframes logoSpinIn{
+  0%   {opacity:0;   transform:scale(.04) rotate(540deg); filter:blur(22px)}
+  30%  {opacity:.65; filter:blur(4px)}
+  68%  {            transform:scale(1.09) rotate(-7deg);  opacity:1;filter:blur(0)}
+  82%  {            transform:scale(.95)  rotate( 2deg)}
+  91%  {            transform:scale(1.03) rotate(-1deg)}
+  100% {opacity:1;   transform:scale(1)   rotate(0deg);   filter:blur(0)}
+}
+
+/* Gold glow pulse after logo settles */
+.logo-img.glow{
+  animation:logoSpinIn 1.6s cubic-bezier(.22,1,.36,1) forwards,
+            logoPulse  5s   2.2s ease-in-out infinite;
+}
+@keyframes logoPulse{
+  0%,100%{filter:drop-shadow(0 0 14px rgba(201,146,42,.20))}
+  50%    {filter:drop-shadow(0 0 42px rgba(201,146,42,.65))
+                 drop-shadow(0 0 80px rgba(201,146,42,.14))}
+}
+
+/* Shimmer sweep across logo */
+.logo-wrap::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(108deg,
+    transparent 18%,rgba(255,240,180,.24) 50%,transparent 82%);
+  transform:translateX(-160%);
+  animation:logoShimmer 1.1s ease-out forwards;
+  animation-play-state:paused;
+}
+.logo-wrap.shimmer::after{animation-play-state:running}
+@keyframes logoShimmer{to{transform:translateX(260%)}}
+
+/* ── Text block ────────────────────────────────── */
+.text-block{
+  position:absolute;
+  top:115px;left:0;right:0;
+  display:flex;flex-direction:column;align-items:center;
+  z-index:8;pointer-events:none;
+}
+
+/* Eyebrow row */
+.ey-row{
+  display:flex;align-items:center;gap:13px;
+  opacity:0;transition:opacity .5s ease;
+}
+.ey-row.show{opacity:1}
+.ey-ln{height:1px;width:64px;
+        background:linear-gradient(90deg,transparent,rgba(201,146,42,.45),transparent)}
+.ey-tx{
+  font-family:'Cinzel',serif;font-size:9px;letter-spacing:7px;
+  color:rgba(201,146,42,.52);text-transform:uppercase;
+}
+
+/* Divider ornament */
+.divider{
+  display:flex;align-items:center;gap:9px;
+  margin:14px 0 6px;
+  opacity:0;transition:opacity .6s .15s;
+}
+.divider.show{opacity:1}
+.dv-ln{width:80px;height:1px;
+        background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.dv-gm{width:6px;height:6px;background:var(--gold);
+        transform:rotate(45deg);box-shadow:0 0 8px var(--glow)}
+
+/* Tagline */
+.tagline{
+  font-family:'Cormorant Garamond',serif;font-style:italic;font-size:23px;
+  color:rgba(255,248,231,.74);letter-spacing:2.5px;text-align:center;
+  filter:drop-shadow(0 0 16px rgba(201,146,42,.18));
+  min-height:38px;
+}
+
+/* Sub */
+.sub-line{
+  font-family:'Cinzel',serif;font-size:9px;letter-spacing:6px;
+  color:rgba(201,146,42,.44);text-transform:uppercase;
+  margin-top:20px;
+  opacity:0;transition:opacity .7s ease;
+}
+.sub-line.show{opacity:1}
+
+/* Bottom ornament */
+.bot-orn{
+  display:flex;align-items:center;gap:8px;
+  margin-top:14px;
+  opacity:0;transition:opacity .6s .25s ease;
+}
+.bot-orn.show{opacity:1}
+.bo-ln{width:54px;height:1px;
+        background:linear-gradient(90deg,transparent,rgba(201,146,42,.38),transparent)}
+.bo-gm{width:6px;height:6px;background:var(--gold);
+        transform:rotate(45deg);box-shadow:0 0 7px var(--glow)}
+.bo-sm{width:4px;height:4px;background:var(--gold-l);transform:rotate(45deg)}
+
+/* Typewriter cursor */
+.cur{
+  display:inline-block;width:2px;height:.82em;
+  background:var(--gold);margin-left:2px;vertical-align:middle;
+  animation:blinkC .65s step-end infinite;
+}
+@keyframes blinkC{0%,100%{opacity:1}50%{opacity:0}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <!-- Scenic backgrounds: mountains → Baku night → Heydar Aliyev -->
+  <div class="az-bg az-bg1"></div>
+  <div class="az-bg az-bg2"></div>
+  <div class="az-overlay"></div>
+
+  <canvas id="cv"></canvas>
+  <div class="wm">Aristokrat</div>
+
+  <!-- Gold flash burst -->
+  <div class="flash" id="fl"></div>
+
+  <!-- ══ Text / Logo block ══════════════════════ -->
+  <div class="text-block">
+
+    <div class="ey-row" id="eyRow">
+      <div class="ey-ln"></div>
+      <div class="ey-tx" id="eyTx"></div>
+      <div class="ey-ln"></div>
+    </div>
+
+    <!-- Logo spins in from background -->
+    <div class="logo-wrap" id="logoWrap">
+      <img class="logo-img" id="logoImg"
+           src="../New_logo_design/Aristokrat logo_1.png"
+           alt="Aristokrat İrove Azerbaijan">
+    </div>
+
+    <div class="divider" id="divEl">
+      <div class="dv-ln"></div>
+      <div class="dv-gm"></div>
+      <div class="dv-ln"></div>
+    </div>
+
+    <div class="tagline" id="tgl"></div>
+
+    <div class="sub-line" id="sub">Baku &nbsp;·&nbsp; Azerbaijan &nbsp;·&nbsp; Since 2003</div>
+
+    <div class="bot-orn" id="bot">
+      <div class="bo-ln"></div>
+      <div class="bo-sm"></div>
+      <div class="bo-gm"></div>
+      <div class="bo-sm"></div>
+      <div class="bo-ln"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   PARTICLES — gold ember system
+═══════════════════════════════════════════════════ */
+const cv  = document.getElementById('cv');
+cv.width  = cv.height = 820;
+const ctx = cv.getContext('2d');
+const PC  = ['#C9922A','#F5D98E','#E67C00','#FFE8A0','#D4A843'];
+
+class Sp {
+  constructor(){ this.reset(true) }
+  reset(init){
+    this.x  = Math.random() * 820;
+    this.y  = init ? Math.random() * 820 : 826;
+    this.vx = (Math.random() - .5) * .40;
+    this.vy = -(0.20 + Math.random() * .60);
+    this.r  = .4 + Math.random() * 1.7;
+    this.c  = PC[Math.floor(Math.random() * PC.length)];
+    this.a  = 0; this.l = 0;
+    this.ml = 160 + Math.random() * 280;
+    this.w  = Math.random() * Math.PI * 2;
+    this.st = Math.random() < .15;
+  }
+  tick(){
+    this.l++;
+    this.x += this.vx + Math.sin(this.l * .03 + this.w) * .22;
+    this.y += this.vy;
+    const t = this.l / this.ml;
+    this.a = (t < .15 ? t / .15 : t > .78 ? (1 - t) / .22 : 1)
+             * (this.st ? .46 : .30);
+    if(this.l >= this.ml || this.y < -8) this.reset(false);
+  }
+  draw(){
+    ctx.save();
+    ctx.globalAlpha = this.a;
+    ctx.shadowColor = this.c;
+    ctx.shadowBlur  = this.r * (this.st ? 10 : 6);
+    ctx.fillStyle   = this.c;
+    if(this.st){
+      const s = this.r * 2.6;
+      ctx.fillRect(this.x - s/2, this.y - .7,  s,   1.4);
+      ctx.fillRect(this.x - .7,  this.y - s/2, 1.4, s);
+    } else {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+const sps = Array.from({length: 55}, () => new Sp());
+(function loop(){
+  ctx.clearRect(0, 0, 820, 820);
+  sps.forEach(s => { s.tick(); s.draw(); });
+  requestAnimationFrame(loop);
+})();
+
+/* ═══════════════════════════════════════════════════
+   FLASH
+═══════════════════════════════════════════════════ */
+const flEl = document.getElementById('fl');
+function doFlash(){
+  flEl.classList.remove('pop');
+  void flEl.offsetWidth;
+  flEl.classList.add('pop');
+}
+
+/* ═══════════════════════════════════════════════════
+   TYPEWRITER
+═══════════════════════════════════════════════════ */
+function typewrite(el, text, speed, onDone){
+  let i = 0;
+  const cur = document.createElement('span');
+  cur.className = 'cur';
+  el.innerHTML  = '';
+  el.appendChild(cur);
+  const iv = setInterval(() => {
+    if(i >= text.length){
+      clearInterval(iv);
+      cur.remove();
+      if(onDone) onDone();
+      return;
+    }
+    el.insertBefore(document.createTextNode(text[i]), cur);
+    i++;
+  }, speed);
+}
+
+/* ═══════════════════════════════════════════════════
+   TIMELINE
+   -----------------------------------------------
+   0.00 s  opening flash
+   0.40 s  "Luxury Travel Company" types (21 ch × 62 ms → ~1.7 s)
+   2.10 s  flash #2
+   2.30 s  logo spins in from background (1.6 s anim → settles ~3.9 s)
+   2.75 s  shimmer sweeps logo
+   4.00 s  flash #3  +  divider appears
+   4.20 s  tagline types (36 ch × 56 ms → ~2.2 s, done ~6.4 s)
+   6.70 s  flash #4  +  sub  +  bot ornament
+═══════════════════════════════════════════════════ */
+const eyRow   = document.getElementById('eyRow');
+const eyTx    = document.getElementById('eyTx');
+const logoWrap= document.getElementById('logoWrap');
+const logoImg = document.getElementById('logoImg');
+const divEl   = document.getElementById('divEl');
+const tgl     = document.getElementById('tgl');
+const sub     = document.getElementById('sub');
+const bot     = document.getElementById('bot');
+
+// t = 0 s — opening flash
+doFlash();
+
+// t = 0.4 s — eyebrow typewriter
+setTimeout(() => {
+  eyRow.classList.add('show');
+  typewrite(eyTx, 'Luxury Travel Company', 62);
+}, 400);
+
+// t = 2.1 s — flash before logo
+setTimeout(doFlash, 2100);
+
+// t = 2.3 s — logo spins in
+setTimeout(() => logoImg.classList.add('spin', 'glow'), 2300);
+
+// t = 2.75 s — shimmer sweeps
+setTimeout(() => logoWrap.classList.add('shimmer'), 2750);
+
+// t = 4.0 s — flash + divider + tagline
+setTimeout(() => {
+  doFlash();
+  divEl.classList.add('show');
+  setTimeout(() => {
+    typewrite(tgl, 'Crafted Journeys. Timeless Memories.', 56);
+  }, 260);
+}, 4000);
+
+// t = 6.7 s — flash + sub + bottom ornament
+setTimeout(() => {
+  doFlash();
+  sub.classList.add('show');
+  bot.classList.add('show');
+}, 6700);
+</script>
+</body>
+</html>

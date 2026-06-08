@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aristokrat İrove — Azerbaijan · V2</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cinzel:wght@300;400;600;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --deep:#070810;
+  --gold:#c9962c;
+  --gold-l:#f0d080;
+  --cream:#f5f0e8;
+  --silver:#a8a49c;
+  --white:#ffffff;
+}
+body{background:var(--deep);display:flex;align-items:center;justify-content:center;width:100vw;height:100vh;overflow:hidden}
+.stage{position:relative;width:820px;height:820px;overflow:hidden;background:#000}
+.sw{position:absolute;inset:0;display:none;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
+
+/* ── Shared keyframes ─────────────────────────────── */
+@keyframes fadeIn{to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeLeft{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes show{to{opacity:1}}
+@keyframes shimmer{0%,100%{background-position:0% 60%}50%{background-position:100% 40%}}
+@keyframes kBurns{from{transform:scale(1.08)}to{transform:scale(1.16) translate(-12px,-4px)}}
+
+/* Logo drops from top with elastic bounce */
+@keyframes dropBounce{
+  0%  {opacity:0;transform:translateY(-80px) scale(1.08)}
+  55% {opacity:1;transform:translateY(12px)  scale(.98)}
+  75% {transform:translateY(-5px) scale(1.01)}
+  90% {transform:translateY(3px)  scale(.99)}
+  100%{opacity:1;transform:translateY(0)     scale(1)}
+}
+/* Logo glows into existence in S8 */
+@keyframes glowReveal{
+  0%  {opacity:0;transform:scale(.88);filter:drop-shadow(0 0 0 rgba(201,150,44,0))}
+  45% {opacity:1;transform:scale(1.03);filter:drop-shadow(0 0 50px rgba(240,208,128,.9))}
+  100%{opacity:1;transform:scale(1);  filter:drop-shadow(0 0 22px rgba(201,150,44,.45))}
+}
+@keyframes glowPulse{
+  0%,100%{filter:drop-shadow(0 0 16px rgba(201,150,44,.35))}
+  50%    {filter:drop-shadow(0 0 60px rgba(240,208,128,.90)) drop-shadow(0 0 100px rgba(201,150,44,.4))}
+}
+/* Destination image pans left→right instead of zooming */
+@keyframes dishPan{
+  0%  {transform:scale(1.18) translateX(-35px);opacity:0}
+  8%  {opacity:1}
+  60% {transform:scale(1.18) translateX(20px); opacity:1}
+  85% {transform:scale(1.22) translateX(40px); opacity:1}
+  93% {opacity:.25}
+  100%{transform:scale(1.24) translateX(50px); opacity:0}
+}
+/* Corner brackets expand outward */
+@keyframes bracketTL{from{width:0;height:0}to{width:44px;height:44px}}
+@keyframes bracketTR{from{width:0;height:0}to{width:44px;height:44px}}
+@keyframes bracketBL{from{width:0;height:0}to{width:44px;height:44px}}
+@keyframes bracketBR{from{width:0;height:0}to{width:44px;height:44px}}
+/* Roman numeral sweep */
+@keyframes romanIn{from{opacity:0;transform:translateX(30px)}to{opacity:.055;transform:translateX(0)}}
+/* Label slide from left */
+@keyframes labelSlide{
+  0%  {opacity:0;transform:translateX(-28px)}
+  14% {opacity:1;transform:translateX(0)}
+  76% {opacity:1;transform:translateX(0)}
+  100%{opacity:0;transform:translateX(-14px)}
+}
+/* Progress line grows from left */
+@keyframes prog{0%{width:0;opacity:1}95%{width:100%;opacity:1}100%{width:100%;opacity:0}}
+
+/* ── SCENE 1: Cold Open ───────────────────────────── */
+#s1{background:var(--deep)}
+#s1 canvas{z-index:5}
+#s1 .vignette{position:absolute;inset:0;z-index:2;background:radial-gradient(ellipse 85% 85% at 50% 50%,transparent 10%,rgba(7,8,16,.4) 58%,rgba(7,8,16,.98) 100%)}
+#s1 .content{position:absolute;inset:0;z-index:6;display:flex;flex-direction:column;align-items:center;justify-content:center}
+/* thin horizontal rule that draws across before logo */
+#s1 .rule-top{width:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,150,44,.6),transparent);opacity:0;animation:ruleIn .8s .2s ease-out forwards;margin-bottom:28px}
+@keyframes ruleIn{to{opacity:1;width:220px}}
+/* real logo drops from above */
+#s1 .logo-full{
+  width:310px;height:auto;
+  opacity:0;
+  animation:dropBounce 1.2s .6s cubic-bezier(.22,1,.36,1) forwards;
+  filter:drop-shadow(0 6px 28px rgba(201,150,44,.22));
+  margin-bottom:4px
+}
+/* thin rule below logo */
+#s1 .rule-bot{width:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,150,44,.6),transparent);opacity:0;animation:ruleIn .8s 1.6s ease-out forwards;margin-top:20px;margin-bottom:22px}
+/* large italic tagline — Playfair Display */
+#s1 .tagline{
+  font-family:'Playfair Display',serif;font-style:italic;font-size:26px;
+  color:rgba(245,240,232,.68);letter-spacing:2px;text-align:center;line-height:1.4;
+  opacity:0;transform:translateY(18px);
+  animation:fadeUp 1s 1.9s ease forwards
+}
+#s1 .sub-tag{
+  font-family:'Cinzel',serif;font-size:9px;letter-spacing:8px;
+  color:rgba(201,150,44,.55);text-transform:uppercase;
+  opacity:0;animation:fadeUp .6s 2.7s ease forwards;margin-top:14px
+}
+
+/* ── SCENES 2–7: Destination scenes — V2 style ────── */
+.sw .dish{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;animation:dishPan 6s .2s ease-in-out forwards}
+/* Left-heavy gradient overlay (text sits on dark left side) */
+.sw .side-grad{position:absolute;inset:0;z-index:2;background:linear-gradient(to right,rgba(7,8,16,.96) 0%,rgba(7,8,16,.78) 38%,rgba(7,8,16,.18) 65%,rgba(7,8,16,.32) 100%)}
+/* bottom dark for safety */
+.sw .bot-grad{position:absolute;bottom:0;left:0;right:0;height:30%;z-index:3;background:linear-gradient(to top,rgba(7,8,16,.7) 0%,transparent 100%)}
+/* Large Roman numeral — top right, very faint */
+.roman{position:absolute;top:20px;right:36px;z-index:6;font-family:'Cinzel',serif;font-size:180px;font-weight:900;color:rgba(255,255,255,.0);line-height:1;user-select:none;opacity:0;animation:romanIn .9s .4s ease forwards}
+/* label: left-aligned, vertically centered */
+.label{position:absolute;top:50%;left:52px;z-index:8;transform:translateY(-50%) translateX(-28px);opacity:0;animation:labelSlide 3.8s 1.0s ease-out forwards}
+.label-num{font-family:'Cinzel',serif;font-size:9px;letter-spacing:6px;color:var(--gold);text-transform:uppercase;margin-bottom:10px;opacity:.85}
+.label-name{font-family:'Playfair Display',serif;font-size:52px;font-weight:700;color:var(--white);letter-spacing:1px;line-height:1;text-shadow:0 4px 28px rgba(0,0,0,.9)}
+.label-rule{width:48px;height:2px;background:var(--gold);margin:16px 0 14px;border-radius:2px;opacity:.8}
+.label-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;color:rgba(245,240,232,.78);letter-spacing:2px;max-width:340px}
+/* progress bar — amber gold */
+.progress{position:absolute;bottom:0;left:0;height:3px;width:0;z-index:9;background:linear-gradient(90deg,rgba(201,150,44,.3),var(--gold-l),var(--gold));box-shadow:0 0 10px rgba(201,150,44,.55);animation:prog 5.8s .2s linear forwards}
+
+/* ── SCENE 8: Logo Reveal — V2 style ─────────────── */
+#s8 .bg{position:absolute;inset:0;background:url('https://images.pexels.com/photos/19544256/pexels-photo-19544256.jpeg?auto=compress&cs=tinysrgb&w=1280') center/cover no-repeat;filter:blur(5px) brightness(.42);transform:scale(1.08);opacity:0;animation:fadeIn 2s .2s ease-out forwards,kBurns 28s 2s ease-in-out infinite alternate}
+#s8 .overlay{position:absolute;inset:0;z-index:2;background:radial-gradient(ellipse at 50% 48%,rgba(7,8,16,.1) 0%,rgba(7,8,16,.82) 100%);opacity:0;animation:fadeIn 1.5s .6s forwards}
+#s8 canvas{z-index:4}
+/* Corner bracket decorations */
+#s8 .cb{position:absolute;z-index:7;border:1.5px solid rgba(201,150,44,.45);opacity:0;animation:fadeIn .4s 1.0s forwards}
+#s8 .cb-tl{top:32px;left:32px;border-right:none;border-bottom:none;animation:bracketTL .6s 1.0s ease-out forwards,fadeIn .3s 1.0s forwards}
+#s8 .cb-tr{top:32px;right:32px;border-left:none;border-bottom:none;animation:bracketTR .6s 1.1s ease-out forwards,fadeIn .3s 1.1s forwards}
+#s8 .cb-bl{bottom:32px;left:32px;border-right:none;border-top:none;animation:bracketBL .6s 1.2s ease-out forwards,fadeIn .3s 1.2s forwards}
+#s8 .cb-br{bottom:32px;right:32px;border-left:none;border-top:none;animation:bracketBR .6s 1.3s ease-out forwards,fadeIn .3s 1.3s forwards}
+#s8 .logo-stage{position:absolute;inset:0;z-index:8;display:flex;flex-direction:column;align-items:center;justify-content:center}
+/* thin horizontal scanning line before logo */
+#s8 .scan-line{position:absolute;top:50%;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,150,44,.6),transparent);transform:translateY(-0px);opacity:0;animation:scanFade 1.2s .8s ease-out forwards}
+@keyframes scanFade{0%{opacity:0;transform:scaleX(0)}50%{opacity:.8;transform:scaleX(1)}100%{opacity:0;transform:scaleX(1)}}
+/* real logo — glow reveal */
+#s8 .logo-full-8{
+  width:390px;height:auto;
+  opacity:0;
+  animation:glowReveal 1.4s 1.4s cubic-bezier(.22,1,.36,1) forwards,
+            glowPulse 3s 3.2s ease-in-out infinite;
+  margin:8px 0 16px
+}
+#s8 .gems-8{display:flex;align-items:center;gap:10px;opacity:0;animation:fadeUp .7s 3.0s ease forwards}
+#s8 .gem-line-8{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+#s8 .gem-8{width:7px;height:7px;background:var(--gold-l);transform:rotate(45deg);box-shadow:0 0 8px var(--gold)}
+#s8 .gem-sm-8{width:4px;height:4px;background:var(--gold);transform:rotate(45deg)}
+#s8 .tagline-8{font-family:'Playfair Display',serif;font-style:italic;font-size:16px;color:rgba(245,240,232,.38);letter-spacing:2px;margin-top:24px;opacity:0;animation:fadeUp .8s 3.4s ease forwards}
+
+/* ── SCENE 9: CTA — V2 editorial style ───────────── */
+#s9 .bg{position:absolute;inset:0;background:url('https://images.pexels.com/photos/33972180/pexels-photo-33972180.jpeg?auto=compress&cs=tinysrgb&w=1280') center/cover no-repeat;filter:blur(6px) brightness(.40) saturate(1.2);transform:scale(1.1);opacity:0;animation:fadeIn 1.5s .1s ease-out forwards}
+#s9 .overlay{position:absolute;inset:0;z-index:2;background:linear-gradient(135deg,rgba(7,8,16,.92) 0%,rgba(7,8,16,.65) 55%,rgba(7,8,16,.90) 100%)}
+#s9 canvas{z-index:4}
+/* Corner brackets in CTA too */
+#s9 .cb{position:absolute;z-index:7;border:1px solid rgba(201,150,44,.3);opacity:0;animation:fadeIn .4s .5s forwards}
+#s9 .cb-tl{top:40px;left:40px;width:30px;height:30px;border-right:none;border-bottom:none}
+#s9 .cb-tr{top:40px;right:40px;width:30px;height:30px;border-left:none;border-bottom:none}
+#s9 .cb-bl{bottom:40px;left:40px;width:30px;height:30px;border-right:none;border-top:none}
+#s9 .cb-br{bottom:40px;right:40px;width:30px;height:30px;border-left:none;border-top:none}
+#s9 .cstage{position:absolute;inset:0;z-index:8;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px}
+#s9 .eyebrow{font-family:'Cinzel',serif;font-size:9px;letter-spacing:8px;color:rgba(201,150,44,.55);text-transform:uppercase;opacity:0;animation:fadeUp .6s .4s ease forwards;margin-bottom:30px}
+/* real logo in CTA */
+#s9 .logo-cta{width:240px;height:auto;opacity:0;transform:translateY(14px);animation:fadeUp .9s .7s ease forwards;filter:drop-shadow(0 0 18px rgba(201,150,44,.25));margin-bottom:32px}
+/* Gold bordered info box */
+#s9 .info-box{border:1px solid rgba(201,150,44,.35);padding:28px 44px;text-align:center;opacity:0;animation:fadeUp .8s 1.2s ease forwards;position:relative}
+#s9 .info-box::before{content:'';position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:60px;height:2px;background:var(--gold)}
+#s9 .phone{font-family:'Cinzel',serif;font-size:22px;font-weight:400;letter-spacing:3px;color:var(--white);text-shadow:0 2px 16px rgba(0,0,0,.8);margin-bottom:6px}
+#s9 .website{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:rgba(201,150,44,.7);letter-spacing:2px}
+#s9 .cta-btn{display:inline-block;padding:13px 50px;background:linear-gradient(135deg,rgba(201,150,44,.15),rgba(201,150,44,.08));color:var(--cream);font-family:'Cinzel',serif;font-size:10px;font-weight:600;letter-spacing:6px;text-transform:uppercase;border:1px solid rgba(201,150,44,.5);opacity:0;transform:translateY(10px);animation:fadeUp .8s 1.9s ease forwards,ctaPulse 2.4s 3s ease-in-out infinite alternate;margin-top:28px}
+@keyframes ctaPulse{from{border-color:rgba(201,150,44,.5);box-shadow:none}to{border-color:rgba(240,208,128,.85);box-shadow:0 0 32px rgba(201,150,44,.2),inset 0 0 20px rgba(201,150,44,.06)}}
+#s9 .details{display:flex;gap:0;margin-top:26px;opacity:0;animation:fadeUp .7s 2.2s ease forwards;border-top:1px solid rgba(201,150,44,.18);padding-top:22px;width:100%;justify-content:space-around}
+#s9 .det-item{text-align:center}
+#s9 .det-label{font-family:'Cinzel',serif;font-size:8px;letter-spacing:4px;color:rgba(201,150,44,.45);text-transform:uppercase;margin-bottom:5px}
+#s9 .det-val{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:rgba(245,240,232,.58);letter-spacing:1px}
+</style>
+</head>
+<body>
+<div class="stage">
+
+<!-- ═══════════════════════════════════════════════
+     SCENE 1 — Cold Open  (logo drops from top)
+════════════════════════════════════════════════ -->
+<div class="sw" id="s1">
+  <canvas></canvas>
+  <div class="vignette"></div>
+  <div class="content">
+    <div class="rule-top"></div>
+    <img class="logo-full"
+         src="https://aristokrat.az/frontassets/site/images/logo.svg"
+         alt="Aristokrat İrove Azerbaijan">
+    <div class="rule-bot"></div>
+    <div class="tagline">Journey Beyond the Ordinary</div>
+    <div class="sub-tag">Luxury Travel &nbsp;·&nbsp; Baku &nbsp;·&nbsp; Azerbaijan</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCENE 2 — Flame Towers  (panning image, left label)
+════════════════════════════════════════════════ -->
+<div class="sw" id="s2">
+  <div class="dish" style="background-image:url('https://images.pexels.com/photos/19825792/pexels-photo-19825792.jpeg?auto=compress&cs=tinysrgb&w=1280');background-position:center top"></div>
+  <div class="side-grad"></div>
+  <div class="bot-grad"></div>
+  <canvas></canvas>
+  <div class="roman">I</div>
+  <div class="label">
+    <div class="label-num">01 &nbsp;·&nbsp; Iconic Baku</div>
+    <div class="label-name">Flame<br>Towers</div>
+    <div class="label-rule"></div>
+    <div class="label-sub">The eternal fire of Azerbaijan</div>
+  </div>
+  <div class="progress"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCENE 3 — Old City  (left label)
+════════════════════════════════════════════════ -->
+<div class="sw" id="s3">
+  <div class="dish" style="background-image:url('https://images.pexels.com/photos/33297225/pexels-photo-33297225.jpeg?auto=compress&cs=tinysrgb&w=1280')"></div>
+  <div class="side-grad"></div>
+  <div class="bot-grad"></div>
+  <canvas></canvas>
+  <div class="roman">II</div>
+  <div class="label">
+    <div class="label-num">02 &nbsp;·&nbsp; Ancient Wonder</div>
+    <div class="label-name">Old<br>City</div>
+    <div class="label-rule"></div>
+    <div class="label-sub">İçərişəhər &nbsp;·&nbsp; UNESCO Heritage</div>
+  </div>
+  <div class="progress"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCENE 4 — Caspian Shore
+════════════════════════════════════════════════ -->
+<div class="sw" id="s4">
+  <div class="dish" style="background-image:url('https://images.pexels.com/photos/19257817/pexels-photo-19257817.jpeg?auto=compress&cs=tinysrgb&w=1280')"></div>
+  <div class="side-grad"></div>
+  <div class="bot-grad"></div>
+  <canvas></canvas>
+  <div class="roman">III</div>
+  <div class="label">
+    <div class="label-num">03 &nbsp;·&nbsp; Natural Wonder</div>
+    <div class="label-name">Caspian<br>Sea</div>
+    <div class="label-rule"></div>
+    <div class="label-sub">Where the journey begins</div>
+  </div>
+  <div class="progress"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCENE 5 — Caucasus Mountains
+════════════════════════════════════════════════ -->
+<div class="sw" id="s5">
+  <div class="dish" style="background-image:url('https://images.pexels.com/photos/9356284/pexels-photo-9356284.jpeg?auto=compress&cs=tinysrgb&w=1280')"></div>
+  <div class="side-grad"></div>
+  <div class="bot-grad"></div>
+  <canvas></canvas>
+  <div class="roman">IV</div>
+  <div class="label">
+    <div class="label-num">04 &nbsp;·&nbsp; Natural Escape</div>
+    <div class="label-name">Greater<br>Caucasus</div>
+    <div class="label-rule"></div>
+    <div class="label-sub">Ancient mountains &nbsp;·&nbsp; Wild nature</div>
+  </div>
+  <div class="progress"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCENE 6 — Heydar Aliyev Centre
+════════════════════════════════════════════════ -->
+<div class="sw" id="s6">
+  <div class="dish" style="background-image:url('https://images.pexels.com/photos/8412668/pexels-photo-8412668.jpeg?auto=compress&cs=tinysrgb&w=1280')"></div>
+  <div class="side-grad"></div>
+  <div class="bot-grad"></div>
+  <canvas></canvas>
+  <div class="roman">V</div>
+  <div class="label">
+    <div class="label-num">05 &nbsp;·&nbsp; Modern Wonder</div>
+    <div class="label-name">Heydar<br>Aliyev</div>
+    <div class="label-rule"></div>
+    <div class="label-sub">Zaha Hadid masterpiece &nbsp;·&nbsp; Baku</div>
+  </div>
+  <div class="progress"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCENE 7 — The Poet's Land
+════════════════════════════════════════════════ -->
+<div class="sw" id="s7">
+  <div class="dish" style="background-image:url('https://images.pexels.com/photos/19050002/pexels-photo-19050002.jpeg?auto=compress&cs=tinysrgb&w=1280')"></div>
+  <div class="side-grad"></div>
+  <div class="bot-grad"></div>
+  <canvas></canvas>
+  <div class="roman">VI</div>
+  <div class="label">
+    <div class="label-num">06 &nbsp;·&nbsp; Cultural Soul</div>
+    <div class="label-name">The<br>Poet's Land</div>
+    <div class="label-rule"></div>
+    <div class="label-sub">Nizami Ganjavi &nbsp;·&nbsp; 12th Century</div>
+  </div>
+  <div class="progress"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCENE 8 — Logo Reveal  (glow + corner brackets)
+════════════════════════════════════════════════ -->
+<div class="sw" id="s8">
+  <div class="bg"></div>
+  <div class="overlay"></div>
+  <canvas></canvas>
+  <!-- Corner brackets -->
+  <div class="cb cb-tl"></div>
+  <div class="cb cb-tr"></div>
+  <div class="cb cb-bl"></div>
+  <div class="cb cb-br"></div>
+  <!-- Scanning line effect -->
+  <div class="scan-line"></div>
+  <div class="logo-stage">
+    <img class="logo-full-8"
+         src="https://aristokrat.az/frontassets/site/images/logo.svg"
+         alt="Aristokrat İrove Azerbaijan">
+    <div class="gems-8">
+      <div class="gem-line-8"></div>
+      <div class="gem-sm-8"></div><div class="gem-8"></div><div class="gem-sm-8"></div>
+      <div class="gem-line-8"></div>
+    </div>
+    <div class="tagline-8">Travel in Style &nbsp;·&nbsp; Discover Azerbaijan</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCENE 9 — CTA  (editorial gold-box layout)
+════════════════════════════════════════════════ -->
+<div class="sw" id="s9">
+  <div class="bg"></div>
+  <div class="overlay"></div>
+  <canvas></canvas>
+  <div class="cb cb-tl"></div>
+  <div class="cb cb-tr"></div>
+  <div class="cb cb-bl"></div>
+  <div class="cb cb-br"></div>
+  <div class="cstage">
+    <div class="eyebrow">Reservations &amp; Enquiries</div>
+    <img class="logo-cta"
+         src="https://aristokrat.az/frontassets/site/images/logo.svg"
+         alt="Aristokrat İrove Azerbaijan">
+    <div class="info-box">
+      <div class="phone">+994 XX XXX XXXX</div>
+      <div class="website">aristokrat.az</div>
+    </div>
+    <div class="cta-btn">Begin Your Journey</div>
+    <div class="details">
+      <div class="det-item">
+        <div class="det-label">Experience</div>
+        <div class="det-val">Luxury &amp; Culture</div>
+      </div>
+      <div class="det-item">
+        <div class="det-label">Destination</div>
+        <div class="det-val">Baku, Azerbaijan</div>
+      </div>
+      <div class="det-item">
+        <div class="det-label">Style</div>
+        <div class="det-val">Aristokrat İrove</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- .stage -->
+
+<script>
+/* ── Amber / gold particle system (V2) ─────────────
+   Larger, slower, warmer than V1's silver particles  */
+const PC = ['#c9962c','#f0d080','#d4a843','#ffe4a0','#b87c28','#fff0c8'];
+
+function makeParticles(canvas, count) {
+  canvas.width = canvas.height = 820;
+  const ctx = canvas.getContext('2d');
+  class P {
+    constructor() { this.reset(true) }
+    reset(init) {
+      this.x = Math.random() * 820;
+      this.y = init ? Math.random() * 820 : 835;
+      this.vx = (Math.random() - .5) * .4;
+      this.vy = -(0.22 + Math.random() * .75);
+      this.r  = .6 + Math.random() * 2.4;    /* larger than V1 */
+      this.col = PC[Math.floor(Math.random() * PC.length)];
+      this.alpha = 0; this.life = 0;
+      this.maxLife = 160 + Math.random() * 280; /* slower / longer */
+      this.flicker = Math.random() * Math.PI * 2;
+    }
+    update() {
+      this.life++;
+      this.x += this.vx + Math.sin(this.life * .03 + this.flicker) * .3;
+      this.y += this.vy;
+      const t = this.life / this.maxLife;
+      this.alpha = (t < .12 ? t / .12 : t > .78 ? (1 - t) / .22 : 1) * .55;
+      if (this.life >= this.maxLife || this.y < -10) this.reset(false);
+    }
+    draw() {
+      ctx.save();
+      ctx.globalAlpha = this.alpha;
+      ctx.shadowColor = this.col;
+      ctx.shadowBlur  = this.r * 7;  /* more glow than V1 */
+      ctx.fillStyle   = this.col;
+      ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
+  }
+  const particles = Array.from({ length: count }, () => new P());
+  let raf = null;
+  function loop() {
+    ctx.clearRect(0, 0, 820, 820);
+    particles.forEach(p => { p.update(); p.draw(); });
+    raf = requestAnimationFrame(loop);
+  }
+  return {
+    start() { if (!raf) loop(); },
+    stop()  { if (raf) { cancelAnimationFrame(raf); raf = null; } }
+  };
+}
+
+/* ── Scene sequencer ───────────────────────────────  */
+const SCENES    = ['s1','s2','s3','s4','s5','s6','s7','s8','s9'];
+const DURATIONS = [6000,6000,6000,6000,6000,6000,6000,9000,8000];
+const EMBER_CT  = [55,  45,  45,  45,  45,  45,  45,  70,  55 ];
+
+let current     = 0;
+let activeEmber = null;
+
+function showScene(idx) {
+  if (activeEmber) { activeEmber.stop(); activeEmber = null; }
+  SCENES.forEach(id => { document.getElementById(id).style.display = 'none'; });
+  const el = document.getElementById(SCENES[idx]);
+  void document.body.offsetWidth;
+  el.style.display = 'block';
+  void el.offsetWidth;
+  const cv = el.querySelector('canvas');
+  if (cv) {
+    activeEmber = makeParticles(cv, EMBER_CT[idx]);
+    activeEmber.start();
+  }
+  current = idx;
+}
+
+function advance() {
+  const next = current + 1;
+  if (next >= SCENES.length) {
+    setTimeout(() => location.reload(), 800);
+    return;
+  }
+  showScene(next);
+  setTimeout(advance, DURATIONS[next]);
+}
+
+showScene(0);
+setTimeout(advance, DURATIONS[0]);
+</script>
+</body>
+</html>

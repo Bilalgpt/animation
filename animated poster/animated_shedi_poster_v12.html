@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Sheedi's Restaurant — Biryani Poster v12</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,400;1,500&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+
+html,body{
+  width:100%;height:100%;
+  background:#0c0a07;
+  overflow:hidden;
+}
+
+/* ── STAGE 1080 × 1920 ─────────────────────────────────── */
+.stage{
+  position:absolute;top:0;left:0;
+  width:1080px;height:1920px;
+  transform-origin:top left;overflow:hidden;
+  background:
+    radial-gradient(ellipse 72% 42% at 50% 30%, #FFFFFF 0%, #FFFBF2 35%, transparent 68%),
+    radial-gradient(ellipse 110% 80% at 50% 48%, #FBF4E6 0%, #F4E9D4 55%, #EEDFC4 100%);
+}
+.stage::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:1;
+  background-image:radial-gradient(circle, rgba(168,120,40,.04) 1px, transparent 1.4px);
+  background-size:28px 28px;
+}
+.stage::after{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:9;
+  background:radial-gradient(ellipse 75% 65% at 50% 35%, transparent 52%, rgba(110,70,15,.10) 100%);
+}
+
+canvas#dust{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;}
+
+/* ── CORNER ORNAMENTS ─────────────────────────────────── */
+.corner-svg{position:absolute;width:90px;height:90px;pointer-events:none;z-index:14;}
+.corner-svg.tl{top:32px;left:32px;}
+.corner-svg.tr{top:32px;right:32px;transform:scaleX(-1);}
+.corner-svg.bl{bottom:32px;left:32px;transform:scaleY(-1);}
+.corner-svg.br{bottom:32px;right:32px;transform:scale(-1,-1);}
+.cp{fill:none;stroke:#C9922A;stroke-width:1.4;stroke-dasharray:300;stroke-dashoffset:300;}
+.cp2{fill:none;stroke:rgba(201,146,42,.35);stroke-width:.7;stroke-dasharray:180;stroke-dashoffset:180;}
+.cdot{fill:#C9922A;opacity:0;}
+
+/* ── BORDER LINES ─────────────────────────────────────── */
+.bline{position:absolute;left:58px;right:58px;height:1.5px;
+  background:linear-gradient(90deg,transparent,#C9922A,transparent);
+  transform:scaleX(0);transform-origin:center;z-index:14;}
+.bline.t1{top:42px;}.bline.t2{top:50px;height:.6px;opacity:.5;}
+.bline.b1{bottom:42px;}.bline.b2{bottom:50px;height:.6px;opacity:.5;}
+
+/* ── ORBIT RINGS ──────────────────────────────────────── */
+.orbit{
+  position:absolute;left:540px;top:560px;border-radius:50%;
+  transform:translate(-50%,-50%) scale(.7);
+  opacity:0;z-index:3;pointer-events:none;
+}
+.orbit.path {width:820px;height:820px;border:1px dashed rgba(201,146,42,.28);}
+.orbit.outer{width:920px;height:920px;border:1px solid rgba(201,146,42,.10);}
+
+/* ── BREATHING GLOW ───────────────────────────────────── */
+.glow{
+  position:absolute;left:540px;top:540px;
+  width:680px;height:680px;
+  transform:translate(-50%,-50%) scale(.6);
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(255,236,180,.65) 0%, rgba(247,214,130,.20) 42%, transparent 66%);
+  filter:blur(4px);opacity:0;z-index:3;pointer-events:none;
+}
+
+/* ── FOOD MEDALLIONS ──────────────────────────────────── */
+.med{
+  position:absolute;left:0;top:0;
+  width:140px;height:140px;z-index:4;
+  will-change:transform;
+}
+.med-pop{position:absolute;inset:0;opacity:0;will-change:transform,opacity;}
+.med-circle{
+  position:absolute;inset:0;border-radius:50%;overflow:hidden;
+  border:2.5px solid rgba(201,146,42,.55);
+  box-shadow:
+    0 10px 26px rgba(90,50,10,.28),
+    0 0 0 5px rgba(201,146,42,.08),
+    inset 0 0 16px rgba(60,25,0,.20);
+}
+.med-circle img{
+  width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.06);
+}
+.med-label{
+  position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);
+  font-family:'Cinzel',serif;font-size:8.5px;letter-spacing:2px;
+  color:rgba(26,74,46,.65);text-transform:uppercase;
+  white-space:nowrap;text-align:center;
+}
+.med-ring{
+  position:absolute;inset:-7px;border-radius:50%;pointer-events:none;
+  background:conic-gradient(from 0deg,
+    transparent 0deg,rgba(201,146,42,0) 60deg,
+    rgba(201,146,42,.70) 110deg,rgba(245,217,142,.85) 150deg,
+    rgba(201,146,42,.70) 190deg,rgba(201,146,42,0) 250deg,transparent 360deg);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 1.5px));
+  mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 1.5px));
+  animation:spinRing 9s linear infinite;
+}
+@keyframes spinRing{to{transform:rotate(360deg);}}
+
+/* ── CENTRAL LOGO ─────────────────────────────────────── */
+.logo-wrap{
+  position:absolute;left:540px;top:560px;
+  width:420px;height:420px;
+  transform:translate(-50%,-50%);z-index:6;
+}
+.logo-base{
+  position:absolute;inset:0;width:100%;height:100%;
+  background-image:url('sheedi_logo_new.png');
+  background-size:contain;background-repeat:no-repeat;background-position:center;
+  will-change:transform,filter,opacity;
+  filter:saturate(1.3) contrast(1.1);
+}
+/* shine sweep masked to logo shape */
+.logo-shine{
+  position:absolute;inset:0;width:100%;height:100%;
+  -webkit-mask-image:url('sheedi_logo_new.png');mask-image:url('sheedi_logo_new.png');
+  -webkit-mask-size:contain;mask-size:contain;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:center;mask-position:center;
+  background:linear-gradient(108deg,
+    transparent 36%,rgba(255,247,220,.55) 44%,
+    rgba(255,255,255,.95) 50%,rgba(255,238,190,.55) 56%,transparent 64%);
+  background-size:280% 100%;background-position:170% 0;
+  mix-blend-mode:screen;opacity:0;z-index:7;
+  will-change:background-position,opacity;
+}
+
+/* ── "Signature Special" BANNER ───────────────────────── */
+.special-banner{
+  position:absolute;top:1038px;left:0;right:0;
+  display:flex;align-items:center;justify-content:center;
+  z-index:10;opacity:0;
+}
+.banner-pill{
+  background:#1A4A2E;
+  border:1.5px solid rgba(201,146,42,.60);
+  border-radius:50px;padding:11px 38px;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:0 4px 20px rgba(26,74,46,.28),inset 0 1px 0 rgba(255,255,255,.06);
+}
+.banner-leaf{width:20px;height:20px;opacity:.88;}
+.banner-txt{
+  font-family:'Dancing Script',cursive;font-size:32px;
+  color:#F5D98E;letter-spacing:1px;
+}
+
+/* ── TITLE BLOCK ──────────────────────────────────────── */
+.title-block{
+  position:absolute;top:1102px;left:0;right:0;
+  text-align:center;z-index:10;
+}
+.dish-cat{
+  font-family:'Cinzel',serif;font-size:18px;letter-spacing:9px;
+  color:#C0501A;text-transform:uppercase;opacity:0;transform:translateY(10px);
+  margin-bottom:4px;
+}
+.title-main{
+  font-family:'Playfair Display',serif;font-weight:900;
+  font-size:110px;line-height:.92;
+  color:#1A4A2E;
+  -webkit-text-stroke:2px rgba(201,146,42,.50);
+  padding-bottom:10px;
+}
+.title-main .char{display:inline-block;opacity:0;transform:translateY(50px);}
+.title-main .spc{display:inline-block;width:.28em;}
+.title-orn{
+  display:flex;align-items:center;justify-content:center;
+  gap:10px;margin-top:2px;opacity:0;
+}
+.to-line{width:80px;height:1px;background:linear-gradient(90deg,transparent,#C9922A,transparent);transform:scaleX(0);transform-origin:center;}
+.to-gem{width:7px;height:7px;background:#C9922A;transform:rotate(45deg) scale(0);}
+.to-sm{width:4px;height:4px;background:#F5D98E;transform:rotate(45deg) scale(0);}
+
+/* ── CYCLING TAGLINE ──────────────────────────────────── */
+.tagline-wrap{
+  position:absolute;top:1290px;left:0;right:0;
+  z-index:10;opacity:0;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.tag-rule{display:flex;align-items:center;gap:12px;}
+.tag-rule i{width:60px;height:1px;background:linear-gradient(90deg,transparent,#C9922A);}
+.tag-rule i.r{background:linear-gradient(90deg,#C9922A,transparent);}
+.tag-gem{width:7px;height:7px;background:#C9922A;transform:rotate(45deg);}
+.tagline{
+  font-family:'Cinzel',serif;font-weight:600;
+  font-size:22px;letter-spacing:.16em;text-transform:uppercase;
+  color:#1A4A2E;text-align:center;min-height:1.3em;
+  will-change:opacity,transform,filter;
+  padding:0 60px;
+}
+
+/* ── INFO BAR ─────────────────────────────────────────── */
+.info-bar{
+  position:absolute;top:1420px;left:0;right:0;
+  height:136px;
+  background:linear-gradient(135deg,#1A4A2E 0%,#143D24 60%,#1A4A2E 100%);
+  border-top:1.5px solid rgba(201,146,42,.45);
+  border-bottom:1.5px solid rgba(201,146,42,.45);
+  display:flex;align-items:center;justify-content:space-around;
+  padding:0 28px;z-index:10;
+  opacity:0;transform:translateY(24px);
+}
+.info-item{display:flex;flex-direction:column;align-items:center;gap:7px;flex:1;}
+.info-icon{
+  width:42px;height:42px;border-radius:50%;
+  border:1.5px solid rgba(201,146,42,.55);
+  display:flex;align-items:center;justify-content:center;
+}
+.info-icon svg{width:20px;height:20px;}
+.info-label{
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:2.5px;
+  color:#F5D98E;text-transform:uppercase;text-align:center;line-height:1.4;
+}
+.info-divider{width:1px;height:68px;background:rgba(201,146,42,.28);}
+.bar-leaf{position:absolute;opacity:.20;width:46px;}
+.bar-leaf.l{left:14px;}.bar-leaf.r{right:14px;transform:scaleX(-1);}
+
+/* ── CONTACT ──────────────────────────────────────────── */
+.contact-row{
+  position:absolute;top:1576px;left:80px;right:80px;
+  display:flex;align-items:center;justify-content:center;
+  z-index:10;opacity:0;
+}
+.contact-pill{
+  display:flex;align-items:center;gap:14px;
+  border:1.5px solid rgba(201,146,42,.55);border-radius:50px;
+  padding:13px 42px;background:rgba(201,146,42,.05);
+}
+.contact-icon{color:#C9922A;font-size:20px;}
+.contact-num{
+  font-family:'Cinzel',serif;font-size:26px;font-weight:600;
+  color:#1A4A2E;letter-spacing:3px;
+}
+
+/* ── COME LINE ────────────────────────────────────────── */
+.come-line{
+  position:absolute;top:1660px;left:0;right:0;
+  z-index:10;opacity:0;
+  display:flex;align-items:center;justify-content:center;gap:14px;
+}
+.come-orn{width:48px;height:1px;background:linear-gradient(90deg,transparent,#C9922A,transparent);}
+.come-txt{
+  font-family:'Cinzel',serif;font-size:15px;letter-spacing:7px;
+  color:rgba(26,74,46,.60);text-transform:uppercase;
+}
+
+/* ── MENU STRIP (small dish previews) ─────────────────── */
+.menu-strip{
+  position:absolute;top:1730px;left:0;right:0;
+  display:flex;align-items:center;justify-content:center;gap:28px;
+  z-index:10;opacity:0;
+}
+.ms-item{display:flex;flex-direction:column;align-items:center;gap:7px;}
+.ms-circle{
+  width:88px;height:88px;border-radius:50%;overflow:hidden;
+  border:1.5px solid rgba(201,146,42,.45);
+  box-shadow:0 4px 14px rgba(60,30,5,.15);
+}
+.ms-circle img{width:100%;height:100%;object-fit:cover;}
+.ms-name{
+  font-family:'Cinzel',serif;font-size:8px;letter-spacing:2.5px;
+  color:rgba(26,74,46,.60);text-transform:uppercase;text-align:center;
+  line-height:1.5;
+}
+
+/* ── FLASH ────────────────────────────────────────────── */
+.flash{
+  position:absolute;inset:0;z-index:40;pointer-events:none;opacity:0;
+  background:radial-gradient(ellipse 70% 45% at 50% 32%,
+    rgba(255,248,230,.80) 0%,rgba(245,215,140,.55) 32%,
+    rgba(201,146,42,.22) 62%,transparent 82%);
+}
+@keyframes flashBurst{0%{opacity:.80}20%{opacity:.38}100%{opacity:0}}
+.flash.pop{animation:flashBurst .50s ease-out forwards}
+
+/* ── REPLAY ───────────────────────────────────────────── */
+.replay{
+  position:fixed;right:18px;bottom:16px;z-index:50;
+  display:flex;align-items:center;gap:8px;
+  padding:9px 16px;border-radius:999px;cursor:pointer;
+  background:rgba(255,255,255,.08);border:1px solid rgba(212,170,90,.55);
+  color:#C29447;font:600 12px/1 'Cinzel',serif;
+  letter-spacing:.15em;text-transform:uppercase;
+  backdrop-filter:blur(6px);transition:background .25s,transform .15s;
+}
+.replay:hover{background:rgba(212,170,90,.18);}
+.replay:active{transform:scale(.96);}
+.replay svg{width:13px;height:13px;display:block;}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <canvas id="dust"></canvas>
+  <div class="flash" id="fl"></div>
+
+  <!-- Corner ornaments -->
+  <svg class="corner-svg tl" viewBox="0 0 90 90">
+    <path class="cp"  d="M8 82 L8 8 L82 8"/>
+    <path class="cp2" d="M18 72 L18 18 L72 18"/>
+    <circle class="cdot" cx="8" cy="8" r="3"/>
+  </svg>
+  <svg class="corner-svg tr" viewBox="0 0 90 90">
+    <path class="cp"  d="M8 82 L8 8 L82 8"/>
+    <path class="cp2" d="M18 72 L18 18 L72 18"/>
+    <circle class="cdot" cx="8" cy="8" r="3"/>
+  </svg>
+  <svg class="corner-svg bl" viewBox="0 0 90 90">
+    <path class="cp"  d="M8 82 L8 8 L82 8"/>
+    <path class="cp2" d="M18 72 L18 18 L72 18"/>
+    <circle class="cdot" cx="8" cy="8" r="3"/>
+  </svg>
+  <svg class="corner-svg br" viewBox="0 0 90 90">
+    <path class="cp"  d="M8 82 L8 8 L82 8"/>
+    <path class="cp2" d="M18 72 L18 18 L72 18"/>
+    <circle class="cdot" cx="8" cy="8" r="3"/>
+  </svg>
+
+  <!-- Border lines -->
+  <div class="bline t1" id="bt1"></div>
+  <div class="bline t2" id="bt2"></div>
+  <div class="bline b1" id="bb1"></div>
+  <div class="bline b2" id="bb2"></div>
+
+  <!-- Orbit rings -->
+  <div class="orbit path"  id="orbit1"></div>
+  <div class="orbit outer" id="orbit2"></div>
+
+  <!-- Breathing glow -->
+  <div class="glow" id="glow"></div>
+
+  <!-- Revolving food medallions (7 dishes) -->
+  <div class="med"><div class="med-pop"><div class="med-circle"><div class="med-ring"></div><img src="biryani_dish.jpg"   alt="Biryani"        style="object-position:center 42%"></div><span class="med-label">Biryani</span></div></div>
+  <div class="med"><div class="med-pop"><div class="med-circle"><div class="med-ring"></div><img src="biryani_dish2.jpg"  alt="Biryani Special" style="object-position:center 46%"></div><span class="med-label">Biryani Special</span></div></div>
+  <div class="med"><div class="med-pop"><div class="med-circle"><div class="med-ring"></div><img src="matka_biryani.jpg"  alt="Matka Biryani"   style="object-position:center 50%"></div><span class="med-label">Matka Biryani</span></div></div>
+  <div class="med"><div class="med-pop"><div class="med-circle"><div class="med-ring"></div><img src="biryani_dish3.jpg"  alt="Karahi"          style="object-position:center 46%"></div><span class="med-label">Karahi</span></div></div>
+  <div class="med"><div class="med-pop"><div class="med-circle"><div class="med-ring"></div><img src="salad1.jpg"         alt="Garden Salad"    style="object-position:center 50%"></div><span class="med-label">Garden Salad</span></div></div>
+  <div class="med"><div class="med-pop"><div class="med-circle"><div class="med-ring"></div><img src="salad2.jpg"         alt="Greek Salad"     style="object-position:center 50%"></div><span class="med-label">Greek Salad</span></div></div>
+  <div class="med"><div class="med-pop"><div class="med-circle"><div class="med-ring"></div><img src="salad3.jpg"         alt="Fresh Salad"     style="object-position:center 38%"></div><span class="med-label">Fresh Salad</span></div></div>
+
+  <!-- Central logo -->
+  <div class="logo-wrap" id="logoWrap">
+    <div class="logo-base"  id="logoBase"></div>
+    <div class="logo-shine" id="logoShine"></div>
+  </div>
+
+  <!-- "Signature Special" banner -->
+  <div class="special-banner" id="specialBanner">
+    <div class="banner-pill">
+      <svg class="banner-leaf" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2C6 8 4 14 8 20c2-4 6-7 10-8C14 8 12 2 12 2z" fill="rgba(245,217,142,.82)"/>
+        <path d="M12 2C18 8 20 14 16 20" stroke="rgba(245,217,142,.55)" stroke-width=".8" fill="none"/>
+      </svg>
+      <span class="banner-txt">Signature Special</span>
+      <svg class="banner-leaf" viewBox="0 0 24 24" fill="none" style="transform:scaleX(-1)">
+        <path d="M12 2C6 8 4 14 8 20c2-4 6-7 10-8C14 8 12 2 12 2z" fill="rgba(245,217,142,.82)"/>
+        <path d="M12 2C18 8 20 14 16 20" stroke="rgba(245,217,142,.55)" stroke-width=".8" fill="none"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Title -->
+  <div class="title-block">
+    <div class="dish-cat" id="dishCat">Chicken</div>
+    <div class="title-main" id="titleMain"></div>
+    <div class="title-orn" id="titleOrn">
+      <div class="to-line" id="tol1"></div>
+      <div class="to-sm"  id="tos1"></div>
+      <div class="to-gem" id="tog"></div>
+      <div class="to-sm"  id="tos2"></div>
+      <div class="to-line" id="tol2"></div>
+    </div>
+  </div>
+
+  <!-- Cycling tagline -->
+  <div class="tagline-wrap" id="tagWrap">
+    <div class="tag-rule"><i></i><span class="tag-gem"></span><i class="r"></i></div>
+    <div class="tagline" id="tagline"></div>
+  </div>
+
+  <!-- Info bar -->
+  <div class="info-bar" id="infoBar">
+    <svg class="bar-leaf l" viewBox="0 0 55 80" fill="none">
+      <path d="M28 78C28 78 8 60 8 35 8 15 28 2 28 2s20 13 20 33c0 25-20 43-20 43z" fill="#F5D98E"/>
+      <line x1="28" y1="78" x2="28" y2="2" stroke="#C9922A" stroke-width=".8"/>
+      <path d="M28 20 Q18 28 12 38M28 32 Q20 38 16 48M28 44 Q22 50 20 58" stroke="#C9922A" stroke-width=".6" fill="none"/>
+    </svg>
+    <div class="info-item">
+      <div class="info-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#F5D98E" stroke-width="1.5">
+          <path d="M3 16c0-4 2-8 9-8s9 4 9 8H3z"/>
+          <line x1="12" y1="8" x2="12" y2="5"/>
+          <line x1="8" y1="20" x2="16" y2="20"/>
+        </svg>
+      </div>
+      <div class="info-label">Authentic<br>Flavors</div>
+    </div>
+    <div class="info-divider"></div>
+    <div class="info-item">
+      <div class="info-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#F5D98E" stroke-width="1.5">
+          <path d="M12 2C8 6 6 10 8 15c1 3 4 5 4 5s3-2 4-5c2-5 0-9-4-13z"/>
+          <line x1="12" y1="20" x2="12" y2="22"/>
+        </svg>
+      </div>
+      <div class="info-label">Fresh<br>Ingredients</div>
+    </div>
+    <div class="info-divider"></div>
+    <div class="info-item">
+      <div class="info-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#F5D98E" stroke-width="1.5">
+          <path d="M12 21C12 21 3 14 3 8a5 5 0 0110 0 5 5 0 0110 0c0 6-9 13-9 13z"/>
+        </svg>
+      </div>
+      <div class="info-label">Made<br>With Love</div>
+    </div>
+    <svg class="bar-leaf r" viewBox="0 0 55 80" fill="none">
+      <path d="M28 78C28 78 8 60 8 35 8 15 28 2 28 2s20 13 20 33c0 25-20 43-20 43z" fill="#F5D98E"/>
+      <line x1="28" y1="78" x2="28" y2="2" stroke="#C9922A" stroke-width=".8"/>
+      <path d="M28 20 Q18 28 12 38M28 32 Q20 38 16 48M28 44 Q22 50 20 58" stroke="#C9922A" stroke-width=".6" fill="none"/>
+    </svg>
+  </div>
+
+  <!-- Contact -->
+  <div class="contact-row" id="contactRow">
+    <div class="contact-pill">
+      <span class="contact-icon">📞</span>
+      <span class="contact-num">+994 50 754 73 16</span>
+    </div>
+  </div>
+
+  <!-- Come line -->
+  <div class="come-line" id="comeLine">
+    <div class="come-orn"></div>
+    <span class="come-txt">Come · Indulge · Enjoy</span>
+    <div class="come-orn"></div>
+  </div>
+
+  <!-- Menu strip at bottom -->
+  <div class="menu-strip" id="menuStrip">
+    <div class="ms-item">
+      <div class="ms-circle"><img src="raita_bowl.jpg" alt="Raita"></div>
+      <span class="ms-name">Raita</span>
+    </div>
+    <div class="ms-item">
+      <div class="ms-circle"><img src="salad1.jpg" alt="Salads"></div>
+      <span class="ms-name">Salads</span>
+    </div>
+    <div class="ms-item">
+      <div class="ms-circle"><img src="matka_biryani.jpg" alt="Matka"></div>
+      <span class="ms-name">Matka</span>
+    </div>
+    <div class="ms-item">
+      <div class="ms-circle"><img src="spice_props.jpg" alt="Spices"></div>
+      <span class="ms-name">Spices</span>
+    </div>
+    <div class="ms-item">
+      <div class="ms-circle"><img src="salad2.jpg" alt="Greens"></div>
+      <span class="ms-name">Greens</span>
+    </div>
+  </div>
+
+</div>
+
+<button class="replay" id="replay" aria-label="Replay">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/>
+  </svg>
+  Replay
+</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<script>
+/* ── Stage scale ─────────────────────────────────────────── */
+(function(){
+  const s=document.getElementById('stage');
+  function fit(){
+    const scl=Math.min(window.innerWidth/1080, window.innerHeight/1920);
+    s.style.transform=`scale(${scl})`;
+    s.style.left=Math.max(0,(window.innerWidth -1080*scl)/2)+'px';
+    s.style.top =Math.max(0,(window.innerHeight-1920*scl)/2)+'px';
+  }
+  fit(); window.addEventListener('resize',fit);
+})();
+
+/* ── Gold dust (lighter blend mode — glowing particles) ─── */
+const cv=document.getElementById('dust'); cv.width=1080; cv.height=1920;
+const ctx=cv.getContext('2d');
+const GOLD=['#C9922A','#E6C273','#F3DDA0','#B8821F','#D4A843'];
+class Mote{
+  constructor(){this.reset(true);}
+  reset(init){
+    this.x=Math.random()*1080;
+    this.y=init?Math.random()*1920:1940+Math.random()*80;
+    this.vx=(Math.random()-.5)*.18; this.vy=-(0.10+Math.random()*.38);
+    this.r=.5+Math.random()*1.8; this.l=0; this.ml=340+Math.random()*480;
+    this.c=GOLD[(Math.random()*GOLD.length)|0];
+    this.w=Math.random()*Math.PI*2; this.amp=.10+Math.random()*.28;
+  }
+  tick(){
+    this.l++; this.x+=this.vx+Math.sin(this.l*.018+this.w)*this.amp; this.y+=this.vy;
+    const t=this.l/this.ml; this.a=(t<.14?t/.14:t>.78?(1-t)/.22:1)*.48;
+    if(this.l>=this.ml||this.y<-10)this.reset(false);
+  }
+  draw(){
+    const R=this.r*2.5;
+    const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,R);
+    g.addColorStop(0,this.c); g.addColorStop(1,'transparent');
+    ctx.globalAlpha=this.a; ctx.fillStyle=g;
+    ctx.beginPath(); ctx.arc(this.x,this.y,R,0,Math.PI*2); ctx.fill();
+  }
+}
+const motes=Array.from({length:52},()=>new Mote());
+(function loop(){
+  ctx.clearRect(0,0,1080,1920);
+  ctx.globalCompositeOperation='lighter';
+  motes.forEach(m=>{m.tick();m.draw();});
+  ctx.globalCompositeOperation='source-over';
+  requestAnimationFrame(loop);
+})();
+
+/* ── Revolving medallions ─────────────────────────────────── */
+const medEls=[...document.querySelectorAll('.med')];
+const N=medEls.length, CX=540, CY=560, ORB_R=385;
+let theta=-Math.PI/2;
+(function orbitLoop(){
+  theta+=0.0022;
+  medEls.forEach((el,i)=>{
+    const a=theta+i*(Math.PI*2/N);
+    const x=CX+ORB_R*Math.cos(a)-70;
+    const y=CY+ORB_R*Math.sin(a)-70;
+    el.style.transform=`translate(${x}px,${y}px)`;
+  });
+  requestAnimationFrame(orbitLoop);
+})();
+
+/* ── Cycling taglines ─────────────────────────────────────── */
+const LINES=[
+  'Slow-cooked · Boldly Spiced',
+  'A taste of tradition in every bite',
+  'Authentic flavors, made with love',
+  'Where every meal becomes a memory',
+];
+const tagEl=document.getElementById('tagline');
+let li=0, tagTimer=null;
+function showLine(){
+  tagEl.textContent=LINES[li];
+  gsap.fromTo(tagEl,
+    {opacity:0,y:10,filter:'blur(6px)'},
+    {opacity:1,y:0,filter:'blur(0px)',duration:.85,ease:'power2.out'});
+}
+function startTagging(){
+  clearInterval(tagTimer); li=0; showLine();
+  tagTimer=setInterval(()=>{
+    gsap.to(tagEl,{opacity:0,y:-8,filter:'blur(5px)',duration:.50,ease:'power1.in',
+      onComplete:()=>{ li=(li+1)%LINES.length; showLine(); }});
+  },3200);
+}
+
+/* ── Flash ────────────────────────────────────────────────── */
+const flEl=document.getElementById('fl');
+function flash(){flEl.classList.remove('pop');void flEl.offsetWidth;flEl.classList.add('pop');}
+
+/* ── Build BIRYANI chars ──────────────────────────────────── */
+function buildChars(el,text){
+  el.innerHTML=text.split('').map(ch=>
+    `<span class="char">${ch}</span>`
+  ).join('');
+}
+
+/* ── Corner path draw (anime.js) ─────────────────────────── */
+function animateCorners(){
+  anime({targets:'.cp',strokeDashoffset:[anime.setDashoffset,0],
+    easing:'easeInOutSine',duration:1400,delay:anime.stagger(80)});
+  setTimeout(()=>{
+    anime({targets:'.cp2',strokeDashoffset:[anime.setDashoffset,0],
+      easing:'easeInOutSine',duration:900,delay:anime.stagger(60)});
+    anime({targets:'.cdot',opacity:[0,1],easing:'easeOutQuad',
+      duration:280,delay:anime.stagger(40)});
+  },500);
+}
+
+/* ── MAIN PLAY FUNCTION ───────────────────────────────────── */
+const base =document.getElementById('logoBase');
+const shine=document.getElementById('logoShine');
+const glow =document.getElementById('glow');
+const pops =[...document.querySelectorAll('.med-pop')];
+
+function play(){
+  clearInterval(tagTimer);
+
+  /* reset everything */
+  gsap.killTweensOf([base,shine,glow,'.orbit',...pops,
+    '#tagWrap','#specialBanner','.dish-cat','.char',
+    '#titleOrn','#infoBar','#contactRow','#comeLine','#menuStrip',
+    '#bt1','#bt2','#bb1','#bb2']);
+
+  gsap.set(base ,{opacity:0,scale:.55,rotation:-8,filter:'blur(18px)'});
+  gsap.set(glow ,{opacity:0,scale:.50});
+  gsap.set(shine,{opacity:0,backgroundPosition:'170% 0'});
+  gsap.set('.orbit',{opacity:0,scale:.65,rotation:0});
+  gsap.set(pops ,{opacity:0,scale:0});
+  gsap.set('#tagWrap',{opacity:0,y:14});
+  gsap.set('#specialBanner',{opacity:0,y:-18});
+  gsap.set('.dish-cat',{opacity:0,y:10});
+  gsap.set('.char',{opacity:0,y:50});
+  gsap.set('#titleOrn',{opacity:0});
+  gsap.set(['#tol1','#tol2'],{scaleX:0});
+  gsap.set(['#tog','#tos1','#tos2'],{scale:0});
+  gsap.set('#infoBar',{opacity:0,y:24});
+  gsap.set('#contactRow',{opacity:0});
+  gsap.set('#comeLine',{opacity:0});
+  gsap.set('#menuStrip',{opacity:0,y:16});
+  gsap.set(['#bt1','#bt2','#bb1','#bb2'],{scaleX:0});
+
+  /* Reset corner paths */
+  document.querySelectorAll('.cp,.cp2').forEach(p=>{
+    const l=p.getTotalLength?p.getTotalLength():300;
+    p.style.strokeDashoffset=l;
+  });
+  document.querySelectorAll('.cdot').forEach(d=>d.style.opacity=0);
+
+  const tl=gsap.timeline();
+
+  /* 0.0s — borders + corners */
+  tl.add(()=>{ flash(); animateCorners(); },0)
+    .to(['#bt1','#bt2','#bb1','#bb2'],{scaleX:1,duration:1.0,stagger:.05},0.08);
+
+  /* 0.2s — glow + orbit rings bloom */
+  tl.to(glow,{opacity:1,scale:1,duration:1.5,ease:'sine.out'},0.2)
+    .to(glow,{opacity:.50,scale:1.06,duration:3,ease:'sine.inOut'},1.7)
+    .to('.orbit',{opacity:1,scale:1,duration:1.6,ease:'power2.out',stagger:.12},0.3);
+
+  /* 0.3s — logo blooms from blur+scale */
+  tl.to(base,{opacity:1,scale:1,rotation:0,filter:'blur(0px)',
+              duration:1.7,ease:'back.out(1.4)'},0.3);
+
+  /* 1.5s — medallions pop onto orbit one by one */
+  tl.to(pops,{opacity:1,scale:1,duration:.75,ease:'back.out(1.8)',stagger:.12},1.5);
+
+  /* 1.8s — gold shine sweep #1 */
+  tl.set(shine,{opacity:1,backgroundPosition:'170% 0'},1.8)
+    .to(shine,{backgroundPosition:'-70% 0',duration:1.20,ease:'power2.inOut'},1.8)
+    .to(shine,{opacity:0,duration:.22},3.0);
+
+  /* 2.6s — Signature Special banner drops in */
+  tl.to('#specialBanner',{opacity:1,y:0,duration:.55,ease:'back.out(1.5)'},2.6);
+
+  /* 3.0s — "Chicken" + BIRYANI chars */
+  tl.add(()=>flash(),3.0)
+    .to('.dish-cat',{opacity:1,y:0,duration:.5},3.1)
+    .add(()=>{
+      buildChars(document.getElementById('titleMain'),'BIRYANI');
+      anime({targets:'#titleMain .char',opacity:[0,1],translateY:[50,0],
+        easing:'easeOutCubic',duration:440,delay:anime.stagger(62)});
+    },3.3);
+
+  /* 3.9s — title ornament */
+  tl.to('#titleOrn',{opacity:1,duration:.2},3.9)
+    .to(['#tol1','#tol2'],{scaleX:1,duration:.55,stagger:.06},3.95)
+    .to(['#tos1','#tos2','#tog'],{scale:1,duration:.28,ease:'back.out(2)',stagger:.06},4.25);
+
+  /* 4.0s — cycling tagline in */
+  tl.to('#tagWrap',{opacity:1,y:0,duration:.65,ease:'power2.out'},4.0)
+    .add(()=>startTagging(),4.1);
+
+  /* 4.2s — gold shine sweep #2 */
+  tl.set(shine,{opacity:.80,backgroundPosition:'170% 0'},4.8)
+    .to(shine,{backgroundPosition:'-70% 0',duration:1.35,ease:'power1.inOut'},4.8)
+    .to(shine,{opacity:0,duration:.28},6.15);
+
+  /* 5.0s — info bar slides up */
+  tl.to('#infoBar',{opacity:1,y:0,duration:.70},5.0);
+
+  /* 5.8s — contact */
+  tl.to('#contactRow',{opacity:1,duration:.55},5.8);
+
+  /* 6.3s — come line */
+  tl.to('#comeLine',{opacity:1,duration:.45},6.3);
+
+  /* 6.7s — menu strip slides up */
+  tl.to('#menuStrip',{opacity:1,y:0,duration:.60},6.7);
+
+  /* 7.0s — logo breathes */
+  tl.to(base,{scale:1.014,duration:1.1,ease:'sine.inOut'},7.5)
+    .to(base,{scale:1,duration:1.1,ease:'sine.inOut'},8.6);
+
+  return tl;
+}
+
+let master=play();
+function schedule(){
+  master.eventCallback('onComplete',()=>{
+    gsap.delayedCall(1.5,()=>{ master=play(); schedule(); });
+  });
+}
+schedule();
+
+document.getElementById('replay').addEventListener('click',()=>{
+  master.kill(); master=play(); schedule();
+});
+</script>
+</body>
+</html>

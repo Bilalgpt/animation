@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aristokrat Travel — Cinematic Logo Reveal</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  width:100vw; height:100vh;
+  background:#000;
+  overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+}
+
+.stage {
+  position:absolute;
+  width:1920px; height:1080px;
+  transform-origin:top left;
+  overflow:hidden;
+  background:
+    radial-gradient(ellipse 70% 80% at 50% 42%,  #070c1c 0%, #030610 45%, #010108 75%, #000002 100%);
+}
+
+/* ── FILM GRAIN overlay ─────────────────────────── */
+.stage::after {
+  content:'';
+  position:absolute; inset:0; z-index:20; pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size:180px 180px;
+  opacity:0.55; mix-blend-mode:overlay;
+}
+
+/* ── BOKEH canvas ──────────────────────────────── */
+#bokehCv {
+  position:absolute; inset:0; z-index:1; pointer-events:none;
+}
+
+/* ── LOGO AMBIENT HALO ─────────────────────────── */
+.logo-halo {
+  position:absolute; z-index:2; pointer-events:none;
+  left:50%; top:48%;
+  width:760px; height:420px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:radial-gradient(ellipse 55% 55% at 50% 50%,
+    rgba(180,200,255,0.06) 0%,
+    rgba(160,185,255,0.025) 40%,
+    transparent 70%);
+  opacity:0;
+  filter:blur(18px);
+}
+
+/* ── LIGHT BURST ──────────────────────────────── */
+.burst-ring {
+  position:absolute; z-index:3; pointer-events:none;
+  left:50%; top:48%;
+  border-radius:50%;
+  transform:translate(-50%,-50%) scale(0.1);
+  opacity:0;
+}
+.br-core {
+  width:180px; height:180px;
+  background:radial-gradient(circle,
+    rgba(255,255,255,1.0) 0%,
+    rgba(230,240,255,0.75) 28%,
+    rgba(200,220,255,0.30) 55%,
+    transparent 75%);
+}
+.br-mid {
+  width:500px; height:500px;
+  background:radial-gradient(circle,
+    rgba(255,255,255,0.18) 0%,
+    rgba(210,225,255,0.08) 38%,
+    transparent 65%);
+}
+.br-outer {
+  width:1100px; height:1100px;
+  background:radial-gradient(circle,
+    rgba(255,255,255,0.055) 0%,
+    rgba(200,215,255,0.02) 42%,
+    transparent 60%);
+}
+
+/* ── LOGO WRAPPER ─────────────────────────────── */
+.logo-wrap {
+  position:absolute; z-index:5; pointer-events:none;
+  left:50%; top:48%;
+  /* centering via GSAP xPercent/yPercent */
+  opacity:0;
+}
+.logo-img {
+  width:680px;
+  display:block;
+  /* Invert: dark lines → white, white bg → black (merges with dark stage) */
+  filter: invert(1) brightness(2.8) contrast(1.15);
+}
+
+/* ── SILK PARTICLE canvas ─────────────────────── */
+#silkCv {
+  position:absolute; inset:0; z-index:6; pointer-events:none;
+  mix-blend-mode: screen;  /* black bg of canvas = transparent, white particles shine through */
+}
+
+/* ── LENS FLARE ───────────────────────────────── */
+.lens-flare {
+  position:absolute; inset:0; z-index:9; pointer-events:none;
+  overflow:hidden; opacity:0;
+}
+.lf-main-beam {
+  position:absolute; top:0; bottom:0;
+  width:320px;
+  left:-320px;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0.02) 18%,
+    rgba(255,255,255,0.13) 40%,
+    rgba(235,245,255,0.22) 50%,
+    rgba(255,255,255,0.13) 60%,
+    rgba(255,255,255,0.02) 82%,
+    transparent 100%);
+  transform:skewX(-6deg);
+}
+.lf-streak {
+  position:absolute; top:0; bottom:0;
+  width:60px;
+  left:-60px;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0.28) 50%,
+    transparent 100%);
+  transform:skewX(-6deg);
+}
+/* Small lens artifact circles */
+.lf-orb {
+  position:absolute; border-radius:50%;
+  pointer-events:none; opacity:0;
+}
+.lf-orb-1 {
+  width:48px; height:48px; top:46%; left:62%;
+  background:radial-gradient(circle, rgba(200,220,255,0.35) 0%, transparent 70%);
+}
+.lf-orb-2 {
+  width:22px; height:22px; top:52%; left:34%;
+  background:radial-gradient(circle, rgba(255,255,255,0.50) 0%, transparent 70%);
+}
+.lf-orb-3 {
+  width:72px; height:72px; top:40%; left:78%;
+  background:radial-gradient(circle, rgba(180,210,255,0.18) 0%, transparent 70%);
+}
+
+/* ── VIGNETTE ─────────────────────────────────── */
+.vignette {
+  position:absolute; inset:0; z-index:15; pointer-events:none;
+  background:radial-gradient(ellipse 84% 78% at 50% 48%,
+    transparent 30%, rgba(0,0,6,0.55) 72%, rgba(0,0,4,0.88) 100%);
+}
+
+/* ── LETTERBOX BARS (cinematic) ──────────────── */
+.bar-top, .bar-bot {
+  position:absolute; left:0; right:0; z-index:16; pointer-events:none;
+  height:54px;
+  background:#000;
+  opacity:0;
+}
+.bar-top { top:0; }
+.bar-bot { bottom:0; }
+
+/* ── CREDIT LINE ──────────────────────────────── */
+.credit {
+  position:absolute; z-index:17; pointer-events:none;
+  bottom:22px; left:0; right:0;
+  text-align:center; opacity:0;
+  font-family:'Cinzel', serif;
+  font-size:11px; font-weight:300;
+  letter-spacing:9px;
+  color:rgba(255,255,255,0.38);
+  text-transform:uppercase;
+}
+
+/* ── TOP LABEL ────────────────────────────────── */
+.top-label {
+  position:absolute; z-index:17; pointer-events:none;
+  top:22px; left:0; right:0;
+  text-align:center; opacity:0;
+  font-family:'Cinzel', serif;
+  font-size:9px; font-weight:300;
+  letter-spacing:12px;
+  color:rgba(255,255,255,0.22);
+  text-transform:uppercase;
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <!-- Bokeh depth layer -->
+  <canvas id="bokehCv" width="1920" height="1080"></canvas>
+
+  <!-- Logo ambient halo -->
+  <div class="logo-halo" id="logoHalo"></div>
+
+  <!-- Light burst rings -->
+  <div class="burst-ring br-outer" id="brOuter"></div>
+  <div class="burst-ring br-mid"   id="brMid"></div>
+  <div class="burst-ring br-core"  id="brCore"></div>
+
+  <!-- Logo -->
+  <div class="logo-wrap" id="logoWrap">
+    <img class="logo-img" id="logoImg" src="aristokrat_logo.jpg" alt="Aristokrat Travel Azerbaijan">
+  </div>
+
+  <!-- Silk particle canvas (screen blend — black = transparent) -->
+  <canvas id="silkCv" width="1920" height="1080"></canvas>
+
+  <!-- Lens flare -->
+  <div class="lens-flare" id="lensFlare">
+    <div class="lf-main-beam" id="lfBeam"></div>
+    <div class="lf-streak"    id="lfStreak"></div>
+    <div class="lf-orb lf-orb-1" id="lfOrb1"></div>
+    <div class="lf-orb lf-orb-2" id="lfOrb2"></div>
+    <div class="lf-orb lf-orb-3" id="lfOrb3"></div>
+  </div>
+
+  <!-- Vignette always on top -->
+  <div class="vignette"></div>
+
+  <!-- Cinematic letterbox -->
+  <div class="bar-top" id="barTop"></div>
+  <div class="bar-bot" id="barBot"></div>
+
+  <!-- Text overlays -->
+  <div class="top-label" id="topLabel">Cinematic Presentation</div>
+  <div class="credit"    id="credit">Aristokrat Travel &nbsp;·&nbsp; Azerbaijan</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+/* ═══════════════════════════════════════════════
+   STAGE SCALE — fit 1920×1080 into viewport
+═══════════════════════════════════════════════ */
+(function(){
+  const s = document.getElementById('stage');
+  function fit(){
+    const scl = Math.min(window.innerWidth/1920, window.innerHeight/1080);
+    s.style.transform = `scale(${scl})`;
+    s.style.left = Math.max(0,(window.innerWidth -1920*scl)/2)+'px';
+    s.style.top  = Math.max(0,(window.innerHeight-1080*scl)/2)+'px';
+  }
+  fit();
+  window.addEventListener('resize', fit);
+})();
+
+/* ═══════════════════════════════════════════════
+   BOKEH — large, very soft depth-of-field circles
+═══════════════════════════════════════════════ */
+const bCv  = document.getElementById('bokehCv');
+const bCtx = bCv.getContext('2d');
+
+const BOKEH_PALETTES = [
+  [255, 255, 255],   // pure white
+  [200, 218, 255],   // pale blue-white
+  [215, 228, 255],   // lavender-white
+  [180, 205, 255],   // cool blue
+];
+
+class BokehDot {
+  constructor(init){ this.reset(init); }
+  reset(init){
+    this.x     = Math.random() * 1920;
+    this.y     = init ? Math.random() * 1080 : 1180 + Math.random()*60;
+    this.r     = 22 + Math.random() * 95;
+    this.maxA  = 0.018 + Math.random() * 0.065;
+    this.vx    = (Math.random() - 0.5) * 0.14;
+    this.vy    = -(0.06 + Math.random() * 0.20);
+    this.wobble= Math.random() * Math.PI * 2;
+    this.life  = 0;
+    this.maxLife = 600 + Math.random() * 900;
+    this.pal   = BOKEH_PALETTES[Math.floor(Math.random() * BOKEH_PALETTES.length)];
+  }
+  tick(){
+    this.life++;
+    this.wobble += 0.004;
+    this.x += this.vx + Math.sin(this.wobble) * 0.08;
+    this.y += this.vy;
+    const t = this.life / this.maxLife;
+    this.a = (t < .18 ? t/.18 : t > .62 ? (1-t)/.38 : 1) * this.maxA;
+    if (this.life >= this.maxLife || this.y < -this.r) this.reset(false);
+  }
+  draw(){
+    if (this.a <= 0.001) return;
+    const [r,g,b] = this.pal;
+    const gr = bCtx.createRadialGradient(this.x,this.y,0, this.x,this.y,this.r);
+    gr.addColorStop(0,   `rgba(${r},${g},${b},${(this.a).toFixed(4)})`);
+    gr.addColorStop(0.40,`rgba(${r},${g},${b},${(this.a*0.42).toFixed(4)})`);
+    gr.addColorStop(0.75,`rgba(${r},${g},${b},${(this.a*0.10).toFixed(4)})`);
+    gr.addColorStop(1,   'transparent');
+    bCtx.save();
+    bCtx.fillStyle = gr;
+    bCtx.beginPath();
+    bCtx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+    bCtx.fill();
+    bCtx.restore();
+  }
+}
+
+const bokehPool = Array.from({length:40}, (_,i) => new BokehDot(true));
+
+/* ═══════════════════════════════════════════════
+   SILK PARTICLES — streams from logo center
+═══════════════════════════════════════════════ */
+const sCv  = document.getElementById('silkCv');
+const sCtx = sCv.getContext('2d');
+let silkOn = false;
+
+/* Center of logo on 1920×1080 stage */
+const LX = 960, LY = 505;
+
+class SilkParticle {
+  constructor(){ this.spawn(true); }
+  spawn(init){
+    const angle  = Math.random() * Math.PI * 2;
+    const origin = Math.random() * 100;          // emerge from within logo area
+    this.x  = LX + Math.cos(angle) * origin;
+    this.y  = LY + Math.sin(angle) * origin * 0.55;
+
+    const spd = 0.4 + Math.random() * 3.0;
+    this.vx   = Math.cos(angle) * spd;
+    this.vy   = Math.sin(angle) * spd * 0.45 + (Math.random()-0.55)*0.6;
+
+    this.w    = 0.6 + Math.random() * 1.8;      // stroke width
+    this.life = 0;
+    this.maxLife = 70 + Math.random() * 170;
+    this.delay   = init ? Math.floor(Math.random()*120) : Math.floor(Math.random()*30);
+
+    this.trail = [{x:this.x, y:this.y}];
+    this.trailMax = 6 + Math.floor(Math.random()*6);
+  }
+  tick(){
+    if (!silkOn) return;
+    if (this.delay > 0){ this.delay--; return; }
+    this.life++;
+    this.trail.push({x:this.x, y:this.y});
+    if (this.trail.length > this.trailMax) this.trail.shift();
+    this.x  += this.vx;
+    this.y  += this.vy;
+    this.vx *= 0.990;
+    this.vy *= 0.990;
+    if (this.life >= this.maxLife) this.spawn(false);
+  }
+  draw(){
+    if (!silkOn || this.delay > 0 || this.life === 0 || this.trail.length < 2) return;
+    const t = this.life / this.maxLife;
+    const a = (t < .12 ? t/.12 : t > .52 ? (1-t)/.48 : 1) * 0.72;
+    if (a < 0.01) return;
+
+    sCtx.save();
+    sCtx.strokeStyle = `rgba(255,255,255,${a.toFixed(4)})`;
+    sCtx.lineWidth   = this.w;
+    sCtx.lineCap     = 'round';
+    sCtx.lineJoin    = 'round';
+    sCtx.beginPath();
+    sCtx.moveTo(this.trail[0].x, this.trail[0].y);
+    for (let i=1; i<this.trail.length; i++){
+      sCtx.lineTo(this.trail[i].x, this.trail[i].y);
+    }
+    sCtx.lineTo(this.x, this.y);
+    sCtx.stroke();
+    sCtx.restore();
+  }
+}
+
+const silkPool = Array.from({length:110}, () => new SilkParticle());
+
+/* Secondary ambient motes — slow-drifting tiny specks */
+class Mote {
+  constructor(){ this.reset(true); }
+  reset(init){
+    this.x = 320 + Math.random()*1280;
+    this.y = init ? Math.random()*1080 : 1100;
+    this.r = 0.4 + Math.random()*1.2;
+    this.vx= (Math.random()-.5)*0.18;
+    this.vy= -(0.10+Math.random()*0.28);
+    this.life=0; this.maxLife=300+Math.random()*500;
+    this.maxA = 0.12+Math.random()*0.22;
+  }
+  tick(){
+    if(!silkOn) return;
+    this.life++;
+    this.x+=this.vx; this.y+=this.vy;
+    const t=this.life/this.maxLife;
+    this.a=(t<.15?t/.15:t>.65?(1-t)/.35:1)*this.maxA;
+    if(this.life>=this.maxLife||this.y<-5) this.reset(false);
+  }
+  draw(){
+    if(!silkOn||this.a<0.01) return;
+    sCtx.save();
+    sCtx.globalAlpha=this.a;
+    sCtx.fillStyle='rgba(255,255,255,1)';
+    sCtx.beginPath(); sCtx.arc(this.x,this.y,this.r,0,Math.PI*2); sCtx.fill();
+    sCtx.restore();
+  }
+}
+const motePool = Array.from({length:55}, () => new Mote());
+
+/* ═══════════════════════════════════════════════
+   RAF LOOP
+═══════════════════════════════════════════════ */
+(function loop(){
+  bCtx.clearRect(0,0,1920,1080);
+  sCtx.clearRect(0,0,1920,1080);
+
+  bokehPool .forEach(d=>{ d.tick(); d.draw(); });
+  silkPool  .forEach(p=>{ p.tick(); p.draw(); });
+  motePool  .forEach(m=>{ m.tick(); m.draw(); });
+
+  requestAnimationFrame(loop);
+})();
+
+/* ═══════════════════════════════════════════════
+   GSAP — MASTER CINEMATIC TIMELINE (10 seconds)
+═══════════════════════════════════════════════ */
+const tl = gsap.timeline();
+
+/* — Initial states — */
+gsap.set('#logoWrap',   { xPercent:-50, yPercent:-50, scale:1.10, filter:'blur(20px)' });
+gsap.set('#logoImg',    { opacity:0 });
+gsap.set('#logoHalo',   { opacity:0 });
+gsap.set(['#brCore','#brMid','#brOuter'], { opacity:0, scale:0.05 });
+gsap.set('#lensFlare',  { opacity:0 });
+gsap.set(['#lfOrb1','#lfOrb2','#lfOrb3'], { opacity:0 });
+gsap.set(['#barTop','#barBot'], { opacity:1 });   /* letterbox always visible */
+gsap.set('#credit',     { opacity:0, y:6 });
+gsap.set('#topLabel',   { opacity:0, y:-4 });
+
+/* ── Phase 0: 0.0–1.5s — Deep void, bokeh drift in ── */
+// Bokeh already running in RAF. Hold black for 1.5s.
+
+/* ── Phase 1: 1.5–2.8s — WHITE LIGHT BURST ── */
+tl.to('#brOuter', {
+    opacity:1, scale:1, duration:0.55, ease:'power2.out'
+  }, 1.50)
+  .to('#brMid', {
+    opacity:1, scale:1, duration:0.42, ease:'power2.out'
+  }, 1.62)
+  .to('#brCore', {
+    opacity:1, scale:1, duration:0.30, ease:'power3.out'
+  }, 1.72)
+
+  /* Burst expands outward and fades */
+  .to('#brCore',  { opacity:0, scale:3.5,  duration:0.80, ease:'power2.in' }, 2.00)
+  .to('#brMid',   { opacity:0, scale:4.0,  duration:0.95, ease:'power2.in' }, 2.08)
+  .to('#brOuter', { opacity:0, scale:5.5,  duration:1.10, ease:'power2.in' }, 2.15);
+
+/* ── Phase 2: 2.0–5.5s — LOGO EMERGES (blur dissolve + camera push-in) ── */
+tl.to('#logoImg', {
+    opacity:1, duration:0.55, ease:'power2.out'
+  }, 2.05)
+
+  /* Halo brightens beneath logo */
+  .to('#logoHalo', {
+    opacity:1, duration:1.8, ease:'power2.out'
+  }, 2.1)
+
+  /* Blur sharpens + scale from 1.10 → 1.00 (rack focus + camera push) */
+  .to('#logoWrap', {
+    filter:'blur(0px)', scale:1.0,
+    duration:3.2, ease:'power2.out'
+  }, 2.15)
+
+  /* Silk particles activate */
+  .add(() => { silkOn = true; }, 2.3);
+
+/* ── Phase 3: 5.0–5.9s — LENS FLARE SWEEP ── */
+tl.to('#lensFlare', { opacity:1, duration:0.08 }, 5.00)
+
+  /* Main beam sweeps left → right */
+  .to('#lfBeam', {
+    left: 2100, duration:0.95, ease:'power1.inOut'
+  }, 5.00)
+  .to('#lfStreak', {
+    left: 2100, duration:0.78, ease:'power2.in'
+  }, 5.04)
+
+  /* Lens artifact orbs flash */
+  .to('#lfOrb1', { opacity:1, duration:0.08 }, 5.18)
+  .to('#lfOrb1', { opacity:0, duration:0.18 }, 5.32)
+  .to('#lfOrb2', { opacity:1, duration:0.06 }, 5.24)
+  .to('#lfOrb2', { opacity:0, duration:0.14 }, 5.36)
+  .to('#lfOrb3', { opacity:1, duration:0.10 }, 5.30)
+  .to('#lfOrb3', { opacity:0, duration:0.22 }, 5.46)
+
+  .to('#lensFlare', { opacity:0, duration:0.12 }, 5.88);
+
+/* ── Phase 4: 5.5–7.5s — SILK PARTICLES DISSOLVE OUT ── */
+tl.add(() => {
+  /* Slow down and stop silk emission */
+  setTimeout(() => { silkOn = false; }, 2200);
+}, 5.50);
+
+/* ── Phase 5: 6.0–8.5s — FREEZE FRAME — logo crisp, halo glow settles ── */
+tl.to('#logoHalo', {
+    opacity:0.65, filter:'blur(8px)', duration:2.5, ease:'power1.inOut'
+  }, 6.0);
+
+/* ── Phase 6: 7.0–9.5s — CREDIT LINES FADE IN ── */
+tl.to('#credit', {
+    opacity:1, y:0, duration:1.2, ease:'power2.out'
+  }, 7.0)
+  .to('#topLabel', {
+    opacity:1, y:0, duration:1.0, ease:'power2.out'
+  }, 7.3);
+
+/* ── Phase 7: ~10s — HOLD FREEZE FRAME ── */
+// Timeline ends naturally at ~9.5s; add padding
+tl.to({}, { duration:0.8 }, 9.5);
+
+/* ── AUTO REPLAY after 3s hold ── */
+tl.eventCallback('onComplete', () => {
+  gsap.delayedCall(3.0, () => {
+    silkOn = false;
+    /* Reset beam positions */
+    gsap.set('#lfBeam',   { left:-320 });
+    gsap.set('#lfStreak', { left:-60  });
+    tl.restart();
+  });
+});
+</script>
+</body>
+</html>

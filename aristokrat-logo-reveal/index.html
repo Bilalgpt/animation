@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aristokrat Travel — Cinematic Logo Reveal</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  width:100vw; height:100vh;
+  background:#000;
+  overflow:hidden;
+}
+
+.stage {
+  position:absolute;
+  width:1920px; height:1080px;
+  transform-origin:top left;
+  overflow:hidden;
+  background: radial-gradient(ellipse 80% 90% at 50% 44%,
+    #07091a 0%, #030510 42%, #010108 72%, #000001 100%);
+}
+
+/* ── BOKEH canvas ── */
+#bokehCv {
+  position:absolute; inset:0;
+  z-index:1; pointer-events:none;
+}
+
+/* ── AMBIENT HALO behind logo ── */
+.logo-halo {
+  position:absolute; z-index:2; pointer-events:none;
+  left:50%; top:48%;
+  width:820px; height:460px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background: radial-gradient(ellipse 50% 50% at 50% 50%,
+    rgba(160,185,255,0.07) 0%,
+    rgba(140,165,255,0.03) 45%,
+    transparent 70%);
+  filter:blur(28px);
+  opacity:0;
+}
+
+/* ── LIGHT BURST rings ── */
+.burst-ring {
+  position:absolute; z-index:3; pointer-events:none;
+  left:50%; top:48%;
+  border-radius:50%;
+  opacity:0;
+  transform:translate(-50%,-50%) scale(0.04);
+}
+.br-core {
+  width:160px; height:160px;
+  background: radial-gradient(circle,
+    rgba(255,255,255,1.00)  0%,
+    rgba(230,240,255,0.80) 25%,
+    rgba(210,228,255,0.35) 55%,
+    transparent 75%);
+}
+.br-mid {
+  width:480px; height:480px;
+  background: radial-gradient(circle,
+    rgba(255,255,255,0.20)  0%,
+    rgba(200,220,255,0.07) 42%,
+    transparent 66%);
+}
+.br-outer {
+  width:1000px; height:1000px;
+  background: radial-gradient(circle,
+    rgba(255,255,255,0.06) 0%,
+    rgba(190,210,255,0.02) 45%,
+    transparent 62%);
+}
+
+/* ── LOGO ── */
+.logo-wrap {
+  position:absolute; z-index:5; pointer-events:none;
+  left:50%; top:48%;
+  /* GSAP sets xPercent/yPercent/scale/filter */
+}
+.logo-img {
+  width:660px;
+  display:block;
+  /* PNG is already white on transparent — no filter needed */
+  opacity:0;
+}
+
+/* ── SILK PARTICLE canvas (screen blend = black invisible) ── */
+#silkCv {
+  position:absolute; inset:0;
+  z-index:6; pointer-events:none;
+  mix-blend-mode:screen;
+}
+
+/* ── LENS FLARE ── */
+.lens-flare {
+  position:absolute; inset:0; z-index:9;
+  pointer-events:none; overflow:hidden; opacity:0;
+}
+.lf-beam {
+  position:absolute; top:0; bottom:0;
+  width:300px; left:-300px;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0.025) 20%,
+    rgba(255,255,255,0.160) 44%,
+    rgba(235,245,255,0.240) 50%,
+    rgba(255,255,255,0.160) 56%,
+    rgba(255,255,255,0.025) 80%,
+    transparent 100%);
+  transform:skewX(-5deg);
+}
+.lf-thin {
+  position:absolute; top:0; bottom:0;
+  width:55px; left:-55px;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0.32) 50%,
+    transparent 100%);
+  transform:skewX(-5deg);
+}
+.lf-orb {
+  position:absolute; border-radius:50%;
+  pointer-events:none; opacity:0;
+}
+.lf-o1 { width:52px; height:52px; top:45%; left:60%;
+  background:radial-gradient(circle,rgba(210,228,255,0.40) 0%,transparent 70%); }
+.lf-o2 { width:18px; height:18px; top:53%; left:32%;
+  background:radial-gradient(circle,rgba(255,255,255,0.55) 0%,transparent 70%); }
+.lf-o3 { width:80px; height:80px; top:38%; left:76%;
+  background:radial-gradient(circle,rgba(180,208,255,0.18) 0%,transparent 70%); }
+
+/* ── VIGNETTE ── */
+.vignette {
+  position:absolute; inset:0; z-index:15; pointer-events:none;
+  background: radial-gradient(ellipse 82% 76% at 50% 48%,
+    transparent 28%, rgba(0,0,6,0.52) 70%, rgba(0,0,4,0.90) 100%);
+}
+
+/* ── CINEMATIC LETTERBOX ── */
+.bar { position:absolute; left:0; right:0; z-index:16; height:52px; background:#000; }
+.bar.top { top:0; } .bar.bot { bottom:0; }
+
+/* ── TEXT OVERLAYS ── */
+.credit {
+  position:absolute; bottom:18px; left:0; right:0;
+  z-index:17; pointer-events:none; opacity:0;
+  font-family:'Cinzel',serif; font-size:11px; font-weight:300;
+  letter-spacing:9px; color:rgba(255,255,255,0.38);
+  text-align:center; text-transform:uppercase;
+}
+.eyebrow {
+  position:absolute; top:18px; left:0; right:0;
+  z-index:17; pointer-events:none; opacity:0;
+  font-family:'Cinzel',serif; font-size:9px; font-weight:300;
+  letter-spacing:13px; color:rgba(255,255,255,0.20);
+  text-align:center; text-transform:uppercase;
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <!-- Bokeh depth -->
+  <canvas id="bokehCv" width="1920" height="1080"></canvas>
+
+  <!-- Ambient halo -->
+  <div class="logo-halo" id="logoHalo"></div>
+
+  <!-- Burst rings -->
+  <div class="burst-ring br-outer" id="brOuter"></div>
+  <div class="burst-ring br-mid"   id="brMid"></div>
+  <div class="burst-ring br-core"  id="brCore"></div>
+
+  <!-- Logo -->
+  <div class="logo-wrap" id="logoWrap">
+    <img class="logo-img" id="logoImg" src="aristokrat_logo.png" alt="Aristokrat Travel Azerbaijan">
+  </div>
+
+  <!-- Silk particles (screen blend) -->
+  <canvas id="silkCv" width="1920" height="1080"></canvas>
+
+  <!-- Lens flare -->
+  <div class="lens-flare" id="lensFlare">
+    <div class="lf-beam" id="lfBeam"></div>
+    <div class="lf-thin" id="lfThin"></div>
+    <div class="lf-orb lf-o1" id="lfO1"></div>
+    <div class="lf-orb lf-o2" id="lfO2"></div>
+    <div class="lf-orb lf-o3" id="lfO3"></div>
+  </div>
+
+  <!-- Vignette + letterbox -->
+  <div class="vignette"></div>
+  <div class="bar top"></div>
+  <div class="bar bot"></div>
+
+  <!-- Text -->
+  <div class="eyebrow" id="eyebrow">A Luxury Travel Experience</div>
+  <div class="credit"  id="credit">Aristokrat Travel &nbsp;·&nbsp; Azerbaijan</div>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+/* ─── STAGE SCALE ─────────────────────────────── */
+(function(){
+  const s = document.getElementById('stage');
+  function fit(){
+    const scl = Math.min(window.innerWidth/1920, window.innerHeight/1080);
+    s.style.transform = `scale(${scl})`;
+    s.style.left = Math.max(0,(window.innerWidth -1920*scl)/2)+'px';
+    s.style.top  = Math.max(0,(window.innerHeight-1080*scl)/2)+'px';
+  }
+  fit(); window.addEventListener('resize',fit);
+})();
+
+/* ─── BOKEH ──────────────────────────────────── */
+const bCv  = document.getElementById('bokehCv');
+const bCtx = bCv.getContext('2d');
+
+const PALS = [
+  [255,255,255],[205,220,255],[215,228,255],[185,208,255]
+];
+
+class Bokeh {
+  constructor(init){ this.reset(init); }
+  reset(init){
+    this.x = Math.random()*1920;
+    this.y = init ? Math.random()*1080 : 1180+Math.random()*60;
+    this.r = 20+Math.random()*100;
+    this.maxA = 0.016+Math.random()*0.068;
+    this.vx = (Math.random()-.5)*0.13;
+    this.vy = -(0.055+Math.random()*0.19);
+    this.wb = Math.random()*Math.PI*2;
+    this.life=0; this.ml=580+Math.random()*950;
+    this.pal=PALS[Math.floor(Math.random()*PALS.length)];
+  }
+  tick(){
+    this.life++; this.wb+=0.0035;
+    this.x+=this.vx+Math.sin(this.wb)*0.07; this.y+=this.vy;
+    const t=this.life/this.ml;
+    this.a=(t<.18?t/.18:t>.60?(1-t)/.40:1)*this.maxA;
+    if(this.life>=this.ml||this.y<-this.r) this.reset(false);
+  }
+  draw(){
+    if(this.a<0.001) return;
+    const [r,g,b]=this.pal;
+    const gr=bCtx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);
+    gr.addColorStop(0,  `rgba(${r},${g},${b},${this.a.toFixed(4)})`);
+    gr.addColorStop(.42,`rgba(${r},${g},${b},${(this.a*.38).toFixed(4)})`);
+    gr.addColorStop(.78,`rgba(${r},${g},${b},${(this.a*.08).toFixed(4)})`);
+    gr.addColorStop(1,  'transparent');
+    bCtx.save(); bCtx.fillStyle=gr;
+    bCtx.beginPath(); bCtx.arc(this.x,this.y,this.r,0,Math.PI*2); bCtx.fill();
+    bCtx.restore();
+  }
+}
+const bokehPool = Array.from({length:42},(_,i)=>new Bokeh(true));
+
+/* ─── SILK PARTICLES ─────────────────────────── */
+const sCv  = document.getElementById('silkCv');
+const sCtx = sCv.getContext('2d');
+let silkOn = false;
+
+const LX=960, LY=508;  /* logo centre on 1920×1080 */
+
+class Silk {
+  constructor(){ this.spawn(true); }
+  spawn(init){
+    const a  = Math.random()*Math.PI*2;
+    const d  = Math.random()*110;
+    this.x   = LX+Math.cos(a)*d;
+    this.y   = LY+Math.sin(a)*d*0.50;
+    const sp = 0.3+Math.random()*3.2;
+    this.vx  = Math.cos(a)*sp;
+    this.vy  = Math.sin(a)*sp*0.42+(Math.random()-.55)*0.55;
+    this.w   = 0.5+Math.random()*1.9;
+    this.life=0; this.ml=65+Math.random()*175;
+    this.delay=init?Math.floor(Math.random()*130):Math.floor(Math.random()*25);
+    this.trl=[{x:this.x,y:this.y}]; this.tmax=5+Math.floor(Math.random()*7);
+  }
+  tick(){
+    if(!silkOn) return;
+    if(this.delay>0){this.delay--;return;}
+    this.life++;
+    this.trl.push({x:this.x,y:this.y});
+    if(this.trl.length>this.tmax) this.trl.shift();
+    this.x+=this.vx; this.y+=this.vy;
+    this.vx*=.991; this.vy*=.991;
+    if(this.life>=this.ml) this.spawn(false);
+  }
+  draw(){
+    if(!silkOn||this.delay>0||this.life===0||this.trl.length<2) return;
+    const t=this.life/this.ml;
+    const a=(t<.12?t/.12:t>.50?(1-t)/.50:1)*.75;
+    if(a<0.01) return;
+    sCtx.save();
+    sCtx.strokeStyle=`rgba(255,255,255,${a.toFixed(4)})`;
+    sCtx.lineWidth=this.w; sCtx.lineCap='round'; sCtx.lineJoin='round';
+    sCtx.beginPath(); sCtx.moveTo(this.trl[0].x,this.trl[0].y);
+    for(let i=1;i<this.trl.length;i++) sCtx.lineTo(this.trl[i].x,this.trl[i].y);
+    sCtx.lineTo(this.x,this.y); sCtx.stroke(); sCtx.restore();
+  }
+}
+
+class Mote {
+  constructor(){this.reset(true);}
+  reset(init){
+    this.x=280+Math.random()*1360; this.y=init?Math.random()*1080:1100;
+    this.r=.35+Math.random()*1.1; this.vx=(Math.random()-.5)*.16;
+    this.vy=-(0.09+Math.random()*.26); this.life=0; this.ml=280+Math.random()*520;
+    this.maxA=.10+Math.random()*.24;
+  }
+  tick(){
+    if(!silkOn) return;
+    this.life++; this.x+=this.vx; this.y+=this.vy;
+    const t=this.life/this.ml;
+    this.a=(t<.15?t/.15:t>.65?(1-t)/.35:1)*this.maxA;
+    if(this.life>=this.ml||this.y<-5) this.reset(false);
+  }
+  draw(){
+    if(!silkOn||!this.a||this.a<0.01) return;
+    sCtx.save(); sCtx.globalAlpha=this.a; sCtx.fillStyle='#fff';
+    sCtx.beginPath(); sCtx.arc(this.x,this.y,this.r,0,Math.PI*2); sCtx.fill();
+    sCtx.restore();
+  }
+}
+
+const silkPool = Array.from({length:115},()=>new Silk());
+const motePool = Array.from({length:60}, ()=>new Mote());
+
+/* ─── RAF LOOP ───────────────────────────────── */
+(function loop(){
+  bCtx.clearRect(0,0,1920,1080);
+  sCtx.clearRect(0,0,1920,1080);
+  bokehPool.forEach(d=>{d.tick();d.draw();});
+  silkPool .forEach(p=>{p.tick();p.draw();});
+  motePool .forEach(m=>{m.tick();m.draw();});
+  requestAnimationFrame(loop);
+})();
+
+/* ─── GSAP MASTER TIMELINE ───────────────────── */
+const tl = gsap.timeline();
+
+/* — initial states — */
+gsap.set('#logoWrap',  {xPercent:-50, yPercent:-50, scale:1.11, filter:'blur(22px)'});
+gsap.set('#logoImg',   {opacity:0});
+gsap.set('#logoHalo',  {opacity:0});
+gsap.set(['#brCore','#brMid','#brOuter'], {opacity:0, scale:0.04});
+gsap.set('#lensFlare', {opacity:0});
+gsap.set(['#lfO1','#lfO2','#lfO3'], {opacity:0});
+gsap.set('#credit',    {opacity:0, y:7});
+gsap.set('#eyebrow',   {opacity:0, y:-5});
+
+/* ── 0.0–1.6s: dark void — bokeh drifts ── */
+
+/* ── 1.6–2.9s: WHITE LIGHT BURST ── */
+tl.to('#brOuter',{opacity:1,scale:1,duration:.55,ease:'power2.out'},1.60)
+  .to('#brMid',  {opacity:1,scale:1,duration:.42,ease:'power2.out'},1.72)
+  .to('#brCore', {opacity:1,scale:1,duration:.28,ease:'power3.out'},1.82)
+  .to('#brCore', {opacity:0,scale:3.8, duration:.82,ease:'power2.in'},2.10)
+  .to('#brMid',  {opacity:0,scale:4.5, duration:.98,ease:'power2.in'},2.18)
+  .to('#brOuter',{opacity:0,scale:6.0, duration:1.12,ease:'power2.in'},2.25);
+
+/* ── 2.0–5.6s: LOGO REVEAL — blur dissolve + camera push-in ── */
+tl.to('#logoImg',{opacity:1, duration:.65, ease:'power2.out'},2.05)
+  .to('#logoHalo',{opacity:1, duration:2.0, ease:'power2.out'},2.10)
+  /* blur 22px→0 + scale 1.11→1.00 (rack focus + push) */
+  .to('#logoWrap',{filter:'blur(0px)', scale:1.0, duration:3.4, ease:'power2.out'},2.20)
+  .add(()=>{ silkOn=true; },2.35);
+
+/* ── 5.0–5.95s: LENS FLARE SWEEP ── */
+tl.to('#lensFlare',{opacity:1,duration:.07},5.00)
+  .to('#lfBeam', {left:2200,duration:1.00,ease:'power1.inOut'},5.00)
+  .to('#lfThin', {left:2200,duration:.78, ease:'power2.in'},5.05)
+  .to('#lfO1',{opacity:1,duration:.08},5.20)
+  .to('#lfO1',{opacity:0,duration:.20},5.34)
+  .to('#lfO2',{opacity:1,duration:.06},5.26)
+  .to('#lfO2',{opacity:0,duration:.16},5.38)
+  .to('#lfO3',{opacity:1,duration:.10},5.32)
+  .to('#lfO3',{opacity:0,duration:.24},5.50)
+  .to('#lensFlare',{opacity:0,duration:.14},5.88);
+
+/* ── 5.5–7.8s: silk dies down, halo settles ── */
+tl.add(()=>{ setTimeout(()=>{silkOn=false;},2400); },5.50)
+  .to('#logoHalo',{opacity:0.55,filter:'blur(10px)',duration:2.8,ease:'power1.inOut'},6.00);
+
+/* ── 7.0–9.5s: FREEZE FRAME — text fades in ── */
+tl.to('#credit', {opacity:1,y:0,duration:1.3,ease:'power2.out'},7.00)
+  .to('#eyebrow',{opacity:1,y:0,duration:1.1,ease:'power2.out'},7.30);
+
+/* padding to 10s */
+tl.to({},{duration:0.8},9.5);
+
+/* ── AUTO REPLAY ── */
+tl.eventCallback('onComplete',()=>{
+  gsap.delayedCall(3.2,()=>{
+    silkOn=false;
+    gsap.set('#lfBeam',{left:-300});
+    gsap.set('#lfThin',{left:-55});
+    tl.restart();
+  });
+});
+</script>
+</body>
+</html>
