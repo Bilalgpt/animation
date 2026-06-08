@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tbilisi Open Air 2026 — Trust DMC</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{width:100vw;height:100vh;background:#000;overflow:hidden;}
+
+.stage{
+  position:absolute;
+  width:1080px;height:1920px;
+  transform-origin:top left;
+  overflow:hidden;
+  background:
+    radial-gradient(ellipse 120% 60% at 50% 105%,
+      #2a005e 0%,#150030 25%,#07001a 55%,#020009 80%,#000000 100%);
+}
+
+/* ── CANVAS LAYERS ── */
+#bgCv{position:absolute;inset:0;z-index:1;pointer-events:none;}
+#sparkCv{position:absolute;inset:0;z-index:3;pointer-events:none;}
+
+/* ── BEAMS ── */
+.beam-layer{position:absolute;inset:0;z-index:2;pointer-events:none;}
+.beam{
+  position:absolute;top:0;
+  transform-origin:top center;
+  opacity:0;
+}
+.b1{left:60px; width:260px; height:1300px;
+  background:linear-gradient(180deg,rgba(180,0,255,.55) 0%,transparent 100%);
+  clip-path:polygon(42% 0%,58% 0%,100% 100%,0% 100%);
+  transform:rotate(-22deg);}
+.b2{left:270px; width:200px; height:1100px;
+  background:linear-gradient(180deg,rgba(255,255,255,.22) 0%,transparent 100%);
+  clip-path:polygon(38% 0%,62% 0%,100% 100%,0% 100%);
+  transform:rotate(-10deg);}
+.b3{left:50%;margin-left:-120px; width:240px; height:1400px;
+  background:linear-gradient(180deg,rgba(0,220,255,.60) 0%,transparent 100%);
+  clip-path:polygon(38% 0%,62% 0%,100% 100%,0% 100%);
+  transform:rotate(0deg);}
+.b4{right:270px; width:200px; height:1100px;
+  background:linear-gradient(180deg,rgba(255,255,255,.22) 0%,transparent 100%);
+  clip-path:polygon(38% 0%,62% 0%,100% 100%,0% 100%);
+  transform:rotate(10deg);}
+.b5{right:60px; width:260px; height:1300px;
+  background:linear-gradient(180deg,rgba(255,30,180,.55) 0%,transparent 100%);
+  clip-path:polygon(42% 0%,58% 0%,100% 100%,0% 100%);
+  transform:rotate(22deg);}
+
+/* light-source dots at top */
+.dot{
+  position:absolute;top:0;
+  width:8px;height:8px;border-radius:50%;
+  transform:translateX(-50%);
+  filter:blur(6px);
+  opacity:0;
+}
+.dot1{left:189px; background:#b400ff;}
+.dot2{left:370px; background:#ffffff;}
+.dot3{left:50%;  background:#00dcff;}
+.dot4{left:calc(100% - 370px); background:#ffffff;}
+.dot5{left:calc(100% - 189px); background:#ff1eb4;}
+
+/* ── CROWD SILHOUETTE ── */
+.crowd{
+  position:absolute;bottom:0;left:0;right:0;height:600px;
+  z-index:4;pointer-events:none;
+  background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.5) 45%,rgba(0,0,0,.9) 100%);
+}
+
+/* ── CONTENT ── */
+.content{position:absolute;inset:0;z-index:6;pointer-events:none;}
+
+/* top badge */
+.top-badge{
+  position:absolute;top:76px;left:0;right:0;
+  text-align:center;opacity:0;
+}
+.badge-inner{
+  display:inline-block;
+  border:1px solid rgba(255,255,255,.28);
+  padding:11px 40px;
+  font-family:'Montserrat',sans-serif;
+  font-size:15px;font-weight:600;
+  letter-spacing:6px;color:rgba(255,255,255,.7);
+  text-transform:uppercase;
+}
+
+/* edition label */
+.edition{
+  position:absolute;top:158px;left:0;right:0;
+  text-align:center;
+  font-family:'Bebas Neue',cursive;
+  font-size:38px;letter-spacing:16px;
+  color:rgba(180,0,255,.9);
+  text-shadow:0 0 30px rgba(180,0,255,.7),0 0 60px rgba(180,0,255,.3);
+  opacity:0;
+}
+
+/* ── MAIN TITLE ── */
+.t-tbilisi{
+  position:absolute;top:218px;left:0;right:0;
+  text-align:center;
+  font-family:'Bebas Neue',cursive;
+  font-size:210px;line-height:1;letter-spacing:8px;
+  color:#fff;
+  text-shadow:
+    0 0 50px rgba(0,220,255,.5),
+    0 0 100px rgba(0,220,255,.2),
+    0 6px 0 rgba(0,0,0,.6);
+  opacity:0;
+}
+.t-openair{
+  position:absolute;top:440px;left:0;right:0;
+  text-align:center;
+  font-family:'Bebas Neue',cursive;
+  font-size:136px;line-height:1;letter-spacing:26px;
+  color:transparent;
+  -webkit-text-stroke:2.5px rgba(0,220,255,.95);
+  text-shadow:0 0 40px rgba(0,220,255,.4);
+  opacity:0;
+}
+
+/* dividers */
+.hdiv{
+  position:absolute;left:70px;right:70px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),rgba(0,220,255,.5),rgba(255,255,255,.35),transparent);
+  opacity:0;transform-origin:center;
+}
+.hd1{top:600px;}
+.hd2{top:664px;}
+
+/* genres */
+.genres{
+  position:absolute;top:618px;left:0;right:0;
+  text-align:center;
+  font-family:'Montserrat',sans-serif;
+  font-size:24px;font-weight:700;letter-spacing:7px;
+  color:rgba(255,255,255,.88);text-transform:uppercase;
+  opacity:0;
+}
+
+/* features row */
+.features{
+  position:absolute;top:700px;left:50px;right:50px;
+  display:flex;justify-content:space-around;align-items:flex-start;
+  opacity:0;
+}
+.fi{display:flex;flex-direction:column;align-items:center;gap:10px;width:190px;}
+.fi-icon{font-size:40px;line-height:1;}
+.fi-lbl{
+  font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;
+  letter-spacing:2px;color:rgba(255,255,255,.72);
+  text-transform:uppercase;text-align:center;line-height:1.45;
+}
+
+/* description */
+.desc{
+  position:absolute;top:878px;left:90px;right:90px;
+  text-align:center;
+  font-family:'Montserrat',sans-serif;font-size:21px;font-weight:300;
+  line-height:1.75;color:rgba(255,255,255,.62);
+  letter-spacing:1px;opacity:0;
+}
+
+/* location block */
+.location{
+  position:absolute;top:1038px;left:0;right:0;
+  text-align:center;opacity:0;
+}
+.loc-main{
+  font-family:'Bebas Neue',cursive;font-size:58px;letter-spacing:12px;
+  color:rgba(255,200,0,.96);
+  text-shadow:0 0 28px rgba(255,200,0,.5),0 0 60px rgba(255,200,0,.2);
+}
+.loc-sub{
+  margin-top:10px;
+  font-family:'Montserrat',sans-serif;font-size:17px;letter-spacing:6px;
+  color:rgba(255,255,255,.50);text-transform:uppercase;
+}
+
+/* dates box */
+.dates{
+  position:absolute;top:1192px;left:0;right:0;
+  text-align:center;opacity:0;
+}
+.dates-inner{
+  display:inline-flex;align-items:center;gap:28px;
+  border:1px solid rgba(0,220,255,.32);
+  padding:18px 60px;
+}
+.d-item{
+  font-family:'Bebas Neue',cursive;font-size:46px;letter-spacing:4px;
+  color:rgba(0,220,255,.92);
+  text-shadow:0 0 20px rgba(0,220,255,.5);
+}
+.d-sep{font-family:'Montserrat',sans-serif;font-size:18px;color:rgba(255,255,255,.25);}
+
+/* hashtag / cta */
+.htag{
+  position:absolute;top:1340px;left:0;right:0;
+  text-align:center;
+  font-family:'Montserrat',sans-serif;font-size:18px;font-weight:400;
+  letter-spacing:4px;color:rgba(255,255,255,.40);
+  opacity:0;
+}
+
+/* energy bar */
+.ebar{
+  position:absolute;top:1420px;left:120px;right:120px;
+  height:2px;
+  background:linear-gradient(90deg,
+    transparent,rgba(180,0,255,.6),rgba(0,220,255,.9),rgba(255,30,180,.6),transparent);
+  opacity:0;
+}
+
+/* pack line */
+.pack{
+  position:absolute;top:1456px;left:0;right:0;
+  text-align:center;
+  font-family:'Bebas Neue',cursive;font-size:36px;letter-spacing:10px;
+  color:rgba(255,255,255,.30);
+  opacity:0;
+}
+
+/* presented by */
+.presents{
+  position:absolute;bottom:228px;left:0;right:0;
+  text-align:center;
+  font-family:'Montserrat',sans-serif;font-size:13px;font-weight:400;
+  letter-spacing:7px;color:rgba(255,255,255,.35);text-transform:uppercase;
+  z-index:8;opacity:0;
+}
+
+/* trust logo */
+.trust-logo{
+  position:absolute;bottom:76px;left:50%;
+  transform:translateX(-50%);
+  width:300px;z-index:8;opacity:0;
+  filter:brightness(0) invert(1);
+}
+
+/* vignette */
+.vignette{
+  position:absolute;inset:0;z-index:9;pointer-events:none;
+  background:radial-gradient(ellipse 88% 65% at 50% 48%,
+    transparent 28%,rgba(0,0,0,.42) 70%,rgba(0,0,0,.82) 100%);
+}
+
+/* bottom fade */
+.bfade{
+  position:absolute;bottom:0;left:0;right:0;height:220px;
+  z-index:5;pointer-events:none;
+  background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.75) 55%,#000 100%);
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <canvas id="bgCv" width="1080" height="1920"></canvas>
+
+  <div class="beam-layer">
+    <div class="beam b1" id="bm1"></div>
+    <div class="beam b2" id="bm2"></div>
+    <div class="beam b3" id="bm3"></div>
+    <div class="beam b4" id="bm4"></div>
+    <div class="beam b5" id="bm5"></div>
+    <div class="dot dot1" id="dot1"></div>
+    <div class="dot dot2" id="dot2"></div>
+    <div class="dot dot3" id="dot3"></div>
+    <div class="dot dot4" id="dot4"></div>
+    <div class="dot dot5" id="dot5"></div>
+  </div>
+
+  <canvas id="sparkCv" width="1080" height="1920"></canvas>
+  <div class="crowd"></div>
+
+  <div class="content">
+    <div class="top-badge" id="topBadge">
+      <div class="badge-inner">The Caucasus' Largest Music Festival</div>
+    </div>
+    <div class="edition" id="edition">2026</div>
+
+    <div class="t-tbilisi" id="tTbilisi">TBILISI</div>
+    <div class="t-openair" id="tOpenair">OPEN AIR</div>
+
+    <div class="hdiv hd1" id="hd1"></div>
+    <div class="genres" id="genres">Rock &nbsp;·&nbsp; Indie &nbsp;·&nbsp; Electronic &nbsp;·&nbsp; Pop &nbsp;·&nbsp; Alternative</div>
+    <div class="hdiv hd2" id="hd2"></div>
+
+    <div class="features" id="features">
+      <div class="fi"><div class="fi-icon">🎤</div><div class="fi-lbl">Live Performances</div></div>
+      <div class="fi"><div class="fi-icon">🌄</div><div class="fi-lbl">Outdoor Festival</div></div>
+      <div class="fi"><div class="fi-icon">🎉</div><div class="fi-lbl">Thousands of Fans</div></div>
+      <div class="fi"><div class="fi-icon">🍔</div><div class="fi-lbl">Food & Culture</div></div>
+    </div>
+
+    <div class="desc" id="desc">
+      World-renowned artists &amp; rising talents<br>
+      Music lovers from across the globe
+    </div>
+
+    <div class="location" id="locEl">
+      <div class="loc-main">📍 TBILISI, GEORGIA</div>
+      <div class="loc-sub">Multi-day summer festival experience</div>
+    </div>
+
+    <div class="dates" id="datesEl">
+      <div class="dates-inner">
+        <div class="d-item">JULY</div>
+        <div class="d-sep">·</div>
+        <div class="d-item">AUG</div>
+        <div class="d-sep">·</div>
+        <div class="d-item">2026</div>
+      </div>
+    </div>
+
+    <div class="htag" id="htag">#TbilisiOpenAir &nbsp;·&nbsp; #SummerInGeorgia &nbsp;·&nbsp; #OpenAirFestival</div>
+    <div class="ebar" id="ebar"></div>
+    <div class="pack" id="pack">Pack Your Festival Spirit</div>
+  </div>
+
+  <div class="bfade"></div>
+  <div class="presents" id="presents">Presented by</div>
+  <img class="trust-logo" id="trustLogo"
+       src="../New_logo_design/TRUST%20DMC%20WHITE%20PNG.png"
+       alt="Trust DMC">
+  <div class="vignette"></div>
+</div>
+
+<script src="../libs/gsap.min.js"></script>
+<script>
+/* ── STAGE SCALE ── */
+const stageEl = document.getElementById('stage');
+function fitStage(){
+  const s = Math.min(window.innerWidth/1080, window.innerHeight/1920);
+  stageEl.style.transform = `scale(${s})`;
+  stageEl.style.left = Math.max(0,(window.innerWidth -1080*s)/2)+'px';
+  stageEl.style.top  = Math.max(0,(window.innerHeight-1920*s)/2)+'px';
+}
+fitStage(); window.addEventListener('resize', fitStage);
+
+/* ── BACKGROUND CANVAS — crowd silhouette + horizon glow ── */
+(function drawBg(){
+  const cv  = document.getElementById('bgCv');
+  const ctx = cv.getContext('2d');
+
+  /* Stage floor glow */
+  const floorGlow = ctx.createRadialGradient(540,1920,0,540,1920,900);
+  floorGlow.addColorStop(0,  'rgba(80,0,160,.55)');
+  floorGlow.addColorStop(.4, 'rgba(40,0,90,.30)');
+  floorGlow.addColorStop(1,  'transparent');
+  ctx.fillStyle = floorGlow;
+  ctx.fillRect(0,0,1080,1920);
+
+  /* Horizon line glow */
+  const hGlow = ctx.createLinearGradient(0,1350,0,1550);
+  hGlow.addColorStop(0,'transparent');
+  hGlow.addColorStop(.5,'rgba(0,180,255,.12)');
+  hGlow.addColorStop(1,'transparent');
+  ctx.fillStyle = hGlow;
+  ctx.fillRect(0,1350,1080,200);
+
+  /* Hand-drawn crowd silhouette */
+  ctx.fillStyle = 'rgba(0,0,0,.82)';
+  ctx.beginPath();
+  ctx.moveTo(0,1920);
+  /* crowd heads — rough silhouette */
+  const heads = [
+    [0,1640],[30,1610],[65,1595],[90,1610],[110,1590],[145,1575],[175,1590],
+    [200,1580],[225,1570],[255,1583],[280,1565],[310,1555],[340,1568],
+    [365,1548],[395,1535],[420,1550],[450,1540],[475,1528],[505,1542],
+    [530,1525],[555,1538],[580,1520],[610,1510],[640,1522],[665,1508],
+    [695,1495],[720,1510],[750,1500],[775,1488],[805,1502],[830,1490],
+    [858,1478],[885,1492],[910,1480],[935,1468],[960,1483],[990,1470],
+    [1015,1458],[1045,1472],[1070,1460],[1080,1468],[1080,1920]
+  ];
+  heads.forEach(([x,y])=> ctx.lineTo(x,y));
+  ctx.closePath();
+  ctx.fill();
+})();
+
+/* ── SPARK PARTICLES ── */
+const sCv  = document.getElementById('sparkCv');
+const sCtx = sCv.getContext('2d');
+const SCOLS = [
+  [180,0,255],[0,220,255],[255,30,180],[255,200,0],[255,255,255],[120,0,255]
+];
+class Spark{
+  constructor(init){ this.reset(init); }
+  reset(init){
+    this.x  = Math.random()*1080;
+    this.y  = init ? Math.random()*1920 : 1960+Math.random()*40;
+    this.r  = 0.6+Math.random()*2.2;
+    this.gr = this.r*(4+Math.random()*7);
+    this.vx = (Math.random()-.5)*.55;
+    this.vy = -(0.35+Math.random()*1.1);
+    this.wb = Math.random()*Math.PI*2;
+    this.wbS= .014+Math.random()*.024;
+    this.wbA= .28+Math.random()*.75;
+    this.life=0; this.ml=140+Math.random()*650;
+    this.pk = .45+Math.random()*.55;
+    this.col= SCOLS[Math.floor(Math.random()*SCOLS.length)];
+  }
+  tick(){
+    this.life++; this.wb+=this.wbS;
+    this.x+=this.vx+Math.sin(this.wb)*this.wbA;
+    this.y+=this.vy;
+    const t=this.life/this.ml;
+    this.a=(t<.12?t/.12:t>.65?(1-t)/.35:1)*this.pk;
+    if(this.life>=this.ml||this.y<-20) this.reset(false);
+  }
+  draw(){
+    if(this.a<.005) return;
+    const [r,g,b]=this.col;
+    const gr=sCtx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.gr);
+    gr.addColorStop(0,   `rgba(${r},${g},${b},${(this.a*.6).toFixed(4)})`);
+    gr.addColorStop(.4,  `rgba(${r},${g},${b},${(this.a*.1).toFixed(4)})`);
+    gr.addColorStop(1,   'transparent');
+    sCtx.save();
+    sCtx.fillStyle=gr;
+    sCtx.beginPath(); sCtx.arc(this.x,this.y,this.gr,0,Math.PI*2); sCtx.fill();
+    sCtx.fillStyle=`rgba(${r},${g},${b},${Math.min(this.a*2.2,1).toFixed(4)})`;
+    sCtx.beginPath(); sCtx.arc(this.x,this.y,this.r,0,Math.PI*2); sCtx.fill();
+    sCtx.restore();
+  }
+}
+const sparks = Array.from({length:160},()=>new Spark(true));
+(function sparkLoop(){
+  sCtx.clearRect(0,0,1080,1920);
+  sparks.forEach(s=>{s.tick();s.draw();});
+  requestAnimationFrame(sparkLoop);
+})();
+
+/* ── GSAP MASTER TIMELINE ── */
+const els = {
+  beams:  ['#bm1','#bm2','#bm3','#bm4','#bm5'],
+  dots:   ['#dot1','#dot2','#dot3','#dot4','#dot5'],
+  badge:  '#topBadge', edition:'#edition',
+  tT:'#tTbilisi', tO:'#tOpenair',
+  hd1:'#hd1', hd2:'#hd2', genres:'#genres',
+  feats:'#features', desc:'#desc',
+  loc:'#locEl', dates:'#datesEl',
+  htag:'#htag', ebar:'#ebar', pack:'#pack',
+  pres:'#presents', logo:'#trustLogo'
+};
+
+function resetAll(){
+  gsap.set(els.beams,  {opacity:0});
+  gsap.set(els.dots,   {opacity:0, scale:0});
+  gsap.set(els.badge,  {opacity:0, y:-18});
+  gsap.set(els.edition,{opacity:0});
+  gsap.set(els.tT,     {opacity:0, y:-70, scaleX:1.12});
+  gsap.set(els.tO,     {opacity:0, y:55});
+  gsap.set([els.hd1,els.hd2], {opacity:0, scaleX:0});
+  gsap.set(els.genres, {opacity:0, y:12});
+  gsap.set(els.feats,  {opacity:0, y:18});
+  gsap.set(els.desc,   {opacity:0});
+  gsap.set(els.loc,    {opacity:0, y:16});
+  gsap.set(els.dates,  {opacity:0, scale:.92});
+  gsap.set(els.htag,   {opacity:0});
+  gsap.set(els.ebar,   {opacity:0, scaleX:0});
+  gsap.set(els.pack,   {opacity:0});
+  gsap.set(els.pres,   {opacity:0});
+  gsap.set(els.logo,   {opacity:0, y:18});
+}
+resetAll();
+
+function buildTL(){
+  const tl = gsap.timeline();
+
+  /* 0 – 1s : beam sweep + dots */
+  tl.to(['#bm1','#bm5'],{opacity:.82,duration:.75,ease:'power2.out',stagger:.08},0.15)
+    .to(['#bm3'],        {opacity:.90,duration:.55,ease:'power2.out'},0.30)
+    .to(['#bm2','#bm4'], {opacity:.68,duration:.80,ease:'power2.out',stagger:.08},0.40)
+    .to(els.dots,        {opacity:1, scale:1,duration:.3,ease:'back.out(2)',stagger:.06},0.20);
+
+  /* badge + edition */
+  tl.to(els.badge,  {opacity:1, y:0, duration:.55, ease:'power2.out'},0.55)
+    .to(els.edition,{opacity:1, duration:.45, ease:'power2.out'},0.85);
+
+  /* TBILISI slam */
+  tl.to(els.tT,{opacity:1, y:0, scaleX:1, duration:.50, ease:'back.out(1.5)'},1.10);
+
+  /* OPEN AIR rise */
+  tl.to(els.tO,{opacity:1, y:0, duration:.48, ease:'power3.out'},1.56);
+
+  /* dividers */
+  tl.to([els.hd1,els.hd2],{opacity:1,scaleX:1,duration:.55,ease:'power2.out',stagger:.08},2.10);
+
+  /* genres */
+  tl.to(els.genres,{opacity:1, y:0, duration:.45, ease:'power2.out'},2.28);
+
+  /* features */
+  tl.to(els.feats,{opacity:1, y:0, duration:.55, ease:'power2.out'},2.82);
+
+  /* desc */
+  tl.to(els.desc,{opacity:1, duration:.60, ease:'power2.out'},3.46);
+
+  /* location */
+  tl.to(els.loc,{opacity:1, y:0, duration:.55, ease:'power2.out'},4.12);
+
+  /* dates */
+  tl.to(els.dates,{opacity:1, scale:1, duration:.48, ease:'back.out(1.6)'},4.76);
+
+  /* hashtag + energy bar + pack line */
+  tl.to(els.htag,{opacity:1, duration:.50, ease:'power2.out'},5.40)
+    .to(els.ebar, {opacity:1, scaleX:1, duration:.60, ease:'power2.out',transformOrigin:'center'},5.55)
+    .to(els.pack, {opacity:1, duration:.50, ease:'power2.out'},5.90);
+
+  /* Trust DMC */
+  tl.to(els.pres,{opacity:1, duration:.45, ease:'power2.out'},6.55)
+    .to(els.logo, {opacity:1, y:0, duration:.75, ease:'power2.out'},6.90);
+
+  /* Hold */
+  tl.to({},{duration:2.8},8.20);
+
+  /* Replay */
+  tl.eventCallback('onComplete',()=>{
+    gsap.delayedCall(1.2,()=>{ resetAll(); buildTL(); });
+  });
+
+  return tl;
+}
+buildTL();
+</script>
+</body>
+</html>
