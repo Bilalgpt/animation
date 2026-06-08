@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tbilisi Open Air 2026 — Trust DMC</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{width:100vw;height:100vh;background:#000;overflow:hidden;}
+
+.stage{
+  position:absolute;
+  width:1080px;height:1920px;
+  transform-origin:top left;overflow:hidden;
+}
+
+/* ─── BACKGROUND SCENES ─── */
+.bg-layer{
+  position:absolute;inset:0;z-index:1;
+}
+.bg-scene{
+  position:absolute;inset:0;
+  opacity:0;
+  transition:none;
+  overflow:hidden;
+}
+.bg-scene.active{ opacity:1; }
+.bg-scene img{
+  position:absolute;
+  width:110%;height:110%;
+  top:-5%;left:-5%;
+  object-fit:cover;
+  object-position:center;
+}
+
+/* Ken Burns animations */
+@keyframes kb-zoom-out{
+  from{ transform:scale(1.10) translate(2%,1%); }
+  to  { transform:scale(1.00) translate(0%,0%); }
+}
+@keyframes kb-zoom-in{
+  from{ transform:scale(1.00) translate(0%,0%); }
+  to  { transform:scale(1.10) translate(-2%,-1%); }
+}
+@keyframes kb-pan-right{
+  from{ transform:scale(1.06) translate(-3%,0%); }
+  to  { transform:scale(1.06) translate(3%,0%); }
+}
+@keyframes kb-pan-left{
+  from{ transform:scale(1.06) translate(3%,-1%); }
+  to  { transform:scale(1.06) translate(-2%,1%); }
+}
+.kb1{ animation:kb-zoom-out 12s linear forwards; }
+.kb2{ animation:kb-zoom-in  12s linear forwards; }
+.kb3{ animation:kb-pan-right 12s linear forwards; }
+.kb4{ animation:kb-pan-left  12s linear forwards; }
+
+/* Dark cinematic overlay on every scene */
+.bg-scene::after{
+  content:'';
+  position:absolute;inset:0;
+  background:
+    linear-gradient(180deg,
+      rgba(0,0,0,.72) 0%,
+      rgba(0,0,0,.38) 25%,
+      rgba(0,0,0,.28) 50%,
+      rgba(0,0,0,.50) 75%,
+      rgba(0,0,0,.85) 100%),
+    linear-gradient(90deg,
+      rgba(0,0,0,.35) 0%,
+      transparent 50%,
+      rgba(0,0,0,.35) 100%);
+}
+/* Colour tint per scene */
+.bg-scene:nth-child(1)::after{
+  background:
+    linear-gradient(180deg,rgba(0,0,20,.80) 0%,rgba(0,0,12,.32) 30%,rgba(0,0,8,.25) 55%,rgba(0,0,0,.55) 80%,rgba(0,0,0,.92) 100%);
+}
+.bg-scene:nth-child(2)::after{
+  background:
+    linear-gradient(180deg,rgba(0,15,0,.75) 0%,rgba(0,8,0,.28) 30%,rgba(0,4,0,.22) 55%,rgba(0,0,0,.50) 80%,rgba(0,0,0,.90) 100%);
+}
+.bg-scene:nth-child(3)::after{
+  background:
+    linear-gradient(180deg,rgba(20,0,30,.78) 0%,rgba(12,0,20,.30) 30%,rgba(6,0,10,.22) 55%,rgba(0,0,0,.52) 80%,rgba(0,0,0,.90) 100%);
+}
+.bg-scene:nth-child(4)::after{
+  background:
+    linear-gradient(180deg,rgba(15,5,0,.76) 0%,rgba(8,3,0,.28) 30%,rgba(4,2,0,.20) 55%,rgba(0,0,0,.50) 80%,rgba(0,0,0,.90) 100%);
+}
+
+/* Fallback gradient if image fails */
+.bg-scene:nth-child(1){background:radial-gradient(ellipse 120% 80% at 50% 100%,#0a1040 0%,#040818 40%,#010210 80%,#000 100%);}
+.bg-scene:nth-child(2){background:radial-gradient(ellipse 120% 80% at 50% 100%,#0a2010 0%,#050f08 40%,#010504 80%,#000 100%);}
+.bg-scene:nth-child(3){background:radial-gradient(ellipse 120% 80% at 50% 100%,#1a0535 0%,#0d0020 40%,#040010 80%,#000 100%);}
+.bg-scene:nth-child(4){background:radial-gradient(ellipse 120% 80% at 50% 100%,#201008 0%,#100804 40%,#050402 80%,#000 100%);}
+
+/* ─── CANVAS LAYERS ─── */
+#sparkCv{position:absolute;inset:0;z-index:4;pointer-events:none;}
+
+/* ─── LIGHT BEAMS ─── */
+.beam-layer{position:absolute;inset:0;z-index:3;pointer-events:none;}
+.beam{position:absolute;top:0;transform-origin:top center;opacity:0;}
+.b1{left:55px;width:260px;height:1200px;
+  background:linear-gradient(180deg,rgba(180,0,255,.50) 0%,transparent 100%);
+  clip-path:polygon(40%,0%,60% 0%,100% 100%,0% 100%);
+  transform:rotate(-22deg);}
+.b2{left:265px;width:200px;height:1050px;
+  background:linear-gradient(180deg,rgba(255,255,255,.18) 0%,transparent 100%);
+  clip-path:polygon(38% 0%,62% 0%,100% 100%,0% 100%);
+  transform:rotate(-10deg);}
+.b3{left:50%;margin-left:-115px;width:230px;height:1350px;
+  background:linear-gradient(180deg,rgba(0,220,255,.58) 0%,transparent 100%);
+  clip-path:polygon(36% 0%,64% 0%,100% 100%,0% 100%);
+  transform:rotate(0deg);}
+.b4{right:265px;width:200px;height:1050px;
+  background:linear-gradient(180deg,rgba(255,255,255,.18) 0%,transparent 100%);
+  clip-path:polygon(38% 0%,62% 0%,100% 100%,0% 100%);
+  transform:rotate(10deg);}
+.b5{right:55px;width:260px;height:1200px;
+  background:linear-gradient(180deg,rgba(255,30,180,.50) 0%,transparent 100%);
+  clip-path:polygon(40% 0%,60% 0%,100% 100%,0% 100%);
+  transform:rotate(22deg);}
+
+/* ─── CONTENT ─── */
+.content{position:absolute;inset:0;z-index:6;pointer-events:none;}
+
+.top-badge{position:absolute;top:76px;left:0;right:0;text-align:center;opacity:0;}
+.badge-inner{
+  display:inline-block;border:1px solid rgba(255,255,255,.30);
+  padding:11px 40px;
+  font-family:'Montserrat',sans-serif;font-size:15px;font-weight:600;
+  letter-spacing:6px;color:rgba(255,255,255,.75);text-transform:uppercase;
+}
+
+.scene-label{
+  position:absolute;top:152px;left:0;right:0;
+  text-align:center;
+  font-family:'Montserrat',sans-serif;font-size:13px;font-weight:400;
+  letter-spacing:8px;color:rgba(255,255,255,.40);text-transform:uppercase;
+  opacity:0;
+}
+
+.edition{
+  position:absolute;top:188px;left:0;right:0;text-align:center;
+  font-family:'Bebas Neue',cursive;font-size:40px;letter-spacing:14px;
+  color:rgba(180,0,255,.92);
+  text-shadow:0 0 28px rgba(180,0,255,.7),0 0 55px rgba(180,0,255,.3);
+  opacity:0;
+}
+
+.t-tbilisi{
+  position:absolute;top:245px;left:0;right:0;text-align:center;
+  font-family:'Bebas Neue',cursive;font-size:210px;line-height:1;letter-spacing:6px;
+  color:#fff;
+  text-shadow:0 0 60px rgba(0,220,255,.45),0 0 120px rgba(0,220,255,.18),0 6px 0 rgba(0,0,0,.7);
+  opacity:0;
+}
+.t-openair{
+  position:absolute;top:465px;left:0;right:0;text-align:center;
+  font-family:'Bebas Neue',cursive;font-size:136px;line-height:1;letter-spacing:26px;
+  color:transparent;
+  -webkit-text-stroke:2.5px rgba(0,220,255,.95);
+  text-shadow:0 0 40px rgba(0,220,255,.4);
+  opacity:0;
+}
+
+.hdiv{
+  position:absolute;left:70px;right:70px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),rgba(0,220,255,.5),rgba(255,255,255,.35),transparent);
+  opacity:0;transform-origin:center;
+}
+.hd1{top:622px;} .hd2{top:690px;}
+
+.genres{
+  position:absolute;top:641px;left:0;right:0;text-align:center;
+  font-family:'Montserrat',sans-serif;font-size:23px;font-weight:700;letter-spacing:7px;
+  color:rgba(255,255,255,.90);text-transform:uppercase;opacity:0;
+}
+
+.features{
+  position:absolute;top:726px;left:44px;right:44px;
+  display:flex;justify-content:space-around;align-items:flex-start;
+  opacity:0;
+}
+.fi{display:flex;flex-direction:column;align-items:center;gap:10px;width:190px;}
+.fi-icon{font-size:38px;line-height:1;}
+.fi-lbl{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;letter-spacing:2px;color:rgba(255,255,255,.72);text-transform:uppercase;text-align:center;line-height:1.45;}
+
+.desc{
+  position:absolute;top:896px;left:90px;right:90px;text-align:center;
+  font-family:'Montserrat',sans-serif;font-size:21px;font-weight:300;line-height:1.78;
+  color:rgba(255,255,255,.65);letter-spacing:1px;opacity:0;
+}
+
+.location{position:absolute;top:1064px;left:0;right:0;text-align:center;opacity:0;}
+.loc-main{
+  font-family:'Bebas Neue',cursive;font-size:58px;letter-spacing:12px;
+  color:rgba(255,200,0,.96);
+  text-shadow:0 0 28px rgba(255,200,0,.52),0 0 56px rgba(255,200,0,.20);
+}
+.loc-sub{margin-top:10px;font-family:'Montserrat',sans-serif;font-size:17px;letter-spacing:6px;color:rgba(255,255,255,.50);text-transform:uppercase;}
+
+.dates{position:absolute;top:1210px;left:0;right:0;text-align:center;opacity:0;}
+.dates-inner{display:inline-flex;align-items:center;gap:28px;border:1px solid rgba(0,220,255,.35);padding:18px 60px;}
+.d-item{font-family:'Bebas Neue',cursive;font-size:46px;letter-spacing:4px;color:rgba(0,220,255,.92);text-shadow:0 0 20px rgba(0,220,255,.50);}
+.d-sep{font-family:'Montserrat',sans-serif;font-size:18px;color:rgba(255,255,255,.25);}
+
+.htag{
+  position:absolute;top:1360px;left:0;right:0;text-align:center;
+  font-family:'Montserrat',sans-serif;font-size:17px;font-weight:400;letter-spacing:4px;
+  color:rgba(255,255,255,.42);opacity:0;
+}
+
+.ebar{
+  position:absolute;top:1435px;left:120px;right:120px;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(180,0,255,.65),rgba(0,220,255,.9),rgba(255,30,180,.65),transparent);
+  opacity:0;transform-origin:center;
+}
+
+.pack{
+  position:absolute;top:1472px;left:0;right:0;text-align:center;
+  font-family:'Bebas Neue',cursive;font-size:38px;letter-spacing:10px;
+  color:rgba(255,255,255,.32);opacity:0;
+}
+
+/* Bottom Trust DMC area */
+.bfade{
+  position:absolute;bottom:0;left:0;right:0;height:240px;
+  z-index:5;pointer-events:none;
+  background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.75) 50%,#000 100%);
+}
+.presents{
+  position:absolute;bottom:232px;left:0;right:0;text-align:center;
+  font-family:'Montserrat',sans-serif;font-size:13px;font-weight:400;letter-spacing:7px;
+  color:rgba(255,255,255,.38);text-transform:uppercase;z-index:8;opacity:0;
+}
+.trust-logo{
+  position:absolute;bottom:76px;left:50%;transform:translateX(-50%);
+  width:300px;z-index:8;opacity:0;
+  filter:brightness(0) invert(1);
+}
+
+/* Vignette */
+.vignette{
+  position:absolute;inset:0;z-index:7;pointer-events:none;
+  background:radial-gradient(ellipse 90% 65% at 50% 48%,transparent 26%,rgba(0,0,0,.40) 68%,rgba(0,0,0,.80) 100%);
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <!-- Background scene slideshow -->
+  <div class="bg-layer" id="bgLayer">
+    <!-- Scene 1: Tbilisi Old Town cityscape -->
+    <div class="bg-scene" id="sc0">
+      <img class="kb1"
+           src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Tbilisi_National_Gallery.JPG/1280px-Tbilisi_National_Gallery.JPG"
+           alt="Tbilisi, Georgia"
+           onerror="this.style.display='none'">
+    </div>
+    <!-- Scene 2: Georgia Mountains, Svaneti -->
+    <div class="bg-scene" id="sc1">
+      <img class="kb2"
+           src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Ushguli_Svaneti_Georgia.JPG/1280px-Ushguli_Svaneti_Georgia.JPG"
+           alt="Georgia Mountains"
+           onerror="this.style.display='none'">
+    </div>
+    <!-- Scene 3: Concert crowd at night -->
+    <div class="bg-scene" id="sc2">
+      <img class="kb3"
+           src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Crowd_25dec09_3443.JPG/1280px-Crowd_25dec09_3443.JPG"
+           alt="Concert Crowd"
+           onerror="this.style.display='none'">
+    </div>
+    <!-- Scene 4: Outdoor music festival -->
+    <div class="bg-scene" id="sc3">
+      <img class="kb4"
+           src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Zeena_Schreck_Wave-Gotik-Treffen_Music_festival_May_23,_2015_Leipzig.JPG/1280px-Zeena_Schreck_Wave-Gotik-Treffen_Music_festival_May_23,_2015_Leipzig.JPG"
+           alt="Music Festival"
+           onerror="this.style.display='none'">
+    </div>
+  </div>
+
+  <!-- Light beams -->
+  <div class="beam-layer">
+    <div class="beam b1" id="bm1"></div>
+    <div class="beam b2" id="bm2"></div>
+    <div class="beam b3" id="bm3"></div>
+    <div class="beam b4" id="bm4"></div>
+    <div class="beam b5" id="bm5"></div>
+  </div>
+
+  <!-- Spark particles -->
+  <canvas id="sparkCv" width="1080" height="1920"></canvas>
+
+  <!-- Content -->
+  <div class="content">
+    <div class="top-badge" id="topBadge">
+      <div class="badge-inner">The Caucasus' Largest Music Festival</div>
+    </div>
+    <div class="scene-label" id="sceneLabel">Tbilisi · Georgia</div>
+    <div class="edition" id="edition">2026</div>
+
+    <div class="t-tbilisi" id="tTbilisi">TBILISI</div>
+    <div class="t-openair" id="tOpenair">OPEN AIR</div>
+
+    <div class="hdiv hd1" id="hd1"></div>
+    <div class="genres" id="genres">Rock &nbsp;·&nbsp; Indie &nbsp;·&nbsp; Electronic &nbsp;·&nbsp; Pop &nbsp;·&nbsp; Alternative</div>
+    <div class="hdiv hd2" id="hd2"></div>
+
+    <div class="features" id="features">
+      <div class="fi"><div class="fi-icon">🎤</div><div class="fi-lbl">Live Performances</div></div>
+      <div class="fi"><div class="fi-icon">🌄</div><div class="fi-lbl">Outdoor Festival</div></div>
+      <div class="fi"><div class="fi-icon">🎉</div><div class="fi-lbl">Thousands of Fans</div></div>
+      <div class="fi"><div class="fi-icon">🍔</div><div class="fi-lbl">Food &amp; Culture</div></div>
+    </div>
+
+    <div class="desc" id="desc">
+      World-renowned artists &amp; rising talents<br>
+      Music lovers from across the globe
+    </div>
+
+    <div class="location" id="locEl">
+      <div class="loc-main">📍 TBILISI, GEORGIA</div>
+      <div class="loc-sub">Multi-day summer festival experience</div>
+    </div>
+
+    <div class="dates" id="datesEl">
+      <div class="dates-inner">
+        <div class="d-item">JULY</div>
+        <div class="d-sep">·</div>
+        <div class="d-item">AUG</div>
+        <div class="d-sep">·</div>
+        <div class="d-item">2026</div>
+      </div>
+    </div>
+
+    <div class="htag" id="htag">#TbilisiOpenAir &nbsp;·&nbsp; #SummerInGeorgia &nbsp;·&nbsp; #OpenAirFestival</div>
+    <div class="ebar" id="ebar"></div>
+    <div class="pack" id="pack">Pack Your Festival Spirit</div>
+  </div>
+
+  <div class="bfade"></div>
+  <div class="presents" id="presents">Presented by</div>
+  <img class="trust-logo" id="trustLogo"
+       src="../New_logo_design/TRUST%20DMC%20WHITE%20PNG.png"
+       alt="Trust DMC">
+  <div class="vignette"></div>
+</div>
+
+<script src="../libs/gsap.min.js"></script>
+<script>
+/* ── STAGE SCALE ── */
+const stageEl = document.getElementById('stage');
+function fitStage(){
+  const s = Math.min(window.innerWidth/1080, window.innerHeight/1920);
+  stageEl.style.transform = `scale(${s})`;
+  stageEl.style.left = Math.max(0,(window.innerWidth -1080*s)/2)+'px';
+  stageEl.style.top  = Math.max(0,(window.innerHeight-1920*s)/2)+'px';
+}
+fitStage(); window.addEventListener('resize', fitStage);
+
+/* ── SPARK PARTICLES ── */
+const sCv  = document.getElementById('sparkCv');
+const sCtx = sCv.getContext('2d');
+const SCOLS = [
+  [180,0,255],[0,220,255],[255,30,180],[255,200,0],[255,255,255],[100,0,200]
+];
+class Spark{
+  constructor(init){ this.reset(init); }
+  reset(init){
+    this.x   = Math.random()*1080;
+    this.y   = init ? Math.random()*1920 : 1960+Math.random()*40;
+    this.r   = 0.5+Math.random()*2.2;
+    this.gr  = this.r*(4+Math.random()*7);
+    this.vx  = (Math.random()-.5)*.55;
+    this.vy  = -(0.35+Math.random()*1.1);
+    this.wb  = Math.random()*Math.PI*2;
+    this.wbS = .014+Math.random()*.024;
+    this.wbA = .28+Math.random()*.75;
+    this.life= 0; this.ml = 140+Math.random()*650;
+    this.pk  = .45+Math.random()*.55;
+    this.col = SCOLS[Math.floor(Math.random()*SCOLS.length)];
+  }
+  tick(){
+    this.life++; this.wb+=this.wbS;
+    this.x+=this.vx+Math.sin(this.wb)*this.wbA;
+    this.y+=this.vy;
+    const t=this.life/this.ml;
+    this.a=(t<.12?t/.12:t>.65?(1-t)/.35:1)*this.pk;
+    if(this.life>=this.ml||this.y<-20) this.reset(false);
+  }
+  draw(){
+    if(this.a<.005) return;
+    const [r,g,b]=this.col;
+    const g2=sCtx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.gr);
+    g2.addColorStop(0,  `rgba(${r},${g},${b},${(this.a*.60).toFixed(4)})`);
+    g2.addColorStop(.4, `rgba(${r},${g},${b},${(this.a*.10).toFixed(4)})`);
+    g2.addColorStop(1,  'transparent');
+    sCtx.save();
+    sCtx.fillStyle=g2;
+    sCtx.beginPath(); sCtx.arc(this.x,this.y,this.gr,0,Math.PI*2); sCtx.fill();
+    sCtx.fillStyle=`rgba(${r},${g},${b},${Math.min(this.a*2.2,1).toFixed(4)})`;
+    sCtx.beginPath(); sCtx.arc(this.x,this.y,this.r,0,Math.PI*2); sCtx.fill();
+    sCtx.restore();
+  }
+}
+const sparks = Array.from({length:140},()=>new Spark(true));
+(function loop(){
+  sCtx.clearRect(0,0,1080,1920);
+  sparks.forEach(s=>{s.tick();s.draw();});
+  requestAnimationFrame(loop);
+})();
+
+/* ── SCENE LABELS ── */
+const SCENE_LABELS = [
+  'Tbilisi · Georgia',
+  'Svaneti · Caucasus Mountains',
+  'Live Concert · Open Air',
+  'Music Festival · Summer 2026'
+];
+
+/* ── BACKGROUND CROSSFADE ── */
+const scenes = [
+  document.getElementById('sc0'),
+  document.getElementById('sc1'),
+  document.getElementById('sc2'),
+  document.getElementById('sc3')
+];
+const sceneLabelEl = document.getElementById('sceneLabel');
+let currentScene = -1;
+
+function showScene(idx, dur){
+  /* Crossfade: new scene fades in, old fades out */
+  const next = scenes[idx];
+  const prev = currentScene >= 0 ? scenes[currentScene] : null;
+  gsap.to(next, {opacity:1, duration:dur||1.0, ease:'power1.inOut'});
+  if(prev && prev !== next) gsap.to(prev, {opacity:0, duration:dur||1.0, ease:'power1.inOut'});
+  /* Scene label swap */
+  gsap.to(sceneLabelEl, {opacity:0, duration:.3, onComplete:()=>{
+    sceneLabelEl.textContent = SCENE_LABELS[idx];
+    gsap.to(sceneLabelEl, {opacity:1, duration:.5});
+  }});
+  currentScene = idx;
+}
+
+function hideAllScenes(){
+  scenes.forEach(s=>{ gsap.set(s, {opacity:0}); });
+  currentScene = -1;
+}
+
+/* ── GSAP MASTER TIMELINE ── */
+const E = {
+  beams:['#bm1','#bm2','#bm3','#bm4','#bm5'],
+  badge:'#topBadge', slabel:'#sceneLabel', edition:'#edition',
+  tT:'#tTbilisi', tO:'#tOpenair',
+  hd1:'#hd1', hd2:'#hd2', genres:'#genres',
+  feats:'#features', desc:'#desc',
+  loc:'#locEl', dates:'#datesEl',
+  htag:'#htag', ebar:'#ebar', pack:'#pack',
+  pres:'#presents', logo:'#trustLogo'
+};
+
+function resetAll(){
+  hideAllScenes();
+  gsap.set(E.beams,    {opacity:0});
+  gsap.set(E.badge,    {opacity:0, y:-18});
+  gsap.set(E.slabel,   {opacity:0});
+  gsap.set(E.edition,  {opacity:0});
+  gsap.set(E.tT,       {opacity:0, y:-70, scaleX:1.12});
+  gsap.set(E.tO,       {opacity:0, y:55});
+  gsap.set([E.hd1,E.hd2],{opacity:0, scaleX:0});
+  gsap.set(E.genres,   {opacity:0, y:12});
+  gsap.set(E.feats,    {opacity:0, y:18});
+  gsap.set(E.desc,     {opacity:0});
+  gsap.set(E.loc,      {opacity:0, y:16});
+  gsap.set(E.dates,    {opacity:0, scale:.92});
+  gsap.set(E.htag,     {opacity:0});
+  gsap.set(E.ebar,     {opacity:0, scaleX:0});
+  gsap.set(E.pack,     {opacity:0});
+  gsap.set(E.pres,     {opacity:0});
+  gsap.set(E.logo,     {opacity:0, y:18});
+  /* Reset Ken Burns by re-cloning images */
+  scenes.forEach((sc,i)=>{
+    const img = sc.querySelector('img');
+    if(img){
+      const anim = ['kb1','kb2','kb3','kb4'][i];
+      img.className = '';
+      void img.offsetWidth; /* force reflow */
+      img.className = anim;
+    }
+  });
+}
+resetAll();
+
+function buildTL(){
+  const tl = gsap.timeline();
+
+  /* Scene 1 — Tbilisi cityscape */
+  tl.add(()=>showScene(0, 1.2), 0);
+
+  /* Beams sweep */
+  tl.to(['#bm1','#bm5'],{opacity:.78,duration:.70,ease:'power2.out',stagger:.08},0.20)
+    .to('#bm3',          {opacity:.88,duration:.55,ease:'power2.out'},0.32)
+    .to(['#bm2','#bm4'], {opacity:.62,duration:.75,ease:'power2.out',stagger:.08},0.42);
+
+  /* Badge + labels */
+  tl.to(E.badge,   {opacity:1, y:0, duration:.55, ease:'power2.out'}, 0.55)
+    .to(E.slabel,  {opacity:1, duration:.50, ease:'power2.out'}, 0.75)
+    .to(E.edition, {opacity:1, duration:.45, ease:'power2.out'}, 0.88);
+
+  /* TBILISI slams */
+  tl.to(E.tT, {opacity:1, y:0, scaleX:1, duration:.52, ease:'back.out(1.4)'}, 1.12);
+
+  /* OPEN AIR rises */
+  tl.to(E.tO, {opacity:1, y:0, duration:.48, ease:'power3.out'}, 1.60);
+
+  /* Scene 2 — Georgia Mountains (transition) */
+  tl.add(()=>showScene(1, 1.0), 2.40);
+
+  /* Dividers + genres */
+  tl.to([E.hd1,E.hd2], {opacity:1, scaleX:1, duration:.55, ease:'power2.out', stagger:.10}, 2.20)
+    .to(E.genres,       {opacity:1, y:0,      duration:.50, ease:'power2.out'}, 2.40);
+
+  /* Features */
+  tl.to(E.feats, {opacity:1, y:0, duration:.55, ease:'power2.out'}, 2.95);
+
+  /* Description */
+  tl.to(E.desc, {opacity:1, duration:.60, ease:'power2.out'}, 3.60);
+
+  /* Scene 3 — Concert Crowd (transition) */
+  tl.add(()=>showScene(2, 1.0), 4.50);
+
+  /* Location */
+  tl.to(E.loc,   {opacity:1, y:0,   duration:.55, ease:'power2.out'}, 4.50);
+
+  /* Dates */
+  tl.to(E.dates, {opacity:1, scale:1, duration:.50, ease:'back.out(1.5)'}, 5.10);
+
+  /* Hashtag + bar + pack */
+  tl.to(E.htag, {opacity:1, duration:.50, ease:'power2.out'}, 5.75)
+    .to(E.ebar, {opacity:1, scaleX:1, duration:.55, ease:'power2.out', transformOrigin:'center'}, 5.90)
+    .to(E.pack, {opacity:1, duration:.48, ease:'power2.out'}, 6.25);
+
+  /* Scene 4 — Music Festival (transition) */
+  tl.add(()=>showScene(3, 1.0), 6.80);
+
+  /* Trust DMC */
+  tl.to(E.pres, {opacity:1, duration:.45, ease:'power2.out'}, 6.80)
+    .to(E.logo, {opacity:1, y:0, duration:.75, ease:'power2.out'}, 7.15);
+
+  /* Hold */
+  tl.to({}, {duration:3.0}, 8.50);
+
+  /* Replay */
+  tl.eventCallback('onComplete',()=>{
+    gsap.delayedCall(1.0, ()=>{ resetAll(); buildTL(); });
+  });
+
+  return tl;
+}
+buildTL();
+</script>
+</body>
+</html>
