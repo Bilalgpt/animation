@@ -180,18 +180,17 @@ body{width:100vw;height:100vh;background:#0a0608;overflow:hidden;}
 /* ── 11. "PRESENTED BY"  top:1740px  (52px Cinzel) ── */
 /* ── 12. TRUST LOGO      bottom:68px (top ~1812px)  ── */
 .bfade{position:absolute;bottom:0;left:0;right:0;height:320px;z-index:5;pointer-events:none;background:linear-gradient(180deg,transparent 0%,rgba(10,6,8,.76) 44%,rgba(10,6,8,.98) 100%);}
-/* "Presented by" — left side, clear of logo */
+/* "Presented by" — centred, sits ABOVE the logo */
 .presents{
-  position:absolute;bottom:90px;left:52px;width:280px;
-  text-align:left;
-  font-family:'Cinzel',serif;font-size:34px;font-weight:400;letter-spacing:4px;
-  color:rgba(232,184,100,.55);text-transform:uppercase;z-index:8;opacity:0;
-  line-height:1.2;
+  position:absolute;bottom:182px;left:0;right:0;
+  text-align:center;
+  font-family:'Cinzel',serif;font-size:28px;font-weight:400;letter-spacing:6px;
+  color:rgba(232,184,100,.52);text-transform:uppercase;z-index:8;opacity:0;
 }
-/* Trust DMC logo — centred, same vertical band */
+/* Trust DMC logo — centred, below "Presented by" */
 .trust-logo{
-  position:absolute;bottom:62px;left:50%;transform:translateX(-50%);
-  width:290px;z-index:8;opacity:0;filter:brightness(0) invert(1);
+  position:absolute;bottom:58px;left:50%;transform:translateX(-50%);
+  width:280px;z-index:8;opacity:0;filter:brightness(0) invert(1);
 }
 
 /* ── VIGNETTE ── */
@@ -413,7 +412,7 @@ function resetAll(){
   if(w[3])gsap.set(w[3],{opacity:0,x:160});
   gsap.set('#datesEl', {opacity:0,x:50});
   gsap.set('#htag',    {opacity:0,scale:0.80});
-  gsap.set('#presents',{opacity:0,x:-40});
+  gsap.set('#presents',{opacity:0,y:10});
   gsap.set('#trustLogo',{opacity:0,scale:0.85});
 
   scenes.forEach((sc,i)=>{
@@ -447,7 +446,7 @@ function buildTL(){
   tl.to('#htag',{opacity:1,scale:1,duration:.72,ease:'back.out(1.4)'},7.66);
 
   tl.add(()=>showScene(3,1.2),7.88);
-  tl.to('#presents',{opacity:1,x:0,duration:.48,ease:'power2.out'},8.18);
+  tl.to('#presents',{opacity:1,y:0,duration:.48,ease:'power2.out'},8.18);
   tl.to('#trustLogo',{opacity:1,scale:1,duration:.66,ease:'back.out(1.8)'},8.68);
 
   tl.to({},{duration:3.0},9.95);
