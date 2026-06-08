@@ -180,17 +180,17 @@ body{width:100vw;height:100vh;background:#0a0608;overflow:hidden;}
 /* ── 11. "PRESENTED BY"  top:1740px  (52px Cinzel) ── */
 /* ── 12. TRUST LOGO      bottom:68px (top ~1812px)  ── */
 .bfade{position:absolute;bottom:0;left:0;right:0;height:320px;z-index:5;pointer-events:none;background:linear-gradient(180deg,transparent 0%,rgba(10,6,8,.76) 44%,rgba(10,6,8,.98) 100%);}
-/* "Presented by" — left side, vertically centred with logo */
+/* "Presented by" — left side, clear of logo */
 .presents{
-  position:absolute;bottom:82px;left:52px;right:calc(50% + 24px);
+  position:absolute;bottom:90px;left:52px;width:280px;
   text-align:left;
-  font-family:'Cinzel',serif;font-size:52px;font-weight:400;letter-spacing:3px;
-  color:rgba(232,184,100,.52);text-transform:uppercase;z-index:8;opacity:0;
-  line-height:1.15;
+  font-family:'Cinzel',serif;font-size:34px;font-weight:400;letter-spacing:4px;
+  color:rgba(232,184,100,.55);text-transform:uppercase;z-index:8;opacity:0;
+  line-height:1.2;
 }
-/* Trust DMC logo — centred horizontally, same vertical band */
+/* Trust DMC logo — centred, same vertical band */
 .trust-logo{
-  position:absolute;bottom:60px;left:50%;transform:translateX(-50%);
+  position:absolute;bottom:62px;left:50%;transform:translateX(-50%);
   width:290px;z-index:8;opacity:0;filter:brightness(0) invert(1);
 }
 
