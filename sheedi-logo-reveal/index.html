@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Sheedi's Restaurant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body {
+    width:100%; height:100%;
+    background:#080503;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+
+  #stage {
+    width:1080px; height:1080px;
+    position:relative;
+    background:#080503;
+    overflow:hidden;
+    transform-origin:center center;
+    flex:0 0 auto;
+  }
+
+  /* ===== CANVASES ===== */
+  #bgCanvas, #particleCanvas {
+    position:absolute; inset:0; width:100%; height:100%;
+    pointer-events:none;
+  }
+  #bgCanvas       { z-index:0; }
+  #particleCanvas { z-index:3; }
+
+  /* ===== ORNAMENT RING ===== */
+  #ornament-ring {
+    position:absolute;
+    width:800px; height:800px;
+    top:43.7%; left:50%;
+    transform:translate(-50%,-50%) rotate(0deg);
+    z-index:2;
+    opacity:0;
+  }
+
+  /* ===== LOGO IMAGE =====
+     Full size, full opacity from frame 0.
+     clip-path iris reveal is applied via GSAP.
+     Static drop-shadow — never animated. */
+  #logo-img {
+    position:absolute;
+    width:740px;
+    top:43.7%; left:50%;
+    transform:translate(-50%,-50%);
+    transform-origin:center center;
+    z-index:4;
+    opacity:1;
+    filter:
+      drop-shadow(0 0 18px rgba(255,225,120,0.72))
+      drop-shadow(0 0 42px rgba(255,200,80,0.42))
+      drop-shadow(0 0 80px rgba(212,160,40,0.22));
+  }
+
+  /* ===== SHIMMER (golden flash — 2 sweeps) ===== */
+  #shimmer {
+    position:absolute;
+    width:760px; height:600px;
+    top:43.7%; left:50%;
+    transform:translate(-50%,-50%);
+    z-index:5;
+    pointer-events:none;
+    opacity:0;
+    background:linear-gradient(110deg,
+      transparent 28%,
+      rgba(255,230,120,0.20) 46%,
+      rgba(255,245,170,0.44) 50%,
+      rgba(255,230,120,0.20) 54%,
+      transparent 72%);
+    background-size:300% 100%;
+    background-position:150% 0;
+    mix-blend-mode:screen;
+  }
+
+  /* ===== TOP TEXT ===== */
+  #line-top {
+    position:absolute;
+    top:12px; left:0; right:0;
+    text-align:center;
+    font-family:'Cinzel', serif;
+    font-size:21px;
+    font-weight:400;
+    color:rgba(210,175,95,0.9);
+    letter-spacing:0.38em;
+    text-indent:0.38em;
+    z-index:6;
+    opacity:0;
+  }
+
+  /* ===== DIVIDERS ===== */
+  .divider-svg {
+    position:absolute;
+    left:50%; transform:translateX(-50%);
+    z-index:6;
+    opacity:0;
+  }
+  #div-top { top:46px; }
+  #div-bot { top:886px; }
+
+  /* ===== TAGLINE BLOCK ===== */
+  #tagline-block {
+    position:absolute;
+    top:916px;
+    left:0; right:0;
+    text-align:center;
+    z-index:6;
+    opacity:0;
+  }
+
+  #tagline-label {
+    font-family:'Cinzel', serif;
+    font-size:13px;
+    font-weight:400;
+    color:rgba(180,145,60,0.7);
+    letter-spacing:0.5em;
+    text-indent:0.5em;
+    text-transform:uppercase;
+    margin-bottom:16px;
+  }
+  #tagline-label .word {
+    display:inline-block;
+    margin:0 4px;
+    opacity:0;
+    transform:translateY(18px);
+  }
+
+  #tagline-typed-wrap {
+    min-height:52px;
+    width:960px;
+    margin:0 auto;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #typed-tagline {
+    font-family:'Cormorant Garamond', serif;
+    font-size:32px;
+    font-style:italic;
+    font-weight:300;
+    color:rgba(220,190,110,0.92);
+    letter-spacing:0.10em;
+    white-space:nowrap;
+    text-shadow:0 0 28px rgba(212,165,50,0.32), 0 0 55px rgba(200,140,20,0.16);
+  }
+  .typed-cursor {
+    font-family:'Cormorant Garamond', serif;
+    font-size:32px;
+    color:rgba(212,175,55,0.9);
+    text-shadow:0 0 10px rgba(212,175,55,0.8);
+    animation:cursorBlink 0.8s ease-in-out infinite;
+    margin-left:1px;
+  }
+  @keyframes cursorBlink {
+    0%,100% { opacity:1; }
+    50%      { opacity:0; }
+  }
+
+  /* ===== BOTTOM BADGE ===== */
+  #bottom-badge {
+    position:absolute;
+    top:1017px;
+    left:50%; transform:translateX(-50%);
+    z-index:6;
+    display:flex; align-items:center; gap:18px;
+    opacity:0;
+    white-space:nowrap;
+  }
+  .badge-dot {
+    width:5px; height:5px; border-radius:50%;
+    background:#c8a040; flex-shrink:0;
+  }
+  #bottom-badge span {
+    font-family:'Cinzel', serif;
+    font-size:17px; font-weight:400;
+    color:rgba(200,165,80,0.82);
+    letter-spacing:0.42em; text-indent:0.42em;
+    text-transform:uppercase;
+  }
+
+  /* Splitting.js char spans */
+  .char { display:inline-block; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="bgCanvas"></canvas>
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- Ornament ring — appears AFTER logo reveal -->
+  <svg id="ornament-ring" viewBox="0 0 640 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="320" cy="320" r="308" stroke="rgba(200,160,50,0.30)" stroke-width="1" stroke-dasharray="4 9"/>
+    <circle cx="320" cy="320" r="288" stroke="rgba(200,160,50,0.15)" stroke-width="0.7"/>
+    <g stroke="rgba(212,175,60,0.65)" stroke-width="1.5">
+      <line x1="320" y1="8"  x2="320" y2="30"/> <line x1="308" y1="12" x2="320" y2="8"/> <line x1="332" y1="12" x2="320" y2="8"/>
+      <line x1="527" y1="113" x2="512" y2="128"/>
+      <line x1="632" y1="320" x2="610" y2="320"/> <line x1="628" y1="308" x2="632" y2="320"/> <line x1="628" y1="332" x2="632" y2="320"/>
+      <line x1="527" y1="527" x2="512" y2="512"/>
+      <line x1="320" y1="632" x2="320" y2="610"/> <line x1="308" y1="628" x2="320" y2="632"/> <line x1="332" y1="628" x2="320" y2="632"/>
+      <line x1="113" y1="527" x2="128" y2="512"/>
+      <line x1="8"   y1="320" x2="30"  y2="320"/> <line x1="12" y1="308" x2="8" y2="320"/> <line x1="12" y1="332" x2="8" y2="320"/>
+      <line x1="113" y1="113" x2="128" y2="128"/>
+    </g>
+    <g fill="rgba(212,175,60,0.65)">
+      <polygon points="320,2 325,10 320,18 315,10"/>
+      <polygon points="638,320 630,325 622,320 630,315"/>
+      <polygon points="320,638 325,630 320,622 315,630"/>
+      <polygon points="2,320 10,325 18,320 10,315"/>
+      <polygon points="533,107 537,113 533,119 529,113"/>
+      <polygon points="533,521 537,527 533,533 529,527"/>
+      <polygon points="107,533 113,537 119,533 113,529"/>
+      <polygon points="107,107 113,111 119,107 113,103"/>
+    </g>
+    <circle class="ring-stroke" cx="320" cy="320" r="298"
+      stroke="rgba(212,175,55,0.52)" stroke-width="1.5"
+      stroke-dasharray="1880" stroke-dashoffset="1880"/>
+  </svg>
+
+  <!-- Logo — full size, full opacity; iris reveal via GSAP clip-path -->
+  <img id="logo-img" src="shedi_trans.png" alt="The Sheedi's Restaurant">
+
+  <!-- Shimmer (golden flash) -->
+  <div id="shimmer"></div>
+
+  <!-- Top text -->
+  <div id="line-top">FINE DINING &nbsp;&bull;&nbsp; AUTHENTIC CUISINE</div>
+
+  <!-- Dividers -->
+  <svg class="divider-svg" id="div-top" width="440" height="10" viewBox="0 0 440 10">
+    <line class="dline" x1="0"   y1="5" x2="195" y2="5" stroke="rgba(200,160,50,0.58)" stroke-width="1" stroke-dasharray="200" stroke-dashoffset="200"/>
+    <polygon points="220,1 225,5 220,9 215,5" fill="rgba(212,175,60,0.85)"/>
+    <line class="dline" x1="245" y1="5" x2="440" y2="5" stroke="rgba(200,160,50,0.58)" stroke-width="1" stroke-dasharray="200" stroke-dashoffset="200"/>
+  </svg>
+  <svg class="divider-svg" id="div-bot" width="440" height="10" viewBox="0 0 440 10">
+    <line class="dline" x1="0"   y1="5" x2="195" y2="5" stroke="rgba(200,160,50,0.58)" stroke-width="1" stroke-dasharray="200" stroke-dashoffset="200"/>
+    <polygon points="220,1 225,5 220,9 215,5" fill="rgba(212,175,60,0.85)"/>
+    <line class="dline" x1="245" y1="5" x2="440" y2="5" stroke="rgba(200,160,50,0.58)" stroke-width="1" stroke-dasharray="200" stroke-dashoffset="200"/>
+  </svg>
+
+  <!-- Tagline block -->
+  <div id="tagline-block">
+    <div id="tagline-label">
+      <span class="word">our</span>
+      <span class="word">promise</span>
+      <span class="word">to</span>
+      <span class="word">you</span>
+    </div>
+    <div id="tagline-typed-wrap">
+      <span id="typed-tagline"></span>
+    </div>
+  </div>
+
+  <!-- Bottom badge -->
+  <div id="bottom-badge">
+    <div class="badge-dot"></div>
+    <span>Est. 2010</span>
+    <div class="badge-dot"></div>
+  </div>
+</div>
+
+<script src="../libs/gsap.min.js"></script>
+<script src="../libs/splitting.min.js"></script>
+<script src="../libs/anime.min.js"></script>
+<script src="../libs/typed.min.js"></script>
+
+<script>
+// ============================================================
+// RESPONSIVE SCALE
+// ============================================================
+(function () {
+  const stage = document.getElementById('stage');
+  function fit() {
+    const s = Math.min(window.innerWidth, window.innerHeight) / 1080;
+    stage.style.transform = 'scale(' + s + ')';
+  }
+  window.addEventListener('resize', fit);
+  fit();
+})();
+
+// ============================================================
+// BACKGROUND CANVAS — deep velvet, no glow
+// ============================================================
+const bgCanvas = document.getElementById('bgCanvas');
+const bgCtx = bgCanvas.getContext('2d');
+bgCanvas.width = 1080; bgCanvas.height = 1080;
+(function drawBg() {
+  // Very faint warm centre vignette — just warmth, no flooding
+  const grad = bgCtx.createRadialGradient(540, 472, 0, 540, 472, 680);
+  grad.addColorStop(0,   'rgba(22,12,4,1)');
+  grad.addColorStop(0.5, 'rgba(10,6,2,1)');
+  grad.addColorStop(1,   'rgba(3,2,1,1)');
+  bgCtx.fillStyle = grad;
+  bgCtx.fillRect(0, 0, 1080, 1080);
+  // Subtle noise texture
+  for (let i = 0; i < 5000; i++) {
+    bgCtx.fillStyle = `rgba(200,160,60,${Math.random() * 0.018})`;
+    bgCtx.fillRect(Math.random() * 1080, Math.random() * 1080, 1, 1);
+  }
+})();
+
+// ============================================================
+// PARTICLES — subtle gold embers rising
+// ============================================================
+const pCanvas = document.getElementById('particleCanvas');
+const pCtx = pCanvas.getContext('2d');
+pCanvas.width = 1080; pCanvas.height = 1080;
+const particles = [];
+let particlesActive = false;
+function spawnParticle() {
+  const angle = Math.random() * Math.PI * 2;
+  const r = 60 + Math.random() * 260;
+  particles.push({
+    x: 540 + Math.cos(angle) * r * 0.5,
+    y: 472 + Math.sin(angle) * r * 0.38,
+    vx: (Math.random() - 0.5) * 0.45,
+    vy: -(0.3 + Math.random() * 0.65),
+    alpha: 0,
+    maxAlpha: 0.22 + Math.random() * 0.32,  // more subtle than before
+    size: 1.0 + Math.random() * 1.8,
+    life: 0,
+    maxLife: 130 + Math.random() * 110,
+    color: `hsl(${40 + Math.random() * 18},82%,${62 + Math.random() * 22}%)`
+  });
+}
+(function animParticles() {
+  pCtx.clearRect(0, 0, 1080, 1080);
+  if (particlesActive && Math.random() < 0.28) spawnParticle();
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.life++; p.x += p.vx; p.y += p.vy;
+    p.vx += (Math.random() - 0.5) * 0.03;
+    const t = p.life / p.maxLife;
+    p.alpha = t < 0.2 ? (t/0.2)*p.maxAlpha : t > 0.7 ? ((1-t)/0.3)*p.maxAlpha : p.maxAlpha;
+    pCtx.save();
+    pCtx.globalAlpha = Math.max(0, p.alpha);
+    pCtx.fillStyle = p.color;
+    pCtx.shadowColor = p.color;
+    pCtx.shadowBlur = 3;
+    pCtx.beginPath();
+    pCtx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
+    pCtx.fill();
+    pCtx.restore();
+    if (p.life >= p.maxLife) particles.splice(i, 1);
+  }
+  requestAnimationFrame(animParticles);
+})();
+
+// ============================================================
+// SPLITTING.JS — top text chars
+// ============================================================
+Splitting({ target: '#line-top', by: 'chars' });
+
+// ============================================================
+// TYPED.JS — tagline cycling
+// ============================================================
+const TAGLINES = [
+  "Where Every Meal Tells a Story",
+  "A Culinary Journey Awaits You",
+  "Taste the Tradition, Feel the Love",
+  "Crafted with Passion, Served with Grace"
+];
+let typedInstance = null;
+function startTyped() {
+  if (typedInstance) { typedInstance.destroy(); typedInstance = null; }
+  document.getElementById('typed-tagline').innerHTML = '';
+  typedInstance = new Typed('#typed-tagline', {
+    strings: TAGLINES,
+    typeSpeed: 42, backSpeed: 22, backDelay: 2200,
+    startDelay: 0, loop: true, showCursor: true, cursorChar: '|'
+  });
+}
+
+// ============================================================
+// ANIME.JS helpers
+// ============================================================
+function drawRingStroke() {
+  anime({ targets: '.ring-stroke', strokeDashoffset: [1880, 0], easing: 'easeInOutQuad', duration: 1900, delay: 400 });
+}
+function drawDividers() {
+  anime({ targets: '#div-top .dline, #div-bot .dline', strokeDashoffset: [200, 0], easing: 'easeOutCubic', duration: 650, delay: (el,i) => i * 100 });
+}
+function floatLabelWords() {
+  anime({ targets: '#tagline-label .word', opacity: [0,1], translateY: [18,0], easing: 'easeOutCubic', duration: 480, delay: anime.stagger(110) });
+}
+function resetAnime() {
+  anime.set('#div-top .dline, #div-bot .dline', { strokeDashoffset: 200 });
+  anime.set('.ring-stroke', { strokeDashoffset: 1880 });
+  gsap.set('#tagline-label .word', { opacity: 0, y: 18 });
+}
+
+// ============================================================
+// GSAP MASTER TIMELINE
+// ============================================================
+function buildTimeline() {
+  const tl = gsap.timeline({
+    repeat: -1,
+    repeatDelay: 1.4,
+    onRepeat: () => {
+      resetAnime();
+      document.getElementById('shimmer').style.backgroundPosition = '150% 0';
+    }
+  });
+
+  // ── 0.2s: particles warm up ──
+  tl.add(() => { particlesActive = true; }, 0.2);
+
+  // ── 0.4s: IRIS REVEAL ──
+  // Logo is opacity:1 at full size — only clip-path hides it
+  tl.set('#logo-img', { clipPath: 'circle(0% at 50% 50%)' }, 0);
+  tl.to('#logo-img', {
+    clipPath: 'circle(73% at 50% 50%)',
+    duration: 1.3, ease: 'power2.out'
+  }, 0.4);
+  // Remove clip-path after reveal so drop-shadow renders fully
+  tl.set('#logo-img', { clipPath: 'none' }, 1.75);
+
+  // ── 1.7s: shimmer flash #1 ──
+  tl.set('#shimmer',  { backgroundPosition: '150% 0' }, 1.69);
+  tl.to('#shimmer',   { opacity: 1, duration: 0.01 }, 1.7);
+  tl.to('#shimmer',   { backgroundPosition: '-150% 0', duration: 0.9, ease: 'power2.inOut' }, 1.7);
+  tl.to('#shimmer',   { opacity: 0, duration: 0.3 }, 2.5);
+
+  // ── 2.0s: gentle scale breathe (NO filter pulse) ──
+  tl.to('#logo-img', {
+    scale: 1.014, duration: 3.8, ease: 'sine.inOut', yoyo: true, repeat: -1,
+    transformOrigin: '50% 50%'
+  }, 2.0);
+
+  // ── 2.4s: ring draws in AFTER logo is visible ──
+  tl.to('#ornament-ring', { opacity: 1, duration: 0.7, ease: 'power2.out' }, 2.4);
+  tl.to('#ornament-ring', { rotation: 360, duration: 22, ease: 'none', transformOrigin: '50% 50%', repeat: -1 }, 2.4);
+  tl.add(drawRingStroke, 2.4);
+
+  // ── 3.0s: top text — chars spread from CENTRE outward ──
+  tl.to('#line-top', { opacity: 1, duration: 0.01 }, 3.0);
+  tl.from('#line-top .char', {
+    opacity: 0, y: -14, rotateX: -50,
+    stagger: { each: 0.04, from: 'center' },
+    duration: 0.5, ease: 'back.out(1.4)'
+  }, 3.0);
+
+  // ── 3.5s: dividers draw outward from centre ──
+  tl.to('#div-top', { opacity: 1, duration: 0.01 }, 3.5);
+  tl.to('#div-bot', { opacity: 1, duration: 0.01 }, 3.6);
+  tl.add(drawDividers, 3.5);
+
+  // ── 3.9s: tagline label words float up ──
+  tl.to('#tagline-block', { opacity: 1, duration: 0.01 }, 3.9);
+  tl.add(floatLabelWords, 3.9);
+
+  // ── 4.3s: typed tagline begins ──
+  tl.add(startTyped, 4.3);
+
+  // ── 5.2s: Est. 2010 badge slides up ──
+  tl.fromTo('#bottom-badge',
+    { opacity: 0, y: 14 },
+    { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
+    5.2
+  );
+
+  // ── 6.8s: shimmer flash #2 ──
+  tl.set('#shimmer',  { backgroundPosition: '150% 0' }, 6.79);
+  tl.to('#shimmer',   { opacity: 1, duration: 0.01 }, 6.8);
+  tl.to('#shimmer',   { backgroundPosition: '-150% 0', duration: 0.9, ease: 'power2.inOut' }, 6.8);
+  tl.to('#shimmer',   { opacity: 0, duration: 0.3 }, 7.6);
+
+  // ── 7.0–10.5s: hold ──
+
+  // ── 10.5s: REVERSE FADE-OUT (logo fades last) ──
+  tl.to(['#tagline-block', '#bottom-badge'], { opacity: 0, duration: 0.5, ease: 'power2.in' }, 10.5);
+  tl.to(['#div-top', '#div-bot', '#line-top'], { opacity: 0, duration: 0.5, ease: 'power2.in' }, 10.8);
+  tl.to('#ornament-ring', { opacity: 0, duration: 0.6, ease: 'power2.in' }, 11.0);
+  tl.to('#logo-img', { opacity: 0, duration: 0.9, ease: 'power2.in' }, 11.2);
+
+  // ── 12.2s: reset all for loop ──
+  tl.add(() => {
+    particlesActive = false;
+    particles.length = 0;
+    if (typedInstance) { typedInstance.destroy(); typedInstance = null; }
+    document.getElementById('typed-tagline').innerHTML = '';
+    // Restore logo to iris-hidden state for next loop
+    gsap.set('#logo-img', {
+      opacity: 1, scale: 1,
+      clipPath: 'circle(0% at 50% 50%)'
+    });
+    gsap.set(['#line-top','#div-top','#div-bot','#tagline-block','#bottom-badge'], { opacity: 0 });
+    gsap.set('#ornament-ring', { opacity: 0 });
+    gsap.set('#bottom-badge', { y: 0 });
+  }, 12.1);
+
+  tl.set({}, {}, 12.2);
+  return tl;
+}
+
+window.__tl = buildTimeline();
+</script>
+</body>
+</html>
