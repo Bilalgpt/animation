@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Sheedi's Restaurant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Playfair+Display:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body {
+    width:100%; height:100%;
+    background:#0a0604;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+
+  #stage {
+    width:1080px; height:1080px;
+    position:relative;
+    background:#0a0604;
+    overflow:hidden;
+  }
+
+  /* Responsive scale */
+  @media (max-width:1080px) {
+    #stage { transform:scale(0.5); transform-origin:center center; }
+  }
+
+  /* ===== CANVASES ===== */
+  #bgCanvas, #particleCanvas {
+    position:absolute; inset:0; width:100%; height:100%;
+    pointer-events:none;
+  }
+  #bgCanvas    { z-index:0; }
+  #particleCanvas { z-index:3; }
+
+  /* ===== RADIAL GLOW ===== */
+  .bg-glow {
+    position:absolute;
+    width:720px; height:720px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(180,120,30,0.20) 0%, rgba(120,60,10,0.08) 50%, transparent 75%);
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    z-index:1;
+    opacity:0;
+  }
+
+  /* ===== ORNAMENT RING ===== */
+  #ornament-ring {
+    position:absolute;
+    width:640px; height:640px;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%) rotate(0deg);
+    z-index:2;
+    opacity:0;
+  }
+
+  /* ===== LOGO IMAGE ===== */
+  #logo-img {
+    position:absolute;
+    width:460px;
+    top:50%; left:50%;
+    transform:translate(-50%,-54%) scale(0);
+    transform-origin:center center;
+    z-index:4;
+    opacity:0;
+    filter:drop-shadow(0 0 28px rgba(212,165,50,0.55)) drop-shadow(0 0 60px rgba(200,140,20,0.3));
+  }
+
+  /* ===== SHIMMER ===== */
+  #shimmer {
+    position:absolute;
+    width:480px; height:480px;
+    top:50%; left:50%;
+    transform:translate(-50%,-54%);
+    z-index:5;
+    pointer-events:none;
+    opacity:0;
+    background:linear-gradient(110deg,
+      transparent 30%,
+      rgba(255,220,100,0.25) 48%,
+      rgba(255,240,160,0.45) 50%,
+      rgba(255,220,100,0.25) 52%,
+      transparent 70%);
+    background-size:300% 100%;
+    background-position:150% 0;
+  }
+
+  /* ===== TOP TEXT ===== */
+  #line-top {
+    position:absolute;
+    top:76px; left:0; right:0;
+    text-align:center;
+    font-family:'Cinzel', serif;
+    font-size:21px;
+    font-weight:400;
+    color:rgba(200,165,80,0.9);
+    letter-spacing:0.38em;
+    z-index:6;
+    opacity:0;
+  }
+
+  /* ===== DIVIDERS ===== */
+  .divider-svg {
+    position:absolute;
+    left:50%; transform:translateX(-50%);
+    z-index:6;
+    opacity:0;
+  }
+  #div-top { top:108px; }
+  #div-bot { bottom:218px; }
+
+  /* ===== TAGLINE BLOCK ===== */
+  #tagline-block {
+    position:absolute;
+    bottom:130px;
+    left:0; right:0;
+    text-align:center;
+    z-index:6;
+    opacity:0;
+  }
+
+  /* Label above tagline — word float-in */
+  #tagline-label {
+    font-family:'Cinzel', serif;
+    font-size:13px;
+    font-weight:400;
+    color:rgba(180,145,60,0.7);
+    letter-spacing:0.5em;
+    text-transform:uppercase;
+    margin-bottom:14px;
+    overflow:hidden;
+  }
+  #tagline-label .word {
+    display:inline-block;
+    margin:0 4px;
+    opacity:0;
+    transform:translateY(20px);
+  }
+
+  /* Typed tagline text */
+  #tagline-typed-wrap {
+    min-height:52px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #typed-tagline {
+    font-family:'Cormorant Garamond', serif;
+    font-size:34px;
+    font-style:italic;
+    font-weight:300;
+    color:rgba(220,190,110,0.92);
+    letter-spacing:0.12em;
+    text-shadow:0 0 30px rgba(212,165,50,0.35), 0 0 60px rgba(200,140,20,0.18);
+  }
+
+  /* Typed.js cursor — golden pulsing bar */
+  .typed-cursor {
+    font-family:'Cormorant Garamond', serif;
+    font-size:34px;
+    font-style:normal;
+    color:rgba(212,175,55,0.9);
+    text-shadow:0 0 12px rgba(212,175,55,0.8);
+    animation:cursorBlink 0.8s ease-in-out infinite;
+    margin-left:2px;
+  }
+  @keyframes cursorBlink {
+    0%, 100% { opacity:1; }
+    50%       { opacity:0; }
+  }
+
+  /* ===== BOTTOM BADGE ===== */
+  #bottom-badge {
+    position:absolute;
+    bottom:52px;
+    left:50%; transform:translateX(-50%);
+    z-index:6;
+    display:flex; align-items:center; gap:18px;
+    opacity:0;
+    white-space:nowrap;
+  }
+  .badge-dot {
+    width:5px; height:5px; border-radius:50%;
+    background:#c8a040;
+    flex-shrink:0;
+  }
+  #bottom-badge span {
+    font-family:'Cinzel', serif;
+    font-size:17px;
+    font-weight:400;
+    color:rgba(200,165,80,0.82);
+    letter-spacing:0.42em;
+    text-transform:uppercase;
+  }
+
+  /* ===== CHAR SPANS ===== */
+  .char { display:inline-block; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="bgCanvas"></canvas>
+  <canvas id="particleCanvas"></canvas>
+  <div class="bg-glow"></div>
+
+  <!-- Ornament ring -->
+  <svg id="ornament-ring" viewBox="0 0 640 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="320" cy="320" r="308" stroke="rgba(200,160,50,0.35)" stroke-width="1" stroke-dasharray="4 8"/>
+    <circle cx="320" cy="320" r="288" stroke="rgba(200,160,50,0.18)" stroke-width="0.8"/>
+    <g stroke="rgba(212,175,60,0.7)" stroke-width="1.5">
+      <line x1="320" y1="8"  x2="320" y2="30"/> <line x1="308" y1="12" x2="320" y2="8"/> <line x1="332" y1="12" x2="320" y2="8"/>
+      <line x1="527" y1="113" x2="512" y2="128"/>
+      <line x1="632" y1="320" x2="610" y2="320"/> <line x1="628" y1="308" x2="632" y2="320"/> <line x1="628" y1="332" x2="632" y2="320"/>
+      <line x1="527" y1="527" x2="512" y2="512"/>
+      <line x1="320" y1="632" x2="320" y2="610"/> <line x1="308" y1="628" x2="320" y2="632"/> <line x1="332" y1="628" x2="320" y2="632"/>
+      <line x1="113" y1="527" x2="128" y2="512"/>
+      <line x1="8"   y1="320" x2="30"  y2="320"/> <line x1="12" y1="308" x2="8" y2="320"/> <line x1="12" y1="332" x2="8" y2="320"/>
+      <line x1="113" y1="113" x2="128" y2="128"/>
+    </g>
+    <g fill="rgba(212,175,60,0.7)">
+      <polygon points="320,2 325,10 320,18 315,10"/>
+      <polygon points="638,320 630,325 622,320 630,315"/>
+      <polygon points="320,638 325,630 320,622 315,630"/>
+      <polygon points="2,320 10,325 18,320 10,315"/>
+      <polygon points="533,107 537,113 533,119 529,113"/>
+      <polygon points="533,521 537,527 533,533 529,527"/>
+      <polygon points="107,533 113,537 119,533 113,529"/>
+      <polygon points="107,107 113,111 119,107 113,103"/>
+    </g>
+    <circle class="ring-stroke" cx="320" cy="320" r="298" stroke="rgba(212,175,55,0.55)" stroke-width="1.5" stroke-dasharray="1880" stroke-dashoffset="1880"/>
+  </svg>
+
+  <!-- Logo -->
+  <img id="logo-img" src="shedi_trans.png" alt="The Sheedi's Restaurant">
+
+  <!-- Shimmer -->
+  <div id="shimmer"></div>
+
+  <!-- Top text -->
+  <div id="line-top">FINE DINING &nbsp;&bull;&nbsp; AUTHENTIC CUISINE</div>
+
+  <!-- Dividers -->
+  <svg class="divider-svg" id="div-top" width="420" height="10" viewBox="0 0 420 10">
+    <line class="dline" x1="0" y1="5" x2="185" y2="5" stroke="rgba(200,160,50,0.6)" stroke-width="1"/>
+    <polygon points="210,1 215,5 210,9 205,5" fill="rgba(212,175,60,0.8)"/>
+    <line class="dline" x1="235" y1="5" x2="420" y2="5" stroke="rgba(200,160,50,0.6)" stroke-width="1"/>
+  </svg>
+  <svg class="divider-svg" id="div-bot" width="420" height="10" viewBox="0 0 420 10">
+    <line class="dline" x1="0" y1="5" x2="185" y2="5" stroke="rgba(200,160,50,0.6)" stroke-width="1"/>
+    <polygon points="210,1 215,5 210,9 205,5" fill="rgba(212,175,60,0.8)"/>
+    <line class="dline" x1="235" y1="5" x2="420" y2="5" stroke="rgba(200,160,50,0.6)" stroke-width="1"/>
+  </svg>
+
+  <!-- Tagline block -->
+  <div id="tagline-block">
+    <div id="tagline-label">
+      <span class="word">our</span>
+      <span class="word">promise</span>
+      <span class="word">to</span>
+      <span class="word">you</span>
+    </div>
+    <div id="tagline-typed-wrap">
+      <span id="typed-tagline"></span>
+    </div>
+  </div>
+
+  <!-- Bottom badge -->
+  <div id="bottom-badge">
+    <div class="badge-dot"></div>
+    <span>Est. 2010</span>
+    <div class="badge-dot"></div>
+  </div>
+</div>
+
+<script src="../libs/gsap.min.js"></script>
+<script src="../libs/splitting.min.js"></script>
+<script src="../libs/anime.min.js"></script>
+<script src="../libs/typed.min.js"></script>
+
+<script>
+// ============================================================
+// BACKGROUND
+// ============================================================
+const bgCanvas = document.getElementById('bgCanvas');
+const bgCtx = bgCanvas.getContext('2d');
+bgCanvas.width = 1080; bgCanvas.height = 1080;
+(function drawBg() {
+  const grad = bgCtx.createRadialGradient(540, 540, 0, 540, 540, 720);
+  grad.addColorStop(0,   'rgba(28,16,4,1)');
+  grad.addColorStop(0.5, 'rgba(14,8,2,1)');
+  grad.addColorStop(1,   'rgba(4,2,1,1)');
+  bgCtx.fillStyle = grad;
+  bgCtx.fillRect(0, 0, 1080, 1080);
+  for (let i = 0; i < 6000; i++) {
+    bgCtx.fillStyle = `rgba(200,160,60,${Math.random() * 0.025})`;
+    bgCtx.fillRect(Math.random() * 1080, Math.random() * 1080, 1, 1);
+  }
+})();
+
+// ============================================================
+// PARTICLES
+// ============================================================
+const pCanvas = document.getElementById('particleCanvas');
+const pCtx = pCanvas.getContext('2d');
+pCanvas.width = 1080; pCanvas.height = 1080;
+const particles = [];
+let particlesActive = false;
+function spawnParticle() {
+  const angle = Math.random() * Math.PI * 2;
+  const r = 80 + Math.random() * 220;
+  particles.push({
+    x: 540 + Math.cos(angle) * r * 0.4,
+    y: 540 + Math.sin(angle) * r * 0.4,
+    vx: (Math.random() - 0.5) * 0.6,
+    vy: -(0.4 + Math.random() * 0.8),
+    alpha: 0,
+    maxAlpha: 0.35 + Math.random() * 0.45,
+    size: 1.2 + Math.random() * 2.2,
+    life: 0,
+    maxLife: 120 + Math.random() * 100,
+    color: `hsl(${38 + Math.random() * 20},85%,${60 + Math.random() * 25}%)`
+  });
+}
+(function animParticles() {
+  pCtx.clearRect(0, 0, 1080, 1080);
+  if (particlesActive && Math.random() < 0.35) spawnParticle();
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.life++; p.x += p.vx; p.y += p.vy;
+    p.vx += (Math.random() - 0.5) * 0.04;
+    const t = p.life / p.maxLife;
+    p.alpha = t < 0.2 ? (t/0.2)*p.maxAlpha : t > 0.7 ? ((1-t)/0.3)*p.maxAlpha : p.maxAlpha;
+    pCtx.save();
+    pCtx.globalAlpha = p.alpha;
+    pCtx.fillStyle = p.color;
+    pCtx.shadowColor = p.color;
+    pCtx.shadowBlur = 4;
+    pCtx.beginPath();
+    pCtx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
+    pCtx.fill();
+    pCtx.restore();
+    if (p.life >= p.maxLife) particles.splice(i, 1);
+  }
+  requestAnimationFrame(animParticles);
+})();
+
+// ============================================================
+// SPLITTING.JS — top line chars only
+// ============================================================
+Splitting({ target: '#line-top', by: 'chars' });
+
+// ============================================================
+// TYPED.JS — tagline cycling
+// ============================================================
+const TAGLINES = [
+  "Where Every Meal Tells a Story",
+  "A Culinary Journey Awaits You",
+  "Taste the Tradition, Feel the Love",
+  "Crafted with Passion, Served with Grace"
+];
+let typedInstance = null;
+
+function startTyped() {
+  if (typedInstance) { typedInstance.destroy(); typedInstance = null; }
+  document.getElementById('typed-tagline').innerHTML = '';
+  typedInstance = new Typed('#typed-tagline', {
+    strings: TAGLINES,
+    typeSpeed: 42,
+    backSpeed: 22,
+    backDelay: 2200,
+    startDelay: 0,
+    loop: true,
+    showCursor: true,
+    cursorChar: '|',
+  });
+}
+
+// ============================================================
+// ANIME.JS — ring stroke draw + dividers
+// ============================================================
+function drawRingStroke() {
+  anime({
+    targets: '.ring-stroke',
+    strokeDashoffset: [1880, 0],
+    easing: 'easeInOutQuad',
+    duration: 2200,
+    delay: 600
+  });
+}
+function drawDividers() {
+  anime({
+    targets: '#div-top .dline, #div-bot .dline',
+    strokeDashoffset: [200, 0],
+    easing: 'easeOutCubic',
+    duration: 700,
+    delay: (el, i) => i * 120
+  });
+}
+
+// ============================================================
+// TAGLINE LABEL — word float-up (anime.js)
+// ============================================================
+function floatLabelWords() {
+  anime({
+    targets: '#tagline-label .word',
+    opacity: [0, 1],
+    translateY: [20, 0],
+    easing: 'easeOutCubic',
+    duration: 500,
+    delay: anime.stagger(120)
+  });
+}
+
+// ============================================================
+// GSAP MASTER TIMELINE
+// ============================================================
+function buildTimeline() {
+  const tl = gsap.timeline({
+    repeat: -1,
+    repeatDelay: 1.2,
+    onRepeat: () => {
+      // Reset word labels for re-animation
+      gsap.set('#tagline-label .word', { opacity: 0, translateY: 20 });
+      // Reset shimmer
+      document.getElementById('shimmer').style.backgroundPosition = '150% 0';
+    }
+  });
+
+  // 0.0s — bg glow
+  tl.to('.bg-glow', { opacity:1, duration:2, ease:'power2.inOut' }, 0);
+
+  // 0.4s — ring appears, starts rotating
+  tl.to('#ornament-ring', { opacity:1, duration:0.8, ease:'power2.out' }, 0.4);
+  tl.to('#ornament-ring', { rotation:360, duration:14, ease:'none', transformOrigin:'50% 50%', repeat:-1 }, 0.4);
+  tl.add(drawRingStroke, 0.4);
+
+  // 0.8s — logo stamps in
+  tl.to('#logo-img', { opacity:1, scale:1, duration:0.9, ease:'back.out(1.8)', transformOrigin:'50% 50%' }, 0.8);
+  // logo glow breathe
+  tl.to('#logo-img', {
+    filter:'drop-shadow(0 0 42px rgba(212,165,50,0.78)) drop-shadow(0 0 85px rgba(200,140,20,0.48))',
+    duration:1.4, ease:'sine.inOut', yoyo:true, repeat:-1
+  }, 1.8);
+
+  // 1.0s — particles start
+  tl.add(() => { particlesActive = true; }, 1.0);
+
+  // 1.4s — shimmer sweep
+  tl.to('#shimmer', { opacity:1, duration:0.01 }, 1.4);
+  tl.to('#shimmer', { backgroundPosition:'-150% 0', duration:1.0, ease:'power2.inOut' }, 1.4);
+  tl.to('#shimmer', { opacity:0, duration:0.3 }, 2.3);
+
+  // 1.8s — top line chars drop in
+  tl.to('#line-top', { opacity:1, duration:0.01 }, 1.8);
+  tl.from('#line-top .char', {
+    opacity:0, y:-18, rotateX:-60,
+    stagger:0.045, duration:0.5, ease:'back.out(1.5)'
+  }, 1.8);
+
+  // 2.4s — dividers draw
+  tl.to('#div-top', { opacity:1, duration:0.01 }, 2.4);
+  tl.to('#div-bot', { opacity:1, duration:0.01 }, 2.5);
+  tl.add(drawDividers, 2.4);
+
+  // 3.0s — tagline block fades in, label words float up, Typed starts
+  tl.to('#tagline-block', { opacity:1, y:0, duration:0.6, ease:'power2.out' }, 3.0);
+  tl.from('#tagline-block', { y:16, duration:0.6, ease:'power2.out' }, 3.0);
+  tl.add(floatLabelWords, 3.1);
+  tl.add(startTyped, 3.4);
+
+  // 3.8s — bottom badge
+  tl.to('#bottom-badge', { opacity:1, duration:0.6, ease:'power2.out' }, 3.8);
+  tl.from('#bottom-badge', { y:12, duration:0.6, ease:'power2.out' }, 3.8);
+
+  // 4.5s — logo gentle pulse
+  tl.to('#logo-img', { scale:1.03, duration:2.5, ease:'sine.inOut', yoyo:true, repeat:2 }, 4.5);
+
+  // 5.5s — second shimmer
+  tl.to('#shimmer', { opacity:1, duration:0.01 }, 5.5);
+  tl.to('#shimmer', { backgroundPosition:'150% 0', duration:0.01 }, 5.49);
+  tl.to('#shimmer', { backgroundPosition:'-150% 0', duration:1.0, ease:'power2.inOut' }, 5.5);
+  tl.to('#shimmer', { opacity:0, duration:0.3 }, 6.4);
+
+  // 10.5s — fade out
+  tl.to(['#logo-img','#line-top','#div-top','#div-bot','#tagline-block','#bottom-badge','#ornament-ring','.bg-glow'], {
+    opacity:0, duration:0.8, ease:'power2.in', stagger:0.04
+  }, 10.5);
+  tl.add(() => {
+    particlesActive = false;
+    if (typedInstance) { typedInstance.destroy(); typedInstance = null; }
+    document.getElementById('typed-tagline').innerHTML = '';
+    gsap.set(['#logo-img','#line-top','#div-top','#div-bot','#tagline-block','#bottom-badge'], { clearProps:'opacity,transform' });
+    gsap.set(['#logo-img'], { opacity:0, scale:0 });
+    gsap.set(['#line-top','#div-top','#div-bot','#tagline-block','#bottom-badge'], { opacity:0 });
+  }, 11.2);
+
+  tl.set({}, {}, 12.0);
+  return tl;
+}
+
+buildTimeline();
+</script>
+</body>
+</html>
