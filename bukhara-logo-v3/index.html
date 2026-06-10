@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bukhara — Candlelight</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  width:100%; height:100%;
+  background:#080503;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+}
+
+#stage {
+  position:relative;
+  width:540px; height:960px;
+  background:#0f0804;
+  overflow:hidden;
+}
+
+/* ── Glow behind logo ─────────────────────────── */
+#glow {
+  position:absolute;
+  left:50%; top:43.5%;
+  transform:translate(-50%,-50%);
+  width:520px; height:520px;
+  border-radius:50%;
+  background:radial-gradient(circle,
+    rgba(255,150,30,0.22) 0%,
+    rgba(210,110,20,0.10) 45%,
+    transparent 72%);
+  pointer-events:none;
+  opacity:0;
+}
+
+/* ── Ember canvas ─────────────────────────────── */
+#ember-canvas {
+  position:absolute; inset:0;
+  pointer-events:none; z-index:1;
+}
+
+/* ── Logo ─────────────────────────────────────── */
+#logo-wrap {
+  position:absolute;
+  left:50%; top:43.5%;
+  transform:translate(-50%,-50%);
+  opacity:0; z-index:2;
+}
+#logo-img {
+  width:780px; display:block;
+  filter: drop-shadow(0 0 16px rgba(255,190,50,0.65))
+          drop-shadow(0 0 44px rgba(220,120,20,0.28));
+}
+
+/* ── SVG ring ─────────────────────────────────── */
+#ring-wrap {
+  position:absolute;
+  left:50%; top:43.5%;
+  transform:translate(-50%,-50%);
+  width:660px; height:660px;
+  z-index:2; pointer-events:none; opacity:0;
+}
+#ring-wrap svg { width:100%; height:100%; overflow:visible; }
+
+/* ── Shimmer ──────────────────────────────────── */
+#shimmer {
+  position:absolute; top:0; left:-70%; width:55%; height:100%;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,210,100,0.0) 30%,
+    rgba(255,220,130,0.28) 50%,
+    rgba(255,210,100,0.0) 70%,
+    transparent 100%);
+  z-index:5; pointer-events:none; mix-blend-mode:screen; opacity:0;
+}
+
+/* ── Top line ─────────────────────────────────── */
+#line-top {
+  position:absolute; top:52px; left:50%;
+  transform:translateX(-50%);
+  font-family:'Cinzel',serif; font-size:12px; font-weight:600;
+  letter-spacing:0.30em; text-transform:uppercase;
+  color:rgba(215,175,85,0.88); white-space:nowrap;
+  opacity:0; z-index:3;
+}
+#line-top .char { display:inline-block; }
+
+/* ── Dividers ─────────────────────────────────── */
+.divider {
+  position:absolute; left:50%;
+  transform:translateX(-50%);
+  display:flex; align-items:center; gap:9px;
+  opacity:0; white-space:nowrap; z-index:3;
+}
+#div-top { top:82px; }
+#div-bot { top:812px; }
+.dline { height:1px; background:rgba(195,148,44,0.50); width:0; }
+.ddot  { width:4px; height:4px; border-radius:50%; background:rgba(200,155,50,0.85); flex-shrink:0; }
+
+/* ── Tagline block ────────────────────────────── */
+#tagline-block {
+  position:absolute; top:858px; left:50%;
+  transform:translateX(-50%);
+  opacity:0; z-index:3;
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  text-align:center;
+}
+#tagline-label {
+  font-family:'Cinzel',serif; font-size:8.5px; letter-spacing:0.34em;
+  text-transform:uppercase; color:rgba(195,148,44,0.65);
+}
+#typed-line {
+  font-family:'Cormorant Garamond',serif; font-style:italic;
+  font-size:17px; font-weight:300;
+  color:rgba(228,193,112,0.90); letter-spacing:0.05em;
+  min-height:24px;
+}
+.typed-cursor { color:rgba(255,195,55,0.85); animation:blink 0.9s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ── Badge ────────────────────────────────────── */
+#badge {
+  position:absolute; top:920px; left:50%;
+  transform:translateX(-50%);
+  font-family:'Cinzel',serif; font-size:10.5px;
+  letter-spacing:0.22em; color:rgba(200,158,55,0.80);
+  opacity:0; z-index:3;
+  display:flex; align-items:center; gap:9px; white-space:nowrap;
+}
+.bdot { width:4px; height:4px; border-radius:50%; background:rgba(200,158,55,0.8); }
+
+/* ── Horizontal rule under badge ─────────────── */
+#hr-bot {
+  position:absolute; top:944px; left:50%;
+  transform:translateX(-50%);
+  width:0; height:1px; background:rgba(180,130,35,0.30);
+  z-index:3; opacity:0;
+}
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <div id="glow"></div>
+  <canvas id="ember-canvas"></canvas>
+
+  <div id="ring-wrap">
+    <svg viewBox="0 0 660 660" fill="none">
+      <!-- Outer decorative ring -->
+      <circle id="r-outer" cx="330" cy="330" r="310"
+        stroke="rgba(190,148,48,0.28)" stroke-width="1"
+        stroke-dasharray="1948" stroke-dashoffset="1948" fill="none"/>
+      <!-- Inner thin ring -->
+      <circle id="r-inner" cx="330" cy="330" r="288"
+        stroke="rgba(190,148,48,0.14)" stroke-width="0.5"
+        stroke-dasharray="1810" stroke-dashoffset="1810" fill="none"/>
+      <!-- 8 ornament dots on outer ring -->
+      <g id="ring-dots" opacity="0">
+        <circle cx="330" cy="20"  r="3" fill="rgba(210,168,60,0.7)"/>
+        <circle cx="330" cy="640" r="3" fill="rgba(210,168,60,0.7)"/>
+        <circle cx="20"  cy="330" r="3" fill="rgba(210,168,60,0.7)"/>
+        <circle cx="640" cy="330" r="3" fill="rgba(210,168,60,0.7)"/>
+        <circle cx="110" cy="110" r="2" fill="rgba(210,168,60,0.45)"/>
+        <circle cx="550" cy="110" r="2" fill="rgba(210,168,60,0.45)"/>
+        <circle cx="110" cy="550" r="2" fill="rgba(210,168,60,0.45)"/>
+        <circle cx="550" cy="550" r="2" fill="rgba(210,168,60,0.45)"/>
+      </g>
+    </svg>
+  </div>
+
+  <div id="shimmer"></div>
+
+  <div id="logo-wrap">
+    <img id="logo-img" src="bukhara-logo.png" alt="Bukhara Logo">
+  </div>
+
+  <div id="line-top">BUKHARA INDIAN RESTORAN</div>
+
+  <div class="divider" id="div-top">
+    <div class="dline" id="dtl"></div>
+    <div class="ddot"></div><div class="ddot" style="opacity:.45"></div><div class="ddot"></div>
+    <div class="dline" id="dtr"></div>
+  </div>
+
+  <div class="divider" id="div-bot">
+    <div class="dline" id="dbl"></div>
+    <div class="ddot"></div><div class="ddot" style="opacity:.45"></div><div class="ddot"></div>
+    <div class="dline" id="dbr"></div>
+  </div>
+
+  <div id="tagline-block">
+    <div id="tagline-label">A PROMISE OF FLAVOUR</div>
+    <div id="typed-line"></div>
+  </div>
+
+  <div id="badge">
+    <div class="bdot"></div>
+    <span>Est. 2010 &nbsp;·&nbsp; Baku, Azerbaijan</span>
+    <div class="bdot"></div>
+  </div>
+
+  <div id="hr-bot"></div>
+
+</div>
+
+<script src="../libs/gsap.min.js"></script>
+<script src="../libs/splitting.min.js"></script>
+<script src="../libs/anime.min.js"></script>
+<script src="../libs/typed.min.js"></script>
+<script>
+
+// ── Splitting ─────────────────────────────────────────────────────────────────
+Splitting({ target:'#line-top', by:'chars' });
+
+// ── Ember particles (canvas) ──────────────────────────────────────────────────
+(function() {
+  const cvs = document.getElementById('ember-canvas');
+  const ctx = cvs.getContext('2d');
+  cvs.width  = 540;
+  cvs.height = 960;
+
+  const embers = [];
+  const LOGO_CX = 270;
+  const LOGO_CY = 418;  // 960 * 0.435
+
+  function spawnEmber() {
+    const spread = 160;
+    embers.push({
+      x: LOGO_CX + (Math.random()-0.5)*spread,
+      y: LOGO_CY + 80 + Math.random()*60,
+      vx: (Math.random()-0.5)*0.4,
+      vy: -(0.6 + Math.random()*1.1),
+      life: 0,
+      maxLife: 80 + Math.random()*100,
+      r: 0.8 + Math.random()*1.6,
+      hue: 28 + Math.random()*22,
+    });
+  }
+
+  let active = false;
+  window._embersActive = function(on) { active = on; };
+
+  let frame = 0;
+  function loop() {
+    requestAnimationFrame(loop);
+    ctx.clearRect(0,0,540,960);
+    if (!active) return;
+    frame++;
+    // Spawn ~1 per 3 frames
+    if (frame % 3 === 0) spawnEmber();
+
+    for (let i = embers.length-1; i >= 0; i--) {
+      const e = embers[i];
+      e.x  += e.vx + Math.sin(e.life*0.08)*0.3;
+      e.y  += e.vy;
+      e.vy *= 0.995;
+      e.life++;
+      const t = e.life / e.maxLife;
+      const alpha = t < 0.15 ? t/0.15 : t > 0.7 ? 1-(t-0.7)/0.3 : 1;
+      ctx.beginPath();
+      ctx.arc(e.x, e.y, e.r, 0, Math.PI*2);
+      ctx.fillStyle = `hsla(${e.hue}, 90%, 72%, ${alpha * 0.75})`;
+      ctx.fill();
+      if (e.life >= e.maxLife) embers.splice(i,1);
+    }
+  }
+  loop();
+})();
+
+// ── GSAP Timeline ─────────────────────────────────────────────────────────────
+const tl = gsap.timeline({ repeat:-1 });
+
+// 0.3s — glow fades in, embers start
+tl.call(()=>{ window._embersActive(true); }, [], 0.3);
+tl.to('#glow', { opacity:1, duration:1.6, ease:'power1.out' }, 0.3);
+
+// 1.0s — logo rises in (smooth, no bounce)
+tl.to('#logo-wrap', {
+  opacity:1, y:0, duration:1.2, ease:'power2.out'
+}, 1.0);
+tl.from('#logo-wrap', { y:22 }, 1.0); // subtle rise
+
+// 1.6s — glow breathe starts
+tl.call(()=>{
+  gsap.to('#glow', {
+    scale:1.08, opacity:0.85, duration:2.8,
+    ease:'sine.inOut', yoyo:true, repeat:-1
+  });
+}, [], 1.6);
+
+// 1.8s — shimmer
+tl.set('#shimmer', { opacity:1, left:'-70%' }, 1.8);
+tl.to('#shimmer', { left:'130%', duration:0.9, ease:'power2.inOut' }, 1.8);
+tl.set('#shimmer', { opacity:0 }, 2.75);
+
+// 2.0s — ring draws in
+tl.call(()=>{
+  document.getElementById('ring-wrap').style.opacity = '1';
+  anime({ targets:'#r-outer',
+    strokeDashoffset:[1948,0], duration:1800, easing:'easeInOutSine' });
+  anime({ targets:'#r-inner',
+    strokeDashoffset:[1810,0], duration:2000, delay:200, easing:'easeInOutSine' });
+  anime({ targets:'#ring-dots',
+    opacity:[0,1], duration:500, delay:1500 });
+}, [], 2.0);
+
+// 2.8s — top text chars drop in
+tl.set('#line-top', { opacity:1 }, 2.8);
+tl.from('#line-top .char', {
+  opacity:0, y:10, duration:0.45,
+  stagger:{ each:0.04, from:'center' },
+  ease:'power2.out'
+}, 2.8);
+
+// 3.4s — dividers draw
+tl.call(()=>{
+  document.getElementById('div-top').style.opacity = '1';
+  document.getElementById('div-bot').style.opacity = '1';
+  anime({ targets:['#dtl','#dtr','#dbl','#dbr'],
+    width:[0,130], duration:650, easing:'easeOutCubic',
+    delay:anime.stagger(55) });
+}, [], 3.4);
+
+// 4.0s — tagline block + Typed.js
+tl.to('#tagline-block', { opacity:1, duration:0.6, ease:'power1.out' }, 4.0);
+tl.call(()=>{
+  new Typed('#typed-line', {
+    strings:[
+      'Where Every Dish Tells a Story',
+      'A Journey Through Mughal Flavours',
+      'Authentic Tastes, Timeless Traditions',
+      'Crafted with Spice &amp; Passion'
+    ],
+    typeSpeed:40, backSpeed:20, backDelay:2200,
+    loop:true, showCursor:true, cursorChar:'|'
+  });
+}, [], 4.0);
+
+// 4.8s — logo gentle scale breathe
+tl.call(()=>{
+  gsap.to('#logo-wrap', {
+    scale:1.012, duration:3.6,
+    ease:'sine.inOut', yoyo:true, repeat:-1
+  });
+}, [], 4.8);
+
+// 5.2s — badge + hr slide up
+tl.from('#badge', { y:14, opacity:0, duration:0.6, ease:'power2.out' }, 5.2);
+tl.set('#badge', { opacity:1 }, 5.2);
+tl.to('#hr-bot', { width:180, opacity:1, duration:0.7, ease:'power2.out' }, 5.6);
+
+// 7.5s — second shimmer
+tl.set('#shimmer', { opacity:1, left:'-70%' }, 7.5);
+tl.to('#shimmer', { left:'130%', duration:0.9, ease:'power2.inOut' }, 7.5);
+tl.set('#shimmer', { opacity:0 }, 8.45);
+
+// 10.5s → fade out (reverse order)
+tl.to(['#badge','#hr-bot'],        { opacity:0, duration:0.5 }, 10.5);
+tl.to('#tagline-block',            { opacity:0, duration:0.5 }, 10.7);
+tl.to(['#div-top','#div-bot'],     { opacity:0, duration:0.5 }, 10.9);
+tl.to('#line-top',                 { opacity:0, duration:0.5 }, 11.0);
+tl.to('#ring-wrap',                { opacity:0, duration:0.7 }, 11.2);
+tl.to(['#logo-wrap','#glow'],      { opacity:0, duration:1.0, ease:'power1.in' }, 11.5);
+
+// 12.8s — stop embers + reset
+tl.call(()=>{
+  window._embersActive(false);
+  gsap.killTweensOf(['#logo-wrap','#glow']);
+  gsap.set('#logo-wrap', { opacity:0, scale:1, y:0 });
+  gsap.set('#glow', { opacity:0, scale:1 });
+  document.getElementById('ring-wrap').style.opacity = '0';
+  document.getElementById('div-top').style.opacity   = '0';
+  document.getElementById('div-bot').style.opacity   = '0';
+  document.getElementById('line-top').style.opacity  = '0';
+  document.getElementById('tagline-block').style.opacity = '0';
+  document.getElementById('badge').style.opacity     = '0';
+  document.getElementById('hr-bot').style.opacity    = '0';
+  gsap.set('#hr-bot', { width:0 });
+  const ro = document.getElementById('r-outer');
+  const ri = document.getElementById('r-inner');
+  if (ro) ro.setAttribute('stroke-dashoffset','1948');
+  if (ri) ri.setAttribute('stroke-dashoffset','1810');
+  document.getElementById('ring-dots').style.opacity = '0';
+}, [], 12.8);
+
+tl.to({}, { duration:0.8 }, 12.8); // total ~13.6s
+</script>
+</body>
+</html>
