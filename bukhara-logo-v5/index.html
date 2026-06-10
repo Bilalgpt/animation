@@ -19,6 +19,7 @@ html, body {
   width:540px; height:960px;
   background:radial-gradient(ellipse at 50% 60%, #110d08 0%, #060402 65%);
   flex-shrink:0; overflow:hidden;
+  transform-origin:center center;
 }
 
 /* Table surface hint at bottom */
@@ -302,6 +303,18 @@ html, body {
 
 <script src="../libs/gsap.min.js"></script>
 <script>
+
+// ── Fit stage to viewport ─────────────────────────────────────────────────────
+(function fitStage() {
+  const el = document.getElementById('stage');
+  const scale = Math.min(window.innerWidth / 540, window.innerHeight / 960);
+  el.style.transform = 'scale(' + scale + ')';
+})();
+window.addEventListener('resize', function() {
+  const el = document.getElementById('stage');
+  const scale = Math.min(window.innerWidth / 540, window.innerHeight / 960);
+  el.style.transform = 'scale(' + scale + ')';
+});
 
 const tl = gsap.timeline({ repeat:-1 });
 
