@@ -13,32 +13,31 @@ html, body {
   display:flex; align-items:center; justify-content:center;
   overflow:hidden;
 }
-
 #stage-wrap {
   position:relative;
   width:540px; height:960px;
   overflow:hidden;
 }
 
-/* p5.js canvas (Perlin flow field — base layer) */
+/* p5.js canvas — base layer */
 #p5-canvas-wrap {
-  position:absolute; inset:0; z-index:0;
+  position:absolute; inset:0; z-index:0; overflow:hidden;
 }
 #p5-canvas-wrap canvas {
-  position:absolute; top:0; left:0;
+  position:absolute !important; top:0 !important; left:0 !important;
 }
 
-/* Three.js canvas (particle sphere — above flow) */
+/* Three.js canvas — above flow */
 #three-canvas {
-  position:absolute; inset:0; z-index:1;
-  pointer-events:none;
+  position:absolute; top:0; left:0;
+  width:540px !important; height:960px !important;
+  z-index:1; pointer-events:none;
 }
 
-/* Pulse rings fired on logo stamp */
+/* Pulse rings */
 #pulse-rings {
   position:absolute;
   left:50%; top:43.5%;
-  transform:translate(-50%,-50%);
   z-index:2; pointer-events:none;
 }
 .pulse-ring {
@@ -48,11 +47,9 @@ html, body {
   transform:translate(-50%,-50%) scale(0);
 }
 
-/* Content layer */
+/* Content */
 #content {
   position:absolute; inset:0; z-index:3;
-  display:flex; flex-direction:column;
-  align-items:center;
 }
 
 /* Logo */
@@ -64,8 +61,7 @@ html, body {
   opacity:0;
 }
 #logo-img {
-  width:820px;
-  display:block;
+  width:820px; display:block;
   filter: drop-shadow(0 0 18px rgba(255,195,55,0.70))
           drop-shadow(0 0 48px rgba(255,145,20,0.32));
 }
@@ -75,14 +71,10 @@ html, body {
   position:absolute;
   top:0; left:-100%; width:60%; height:100%;
   background:linear-gradient(90deg,
-    transparent 0%,
-    rgba(255,200,80,0.0) 30%,
-    rgba(255,220,120,0.32) 50%,
-    rgba(255,200,80,0.0) 70%,
-    transparent 100%);
+    transparent 0%, rgba(255,220,120,0.0) 30%,
+    rgba(255,220,120,0.32) 50%, rgba(255,220,120,0.0) 70%, transparent 100%);
   z-index:4; pointer-events:none;
-  mix-blend-mode:screen;
-  opacity:0;
+  mix-blend-mode:screen; opacity:0;
 }
 
 /* SVG ornament ring */
@@ -91,44 +83,37 @@ html, body {
   left:50%; top:43.5%;
   transform:translate(-50%,-50%);
   width:680px; height:680px;
-  z-index:3; pointer-events:none;
-  opacity:0;
+  z-index:3; pointer-events:none; opacity:0;
 }
 #ring-wrap svg { width:100%; height:100%; }
 
 /* Dividers */
 .divider {
-  position:absolute;
-  left:50%;
+  position:absolute; left:50%;
   transform:translateX(-50%);
   display:flex; align-items:center; gap:8px;
   opacity:0; white-space:nowrap;
 }
 #div-top { top:86px; }
 #div-bot { top:808px; }
-.div-line {
-  height:1px; background:rgba(210,155,40,0.55);
-  width:0; transition:none;
-}
-.div-dot {
-  width:5px; height:5px; border-radius:50%;
-  background:#c8a040; flex-shrink:0;
-}
+.div-line { height:1px; background:rgba(210,155,40,0.55); width:0; }
+.div-dot  { width:5px; height:5px; border-radius:50%; background:#c8a040; flex-shrink:0; }
 
 /* Top text */
 #line-top {
-  position:absolute; top:54px;
+  position:absolute; top:54px; left:50%;
+  transform:translateX(-50%);
   font-family:'Cinzel',serif; font-size:12.5px;
   letter-spacing:0.28em; font-weight:600;
   color:rgba(210,175,95,0.9);
-  text-transform:uppercase; opacity:0;
+  text-transform:uppercase; opacity:0; white-space:nowrap;
 }
-/* Splitting chars */
 #line-top .char { display:inline-block; }
 
 /* Tagline block */
 #tagline-block {
-  position:absolute; top:856px;
+  position:absolute; top:856px; left:50%;
+  transform:translateX(-50%);
   text-align:center; opacity:0;
   display:flex; flex-direction:column; align-items:center; gap:6px;
 }
@@ -152,19 +137,19 @@ html, body {
 
 /* Bottom badge */
 #bottom-badge {
-  position:absolute; top:918px;
+  position:absolute; top:918px; left:50%;
+  transform:translateX(-50%);
   font-family:'Cinzel',serif; font-size:11px;
   letter-spacing:0.24em; color:rgba(200,160,60,0.85);
   opacity:0; display:flex; align-items:center; gap:8px;
+  white-space:nowrap;
 }
-.badge-dot {
-  width:5px; height:5px; border-radius:50%;
-  background:#c8a040;
-}
+.badge-dot { width:5px; height:5px; border-radius:50%; background:#c8a040; }
 
-/* mo.js burst container */
+/* mo.js burst layer */
 #burst-wrap {
   position:absolute; inset:0; z-index:5; pointer-events:none;
+  overflow:visible;
 }
 </style>
 </head>
@@ -186,19 +171,15 @@ html, body {
     <svg viewBox="0 0 680 680" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle id="main-ring" cx="340" cy="340" r="320"
         stroke="rgba(200,160,64,0.30)" stroke-width="1.2"
-        stroke-dasharray="2010" stroke-dashoffset="2010"
-        fill="none"/>
+        stroke-dasharray="2010" stroke-dashoffset="2010" fill="none"/>
       <circle id="inner-ring" cx="340" cy="340" r="295"
         stroke="rgba(200,160,64,0.15)" stroke-width="0.6"
-        stroke-dasharray="1854" stroke-dashoffset="1854"
-        fill="none"/>
-      <!-- Compass ticks -->
+        stroke-dasharray="1854" stroke-dashoffset="1854" fill="none"/>
       <g id="ring-ticks" opacity="0">
         <line x1="340" y1="16" x2="340" y2="32" stroke="rgba(200,160,64,0.7)" stroke-width="1.5"/>
         <line x1="340" y1="648" x2="340" y2="664" stroke="rgba(200,160,64,0.7)" stroke-width="1.5"/>
         <line x1="16" y1="340" x2="32" y2="340" stroke="rgba(200,160,64,0.7)" stroke-width="1.5"/>
         <line x1="648" y1="340" x2="664" y2="340" stroke="rgba(200,160,64,0.7)" stroke-width="1.5"/>
-        <!-- Diagonal ticks -->
         <line x1="66" y1="66" x2="77" y2="77" stroke="rgba(200,160,64,0.45)" stroke-width="1"/>
         <line x1="603" y1="66" x2="614" y2="77" stroke="rgba(200,160,64,0.45)" stroke-width="1"/>
         <line x1="66" y1="614" x2="77" y2="603" stroke="rgba(200,160,64,0.45)" stroke-width="1"/>
@@ -210,11 +191,11 @@ html, body {
   <div id="content">
     <div id="line-top">BUKHARA INDIAN RESTORAN</div>
     <div class="divider" id="div-top">
-      <div class="div-line" id="dl-tl" style="width:0"></div>
+      <div class="div-line" id="dl-tl"></div>
       <div class="div-dot"></div>
       <div class="div-dot" style="opacity:0.5"></div>
       <div class="div-dot"></div>
-      <div class="div-line" id="dl-tr" style="width:0"></div>
+      <div class="div-line" id="dl-tr"></div>
     </div>
 
     <div id="logo-wrap">
@@ -222,11 +203,11 @@ html, body {
     </div>
 
     <div class="divider" id="div-bot">
-      <div class="div-line" id="dl-bl" style="width:0"></div>
+      <div class="div-line" id="dl-bl"></div>
       <div class="div-dot"></div>
       <div class="div-dot" style="opacity:0.5"></div>
       <div class="div-dot"></div>
-      <div class="div-line" id="dl-br" style="width:0"></div>
+      <div class="div-line" id="dl-br"></div>
     </div>
 
     <div id="tagline-block">
@@ -240,7 +221,7 @@ html, body {
     </div>
   </div>
 
-  <div id="burst-wrap" id="burst-container"></div>
+  <div id="burst-wrap"></div>
 </div>
 
 <script src="../libs/gsap.min.js"></script>
@@ -253,248 +234,214 @@ html, body {
 <script src="../libs/p5.min.js"></script>
 
 <script>
-// ─── CONSTANTS ───────────────────────────────────────────────────────────────
 const STAGE_W = 540, STAGE_H = 960;
-const LOGO_CY = STAGE_H * 0.435; // logo centre y in stage coords
+const LOGO_CY = STAGE_H * 0.435;
 const LOGO_CX = STAGE_W * 0.5;
 
-// ─── SPLITTING.JS — prep chars ───────────────────────────────────────────────
+// ── Splitting.js ─────────────────────────────────────────────────────────────
 Splitting({ target:'#line-top', by:'chars' });
 
-// ─── p5.js — Perlin flow field (base layer) ──────────────────────────────────
+// ── p5.js — Perlin flow field ─────────────────────────────────────────────────
 new p5(function(sk) {
-  const NUM = 460;
-  const particles = [];
-  let fld;
+  const NUM = 460, particles = [];
 
   function Particle() {
-    this.x = sk.random(STAGE_W);
-    this.y = sk.random(STAGE_H);
-    this.vx = 0; this.vy = 0;
-    this.age = 0;
-    this.maxAge = sk.random(120,280);
-    this.sz = sk.random(1.0,2.2);
-    this.hue = sk.random(28,52);
-    this.alpha = sk.random(55,120);
+    this.reset = function() {
+      this.x = sk.random(STAGE_W); this.y = sk.random(STAGE_H);
+      this.vx = 0; this.vy = 0; this.age = 0;
+      this.maxAge = sk.random(120,280);
+      this.sz  = sk.random(1.0,2.2);
+      this.hue = sk.random(28,52);
+      this.alpha = sk.random(55,120);
+    };
+    this.reset();
   }
+
   Particle.prototype.update = function() {
     const n = sk.noise(this.x*0.0025, this.y*0.0025, sk.frameCount*0.004);
     const angle = n * sk.TWO_PI * 2.5;
-    const speed = 0.8 + n * 0.6;
-    this.vx += Math.cos(angle) * speed * 0.22;
-    this.vy += Math.sin(angle) * speed * 0.22;
+    const spd   = 0.8 + n*0.6;
+    this.vx += Math.cos(angle)*spd*0.22; this.vy += Math.sin(angle)*spd*0.22;
     this.vx *= 0.92; this.vy *= 0.92;
-    this.x += this.vx; this.y += this.vy;
-    this.age++;
-    if (this.age > this.maxAge || this.x<0 || this.x>STAGE_W || this.y<0 || this.y>STAGE_H) {
-      this.x = sk.random(STAGE_W); this.y = sk.random(STAGE_H);
-      this.vx = 0; this.vy = 0; this.age = 0;
-      this.hue = sk.random(28,52);
-    }
+    this.x += this.vx; this.y += this.vy; this.age++;
+    if (this.age > this.maxAge || this.x<0 || this.x>STAGE_W || this.y<0 || this.y>STAGE_H)
+      this.reset();
   };
+
   Particle.prototype.draw = function() {
-    const fade = this.age < 30 ? this.age/30 : this.age > this.maxAge-30 ? (this.maxAge-this.age)/30 : 1;
-    sk.fill(this.hue, 75, 72, this.alpha * fade);
+    const f = this.age < 30 ? this.age/30 : this.age > this.maxAge-30 ? (this.maxAge-this.age)/30 : 1;
+    sk.fill(this.hue, 75, 72, this.alpha*f);
     sk.noStroke();
     sk.ellipse(this.x, this.y, this.sz);
   };
 
   sk.setup = function() {
-    const c = sk.createCanvas(STAGE_W, STAGE_H);
-    c.parent(document.getElementById('p5-canvas-wrap'));
+    const cvs = sk.createCanvas(STAGE_W, STAGE_H);
+    // Attach to our container div
+    const wrap = document.getElementById('p5-canvas-wrap');
+    wrap.appendChild(cvs.elt);
     sk.colorMode(sk.HSB, 360, 100, 100, 255);
-    for (let i=0;i<NUM;i++) particles.push(new Particle());
     sk.noiseDetail(3,0.45);
+    for (let i=0;i<NUM;i++) particles.push(new Particle());
   };
 
   sk.draw = function() {
-    // dark bg + subtle trail
-    sk.fill(30, 25, 4, 22);
-    sk.rect(0,0,STAGE_W,STAGE_H);
+    sk.fill(30,25,4,22); sk.rect(0,0,STAGE_W,STAGE_H);
     particles.forEach(p=>{ p.update(); p.draw(); });
   };
-}, document.getElementById('p5-canvas-wrap'));
+});
 
-// ─── THREE.JS — Fibonacci particle sphere ────────────────────────────────────
+// ── Three.js — Fibonacci particle sphere ─────────────────────────────────────
 (function() {
-  const renderer = new THREE.WebGLRenderer({
-    canvas: document.getElementById('three-canvas'),
-    alpha: true, antialias: true
-  });
-  renderer.setPixelRatio(window.devicePixelRatio||1);
-  renderer.setSize(STAGE_W, STAGE_H);
+  const cvs = document.getElementById('three-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas:cvs, alpha:true, antialias:true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+  renderer.setSize(STAGE_W, STAGE_H, false); // false = don't update CSS
   renderer.setClearColor(0x000000, 0);
 
-  const scene = new THREE.Scene();
+  const scene  = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(55, STAGE_W/STAGE_H, 0.1, 2000);
-  camera.position.set(0, 0, 520);
+  camera.position.set(0,0,520);
 
-  // Fibonacci sphere — 1800 pts
-  const N = 1800;
-  const positions = new Float32Array(N*3);
-  const colors = new Float32Array(N*3);
-  const phi = Math.PI*(3-Math.sqrt(5));
-  const R = 210;
-  for (let i=0;i<N;i++) {
-    const y = 1 - (i/(N-1))*2;
-    const r = Math.sqrt(1-y*y);
-    const theta = phi*i;
-    positions[i*3]   = Math.cos(theta)*r*R;
-    positions[i*3+1] = y*R;
-    positions[i*3+2] = Math.sin(theta)*r*R;
-    // gold to amber gradient by y
-    const t = (y+1)/2;
-    colors[i*3]   = 0.9 + t*0.1;
-    colors[i*3+1] = 0.5 + t*0.35;
-    colors[i*3+2] = 0.05 + t*0.05;
+  function makeSphere(count, radius) {
+    const pos = new Float32Array(count*3);
+    const col = new Float32Array(count*3);
+    const phi = Math.PI*(3-Math.sqrt(5));
+    for (let i=0;i<count;i++) {
+      const y = 1-(i/(count-1))*2;
+      const r = Math.sqrt(1-y*y);
+      const t = phi*i;
+      pos[i*3]   = Math.cos(t)*r*radius;
+      pos[i*3+1] = y*radius;
+      pos[i*3+2] = Math.sin(t)*r*radius;
+      const n = (y+1)/2;
+      col[i*3]   = 0.9+n*0.1; col[i*3+1] = 0.5+n*0.35; col[i*3+2] = 0.05;
+    }
+    return { pos, col };
   }
 
-  // Equatorial ring — 700 pts
-  const ER = 700;
-  const ePos = new Float32Array(ER*3);
-  const eCol = new Float32Array(ER*3);
-  for (let i=0;i<ER;i++) {
-    const a = (i/ER)*Math.PI*2;
-    ePos[i*3]   = Math.cos(a)*195;
-    ePos[i*3+1] = 0;
-    ePos[i*3+2] = Math.sin(a)*195;
-    eCol[i*3]   = 1.0; eCol[i*3+1] = 0.76; eCol[i*3+2] = 0.12;
+  function makeEquator(count, radius) {
+    const pos = new Float32Array(count*3);
+    const col = new Float32Array(count*3);
+    for (let i=0;i<count;i++) {
+      const a = (i/count)*Math.PI*2;
+      pos[i*3]=Math.cos(a)*radius; pos[i*3+1]=0; pos[i*3+2]=Math.sin(a)*radius;
+      col[i*3]=1.0; col[i*3+1]=0.76; col[i*3+2]=0.12;
+    }
+    return { pos, col };
   }
 
-  function makePoints(pos, col, size) {
+  function buildPoints(pos, col, size) {
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
     geo.setAttribute('color',    new THREE.BufferAttribute(col,3));
     const mat = new THREE.PointsMaterial({
       size, vertexColors:true,
       blending:THREE.AdditiveBlending,
-      transparent:true, opacity:0.55,
+      transparent:true, opacity:0,
       sizeAttenuation:true, depthWrite:false
     });
     return new THREE.Points(geo, mat);
   }
 
-  const sphere = makePoints(positions, colors, 2.2);
-  const equator = makePoints(ePos, eCol, 1.8);
-  scene.add(sphere);
-  scene.add(equator);
-
-  // start invisible, fade in via GSAP
-  sphere.material.opacity = 0;
-  equator.material.opacity = 0;
-
+  const sd = makeSphere(1800, 210);
+  const eq = makeEquator(700, 195);
+  const sphere  = buildPoints(sd.pos, sd.col, 2.2);
+  const equator = buildPoints(eq.pos, eq.col, 1.8);
+  scene.add(sphere); scene.add(equator);
   window._threeObjs = { sphere, equator };
 
-  let t=0;
-  function animate() {
-    requestAnimationFrame(animate);
+  let t = 0;
+  (function loop() {
+    requestAnimationFrame(loop);
     t += 0.003;
-    sphere.rotation.y  = t * 0.4;
+    sphere.rotation.y  = t*0.4;
     sphere.rotation.x  = Math.sin(t*0.3)*0.18;
-    equator.rotation.y = t * 0.55;
-    renderer.render(scene,camera);
-  }
-  animate();
+    equator.rotation.y = t*0.55;
+    renderer.render(scene, camera);
+  })();
 })();
 
-// ─── MASTER TIMELINE (GSAP) ───────────────────────────────────────────────────
+// ── GSAP Master Timeline ──────────────────────────────────────────────────────
 const tl = gsap.timeline({ repeat:-1, repeatDelay:0 });
 
-// 0.0s — Three.js particles fade in slowly
-tl.to({}, { duration:0.8 }, 0); // placeholder start
+// 0.0s — Three.js fade in
 tl.call(()=>{
-  if (window._threeObjs) {
-    gsap.to(window._threeObjs.sphere.material, { opacity:0.55, duration:1.2 });
-    gsap.to(window._threeObjs.equator.material, { opacity:0.35, duration:1.5 });
+  const o = window._threeObjs;
+  if (o) {
+    gsap.to(o.sphere.material,  { opacity:0.55, duration:1.4, ease:'power1.in' });
+    gsap.to(o.equator.material, { opacity:0.35, duration:1.8, ease:'power1.in' });
   }
 }, [], 0);
 
-// 0.8s — LOGO STAMP (back.out bounce) + mo.js bursts
-tl.set('#logo-wrap', { opacity:1 }, 0.8);
-tl.to('#logo-wrap', {
-  scale:1, duration:0.75, ease:'back.out(1.8)'
-}, 0.8);
+// 0.8s — Logo STAMP
+tl.set('#logo-wrap', { opacity:1, scale:0 }, 0.8);
+tl.to('#logo-wrap', { scale:1, duration:0.72, ease:'back.out(1.8)' }, 0.8);
 
 // 0.8s — Anime.js pulse rings
 tl.call(()=>{
-  anime({ targets:['#pr1','#pr2','#pr3'],
-    borderColor:[
-      { value:'rgba(255,185,40,0.75)' },
-      { value:'rgba(255,185,40,0)' }
-    ],
-    scale:[{ value:1 },{ value:2.6 }],
-    opacity:[{ value:1 },{ value:0 }],
+  anime({
+    targets:['#pr1','#pr2','#pr3'],
+    borderColor:[ {value:'rgba(255,185,40,0.75)'}, {value:'rgba(255,185,40,0)'} ],
+    scale:[      { value:1 },                      { value:2.6 } ],
+    opacity:[    { value:1 },                      { value:0 } ],
     translateX:'-50%', translateY:'-50%',
-    delay:anime.stagger(120, { start:0 }),
+    delay: anime.stagger(130, {start:0}),
     duration:1400, easing:'easeOutExpo'
   });
 }, [], 0.8);
 
-// 0.8s — mo.js burst explosion
+// 0.8s — mo.js burst
 tl.call(()=>{
-  const stageEl = document.getElementById('stage-wrap');
-  const rect = stageEl.getBoundingClientRect();
+  const rect  = document.getElementById('stage-wrap').getBoundingClientRect();
   const SCALE = rect.width / STAGE_W;
   const bx = rect.left + LOGO_CX * SCALE;
   const by = rect.top  + LOGO_CY * SCALE;
+  const rLine = 210 * SCALE;
+  const rCirc = 150 * SCALE;
+  const dotR  = 5  * SCALE;
 
-  // Line burst
   new mojs.Burst({
-    parent: '#burst-wrap',
     left:bx, top:by,
-    radius:{ 0: 210*SCALE },
+    radius:{ 0: rLine },
     count:18,
     children:{
-      shape:'line',
-      stroke:'rgba(255,195,55,0.7)',
-      strokeWidth:{ 1.5:0 },
-      scaleX:{ 0.6:0 },
-      degreeShift:'rand(-25,25)',
-      duration:900,
-      easing:'easeOutExpo'
+      shape:'line', stroke:'rgba(255,195,55,0.7)',
+      strokeWidth:{ 1.5:0 }, scaleX:{ 0.6:0 },
+      degreeShift:'rand(-25,25)', duration:900, easing:'easeOutExpo'
     }
   }).play();
 
-  // Circle burst
   new mojs.Burst({
-    parent: '#burst-wrap',
     left:bx, top:by,
-    radius:{ 0: 150*SCALE },
+    radius:{ 0: rCirc },
     count:10,
     children:{
       shape:'circle',
       fill:['rgba(255,210,80,0.8)','rgba(255,140,20,0.65)','rgba(255,220,100,0.75)'],
-      radius:{ 5*SCALE:0 },
-      duration:1100,
-      easing:'easeOutCubic',
-      delay:'rand(0,200)'
+      radius:{ [dotR]:0 },
+      duration:1100, easing:'easeOutCubic', delay:'rand(0,200)'
     }
   }).play();
 }, [], 0.8);
 
 // 1.3s — Shimmer sweep
 tl.set('#shimmer', { opacity:1, left:'-60%' }, 1.3);
-tl.to('#shimmer', { left:'120%', duration:0.85, ease:'power2.inOut', opacity:1 }, 1.3);
-tl.set('#shimmer', { opacity:0 }, 2.15);
+tl.to('#shimmer', { left:'120%', duration:0.85, ease:'power2.inOut' }, 1.3);
+tl.set('#shimmer', { opacity:0 }, 2.2);
 
-// 2.0s — SVG ring draws in (Anime.js strokeDashoffset)
+// 2.0s — SVG ring draws in
 tl.call(()=>{
+  document.getElementById('ring-wrap').style.opacity = '1';
   anime({ targets:'#main-ring',
-    strokeDashoffset:[2010,0],
-    duration:1600, easing:'easeInOutCubic',
-    begin: ()=>{ document.getElementById('ring-wrap').style.opacity='1'; }
-  });
+    strokeDashoffset:[2010,0], duration:1600, easing:'easeInOutCubic' });
   anime({ targets:'#inner-ring',
-    strokeDashoffset:[1854,0],
-    duration:1800, delay:200,
-    easing:'easeInOutCubic'
-  });
+    strokeDashoffset:[1854,0], duration:1800, delay:200, easing:'easeInOutCubic' });
   anime({ targets:'#ring-ticks',
-    opacity:[0,1], duration:600, delay:1200
-  });
+    opacity:[0,1], duration:600, delay:1200 });
 }, [], 2.0);
 
-// 2.6s — Top text chars rain down (Splitting.js + GSAP)
+// 2.6s — Chars rain down
 tl.set('#line-top', { opacity:1 }, 2.6);
 tl.from('#line-top .char', {
   y:-30, rotateX:-65, opacity:0,
@@ -503,58 +450,46 @@ tl.from('#line-top .char', {
   transformOrigin:'center top'
 }, 2.6);
 
-// 3.2s — Dividers draw outward (Anime.js)
+// 3.2s — Dividers draw out
 tl.call(()=>{
   document.getElementById('div-top').style.opacity = '1';
   document.getElementById('div-bot').style.opacity = '1';
   anime({ targets:['#dl-tl','#dl-tr','#dl-bl','#dl-br'],
-    width:[0, 120],
-    duration:700, easing:'easeOutCubic',
-    delay:anime.stagger(60)
-  });
+    width:[0,120], duration:700, easing:'easeOutCubic',
+    delay:anime.stagger(60) });
 }, [], 3.2);
 
-// 3.8s — KUTE.js color breath on tagline label
+// 3.8s — Tagline block + KUTE.js color breath + Typed.js
+tl.set('#tagline-block', { opacity:1 }, 3.8);
 tl.call(()=>{
-  document.getElementById('tagline-block').style.opacity = '1';
+  anime({ targets:'#tagline-label',
+    translateY:[14,0], opacity:[0,1], duration:500, easing:'easeOutCubic' });
+
   // KUTE.js color breath on label
-  const kTween = KUTE.fromTo('#tagline-label',
+  KUTE.fromTo('#tagline-label',
     { color:'rgba(180,130,40,0.65)' },
-    { color:'rgba(255,210,90,0.9)' },
-    { duration:1800, easing:'easingCubicInOut',
-      yoyo:true, repeat:99 }
-  );
-  kTween.start();
-  // Typed.js tagline
+    { color:'rgba(255,210,90,0.92)' },
+    { duration:1800, easing:'easingCubicInOut', yoyo:true, repeat:99 }
+  ).start();
+
+  // Typed.js taglines
   new Typed('#typed-tagline', {
     strings:[
       'Where Every Dish Tells a Story',
       'A Journey Through Mughal Flavours',
       'Authentic Tastes, Timeless Traditions',
-      'Crafted with Spice & Passion'
+      'Crafted with Spice &amp; Passion'
     ],
     typeSpeed:42, backSpeed:22, backDelay:2000,
-    loop:true, showCursor:true,
-    cursorChar:'|',
-    onStringTyped: ()=>{ /* no-op */ }
+    loop:true, showCursor:true, cursorChar:'|'
   });
 }, [], 3.8);
 
-// 4.1s — Tagline label words float up
-tl.call(()=>{
-  anime({ targets:'#tagline-label',
-    translateY:[14,0], opacity:[0,1],
-    duration:500, easing:'easeOutCubic'
-  });
-}, [], 4.1);
-
 // 4.8s — Badge slides up
-tl.from('#bottom-badge', {
-  y:20, opacity:0, duration:0.6, ease:'power2.out'
-}, 4.8);
-tl.set('#bottom-badge', { opacity:1 }, 4.8);
+tl.set('#bottom-badge', { opacity:0, y:20 }, 4.8);
+tl.to('#bottom-badge', { opacity:1, y:0, duration:0.6, ease:'power2.out' }, 4.8);
 
-// 5.0s — Logo gentle scale breathe (no filter pulse)
+// 5.0s — Logo scale breathe
 tl.call(()=>{
   gsap.to('#logo-wrap', {
     scale:1.014, duration:3.8,
@@ -565,25 +500,25 @@ tl.call(()=>{
 // 7.5s — Second shimmer
 tl.set('#shimmer', { opacity:1, left:'-60%' }, 7.5);
 tl.to('#shimmer', { left:'120%', duration:0.85, ease:'power2.inOut' }, 7.5);
-tl.set('#shimmer', { opacity:0 }, 8.35);
+tl.set('#shimmer', { opacity:0 }, 8.4);
 
-// 10.5s → 13.0s — Fade out (reverse order: outer → inner → logo)
-tl.to(['#bottom-badge','#typed-tagline'], { opacity:0, duration:0.5 }, 10.5);
-tl.to('#tagline-block', { opacity:0, duration:0.5 }, 10.7);
+// 10.5s → fade out (reverse: outer first, logo last)
+tl.to('#bottom-badge',   { opacity:0, duration:0.5 }, 10.5);
+tl.to('#tagline-block',  { opacity:0, duration:0.5 }, 10.7);
 tl.to(['#div-top','#div-bot'], { opacity:0, duration:0.5 }, 10.9);
-tl.to('#line-top', { opacity:0, duration:0.5 }, 11.0);
-tl.to('#ring-wrap', { opacity:0, duration:0.6 }, 11.2);
-tl.to('#logo-wrap', { opacity:0, scale:0.92, duration:0.9, ease:'power2.in' }, 11.5);
+tl.to('#line-top',       { opacity:0, duration:0.5 }, 11.0);
+tl.to('#ring-wrap',      { opacity:0, duration:0.6 }, 11.2);
+tl.to('#logo-wrap',      { opacity:0, scale:0.92, duration:0.9, ease:'power2.in' }, 11.5);
 tl.call(()=>{
-  if (window._threeObjs) {
-    gsap.to(window._threeObjs.sphere.material,  { opacity:0, duration:0.8 });
-    gsap.to(window._threeObjs.equator.material, { opacity:0, duration:0.8 });
+  const o = window._threeObjs;
+  if (o) {
+    gsap.to(o.sphere.material,  { opacity:0, duration:0.8 });
+    gsap.to(o.equator.material, { opacity:0, duration:0.8 });
   }
 }, [], 12.0);
 
-// 13.0s total — reset state for loop
+// 13.0s — reset for next loop
 tl.call(()=>{
-  // Reset for next loop
   gsap.killTweensOf('#logo-wrap');
   gsap.set('#logo-wrap', { scale:0, opacity:0 });
   document.getElementById('ring-wrap').style.opacity = '0';
@@ -592,18 +527,21 @@ tl.call(()=>{
   document.getElementById('line-top').style.opacity  = '0';
   document.getElementById('tagline-block').style.opacity = '0';
   document.getElementById('bottom-badge').style.opacity  = '0';
-  // Reset ring strokes for redraw
-  document.getElementById('main-ring').style.strokeDashoffset  = '2010';
-  document.getElementById('inner-ring').style.strokeDashoffset = '1854';
+  // Reset SVG strokes
+  const mr = document.getElementById('main-ring');
+  const ir = document.getElementById('inner-ring');
+  if (mr) mr.setAttribute('stroke-dashoffset','2010');
+  if (ir) ir.setAttribute('stroke-dashoffset','1854');
   document.getElementById('ring-ticks').style.opacity = '0';
-  // Restart Three.js fade
-  if (window._threeObjs) {
-    window._threeObjs.sphere.material.opacity  = 0;
-    window._threeObjs.equator.material.opacity = 0;
+  // Reset Three.js opacity
+  const o = window._threeObjs;
+  if (o) {
+    o.sphere.material.opacity  = 0;
+    o.equator.material.opacity = 0;
   }
 }, [], 13.0);
 
-tl.to({}, { duration:0.5 }, 13.0); // total duration buffer
+tl.to({}, { duration:0.5 }, 13.0); // total = 13.5s
 </script>
 </body>
 </html>
