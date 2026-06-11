@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trust DMC — Adventure Begins in Georgia</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@200;300;400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  width:100vw; height:100vh;
+  background:#000;
+  overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* ════════════════════════════════════════════════
+   STAGE  1080 × 1920
+════════════════════════════════════════════════ */
+.stage {
+  position:absolute;
+  width:1080px; height:1920px;
+  transform-origin:top left;
+  overflow:hidden;
+}
+
+/* ── BG SLIDES ───────────────────────────────── */
+#bg-wrap { position:absolute; inset:0; z-index:0; }
+
+.bg-slide {
+  position:absolute; inset:0;
+  background-size:cover;
+  background-repeat:no-repeat;
+  background-position:center 35%;
+  opacity:0;
+  transform:scale(1.0);
+  will-change:opacity,transform;
+}
+#s1 { background-image:url('bg1.jpg'); }
+#s2 { background-image:url('bg2.jpg'); }
+#s3 { background-image:url('bg3.jpg'); background-position:center center; }
+#s4 { background-image:url('bg4.jpg'); }
+#s5 { background-image:url('bg5.jpg'); }
+
+/* Dark gradient overlay — always on, z above slides */
+#bg-grad {
+  position:absolute; inset:0; z-index:1;
+  background:
+    linear-gradient(180deg,
+      rgba(2,4,10,0.78)  0%,
+      rgba(2,4,10,0.30)  22%,
+      rgba(2,4,10,0.20)  42%,
+      rgba(2,4,10,0.55)  62%,
+      rgba(2,4,10,0.88)  80%,
+      rgba(2,4,10,0.98) 100%
+    );
+}
+
+/* ── FRAME ───────────────────────────────────── */
+.fh { position:absolute; left:44px; right:44px; height:1px;
+      background:linear-gradient(90deg,transparent,rgba(180,148,60,0.45),transparent);
+      transform:scaleX(0); transform-origin:center; z-index:10; }
+.fv { position:absolute; top:44px; bottom:44px; width:1px;
+      background:linear-gradient(180deg,transparent,rgba(180,148,60,0.45),transparent);
+      transform:scaleY(0); transform-origin:50% 0; z-index:10; }
+.fh.ft { top:44px; } .fh.fb { bottom:44px; }
+.fv.fl { left:44px; } .fv.fr { right:44px; }
+
+.ctk { position:absolute; width:20px; height:20px;
+       border-color:rgba(200,168,60,0.80); border-style:solid; z-index:11; opacity:0; }
+.ctk.tl { top:40px;    left:40px;    border-width:1.5px 0 0 1.5px; }
+.ctk.tr { top:40px;    right:40px;   border-width:1.5px 1.5px 0 0; }
+.ctk.bl { bottom:40px; left:40px;    border-width:0 0 1.5px 1.5px; }
+.ctk.br { bottom:40px; right:40px;   border-width:0 1.5px 1.5px 0; }
+
+/* ── CONTENT LAYER ───────────────────────────── */
+#content { position:absolute; inset:0; z-index:5; }
+
+/* ── LOGO TOP ────────────────────────────────── */
+#logo-top {
+  position:absolute; top:72px; left:0; right:0;
+  display:flex; justify-content:center;
+  opacity:0;
+}
+#logo-top img { width:190px; filter:brightness(0) invert(1); opacity:0.92; }
+
+/* Top thin rule under logo */
+#top-rule {
+  position:absolute; top:196px;
+  left:50%; transform:translateX(-50%);
+  width:0; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(107,159,212,0.70),transparent);
+  z-index:5;
+}
+
+/* ── EYEBROW ─────────────────────────────────── */
+#eyebrow {
+  position:absolute; top:228px; left:0; right:0;
+  text-align:center;
+  font-family:'Josefin Sans',sans-serif; font-weight:200;
+  font-size:18px; letter-spacing:0.52em; text-transform:uppercase;
+  color:rgba(168,204,236,0.85);
+  opacity:0;
+}
+
+/* ── HERO TITLE ──────────────────────────────── */
+#hero-wrap {
+  position:absolute; top:278px; left:0; right:0;
+  text-align:center; opacity:0;
+}
+#hero-title {
+  font-family:'Cinzel',serif; font-weight:700;
+  font-size:118px; letter-spacing:0.06em;
+  text-transform:uppercase; line-height:0.92;
+  color:#fff;
+  text-shadow:
+    0 0 60px rgba(107,159,212,0.40),
+    0 0 120px rgba(107,159,212,0.18),
+    0 4px 40px rgba(0,0,0,0.80);
+}
+#hero-sub {
+  font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:300;
+  font-size:28px; letter-spacing:0.10em;
+  color:rgba(200,226,248,0.75);
+  margin-top:14px;
+}
+
+/* Gold divider */
+.gdiv {
+  position:absolute; left:50%; transform:translateX(-50%);
+  height:1px; width:0;
+  background:linear-gradient(90deg,transparent,rgba(200,168,60,0.70),rgba(200,168,60,0.70),transparent);
+  z-index:5;
+}
+.gdiv::after {
+  content:''; position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%) rotate(45deg);
+  width:5px; height:5px; background:rgba(200,168,60,0.85);
+}
+#gd1 { top:448px; }
+#gd2 { top:1002px; }
+#gd3 { top:1260px; }
+
+/* ── INTRO TEXT ──────────────────────────────── */
+#intro {
+  position:absolute; top:475px; left:100px; right:100px;
+  text-align:center; opacity:0;
+  font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:300;
+  font-size:29px; line-height:1.65; color:rgba(225,238,250,0.80);
+}
+
+/* ── FEATURES GRID ───────────────────────────── */
+#features {
+  position:absolute; top:660px; left:60px; right:60px;
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:0;
+}
+.feat {
+  display:flex; align-items:flex-start; gap:24px;
+  padding:36px 40px 36px 50px;
+  border:1px solid rgba(200,168,60,0.10);
+  opacity:0;
+  background:rgba(2,4,10,0.28);
+  backdrop-filter:blur(2px);
+}
+.feat-icon {
+  font-size:44px; flex-shrink:0; line-height:1;
+  filter:drop-shadow(0 0 10px rgba(107,159,212,0.55));
+}
+.feat-body { display:flex; flex-direction:column; gap:6px; }
+.feat-title {
+  font-family:'Cinzel',serif; font-weight:600;
+  font-size:17px; letter-spacing:0.12em;
+  color:rgba(200,226,248,0.95); text-transform:uppercase;
+}
+.feat-desc {
+  font-family:'Josefin Sans',sans-serif; font-weight:200;
+  font-size:14px; letter-spacing:0.10em;
+  color:rgba(168,200,228,0.62); text-transform:uppercase;
+}
+
+/* ── DISCOVER ────────────────────────────────── */
+#discover {
+  position:absolute; top:1030px; left:80px; right:80px;
+  text-align:center; opacity:0;
+  font-family:'Cormorant Garamond',serif; font-style:italic;
+  font-size:42px; font-weight:400; line-height:1.40;
+  color:#fff;
+  text-shadow:0 2px 20px rgba(0,0,0,0.60);
+}
+
+/* ── CTA ─────────────────────────────────────── */
+#cta-wrap {
+  position:absolute; top:1160px; left:0; right:0;
+  display:flex; flex-direction:column; align-items:center;
+  gap:28px; opacity:0;
+}
+#cta-label {
+  font-family:'Josefin Sans',sans-serif; font-weight:200;
+  font-size:15px; letter-spacing:0.42em; text-transform:uppercase;
+  color:rgba(168,204,236,0.68);
+  display:flex; align-items:center; gap:16px;
+}
+.cta-rule { width:50px; height:1px; background:rgba(107,159,212,0.55); }
+#cta-btn {
+  font-family:'Cinzel',serif; font-weight:600;
+  font-size:18px; letter-spacing:0.22em; text-transform:uppercase;
+  color:#fff;
+  padding:20px 64px;
+  border:1.5px solid rgba(107,159,212,0.55);
+  background:rgba(107,159,212,0.10);
+  cursor:pointer;
+}
+#cta-email {
+  font-family:'Josefin Sans',sans-serif; font-weight:300;
+  font-size:16px; letter-spacing:0.18em;
+  color:rgba(168,204,236,0.55);
+}
+
+/* ── BOTTOM ──────────────────────────────────── */
+#bottom {
+  position:absolute; bottom:52px; left:0; right:0;
+  display:flex; flex-direction:column; align-items:center; gap:14px;
+  opacity:0;
+}
+#bot-rule { width:280px; height:1px; background:linear-gradient(90deg,transparent,rgba(168,204,236,0.30),transparent); }
+#logo-bot img { width:120px; filter:brightness(0) invert(1); opacity:0.50; }
+#bot-handle {
+  font-family:'Josefin Sans',sans-serif; font-weight:200;
+  font-size:15px; letter-spacing:0.28em; text-transform:uppercase;
+  color:rgba(168,204,236,0.38);
+}
+
+/* ── SHIMMER ─────────────────────────────────── */
+#shimmer {
+  position:absolute; inset:0; z-index:12; pointer-events:none;
+  width:50%; left:-55%;
+  background:linear-gradient(90deg,
+    transparent 0%, rgba(200,220,255,0.0) 25%,
+    rgba(210,230,255,0.14) 50%, rgba(200,220,255,0.0) 75%, transparent 100%);
+  mix-blend-mode:screen; opacity:0;
+}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <!-- ── Background slideshow ── -->
+  <div id="bg-wrap">
+    <div class="bg-slide" id="s1"></div>
+    <div class="bg-slide" id="s2"></div>
+    <div class="bg-slide" id="s3"></div>
+    <div class="bg-slide" id="s4"></div>
+    <div class="bg-slide" id="s5"></div>
+    <div id="bg-grad"></div>
+  </div>
+
+  <!-- Frame -->
+  <div class="fh ft"></div> <div class="fh fb"></div>
+  <div class="fv fl"></div> <div class="fv fr"></div>
+  <div class="ctk tl"></div><div class="ctk tr"></div>
+  <div class="ctk bl"></div><div class="ctk br"></div>
+
+  <!-- Shimmer -->
+  <div id="shimmer"></div>
+
+  <!-- Content -->
+  <div id="content">
+
+    <div id="logo-top"><img src="trust-dmc-logo.png" alt="Trust DMC"></div>
+    <div id="top-rule"></div>
+    <div id="eyebrow">Your Georgia Adventure Specialists</div>
+
+    <div id="hero-wrap">
+      <div id="hero-title">GEORGIA</div>
+      <div id="hero-sub">Adventure Begins Here</div>
+    </div>
+
+    <!-- Gold dividers -->
+    <div class="gdiv" id="gd1"></div>
+    <div class="gdiv" id="gd2"></div>
+    <div class="gdiv" id="gd3"></div>
+
+    <div id="intro">
+      Whether you're chasing mountain views, scenic drives,<br>
+      hiking trails or thrilling outdoor experiences —<br>
+      Georgia delivers unforgettable moments.
+    </div>
+
+    <div id="features">
+      <div class="feat" id="f1">
+        <div class="feat-icon">🏔️</div>
+        <div class="feat-body">
+          <div class="feat-title">Mountain</div>
+          <div class="feat-desc">Adventures</div>
+        </div>
+      </div>
+      <div class="feat" id="f2">
+        <div class="feat-icon">🌄</div>
+        <div class="feat-body">
+          <div class="feat-title">Breathtaking</div>
+          <div class="feat-desc">Viewpoints</div>
+        </div>
+      </div>
+      <div class="feat" id="f3">
+        <div class="feat-icon">🚡</div>
+        <div class="feat-body">
+          <div class="feat-title">Scenic</div>
+          <div class="feat-desc">Cable Car Rides</div>
+        </div>
+      </div>
+      <div class="feat" id="f4">
+        <div class="feat-icon">📸</div>
+        <div class="feat-body">
+          <div class="feat-title">Endless</div>
+          <div class="feat-desc">Photo Opportunities</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="discover">"Discover the wild beauty<br>of Georgia."</div>
+
+    <div id="cta-wrap">
+      <div id="cta-label">
+        <div class="cta-rule"></div>
+        Contact us for adventure packages
+        <div class="cta-rule"></div>
+      </div>
+      <div id="cta-btn">📩 &nbsp;Book Your Adventure</div>
+      <div id="cta-email">info@trustdmc.com &nbsp;·&nbsp; trustdmc.com</div>
+    </div>
+
+    <div id="bottom">
+      <div id="bot-rule"></div>
+      <div id="logo-bot"><img src="trust-dmc-logo.png" alt="Trust DMC"></div>
+      <div id="bot-handle">Trust DMC &nbsp;·&nbsp; Georgia Specialists</div>
+    </div>
+
+  </div><!-- /content -->
+
+</div><!-- /stage -->
+
+<script src="../libs/gsap.min.js"></script>
+<script src="../libs/splitting.min.js"></script>
+<script src="../libs/anime.min.js"></script>
+<script>
+/* ── Viewport fit ─────────────────────────────────────────────────────────── */
+function fit() {
+  const s = document.getElementById('stage');
+  const sc = Math.min(window.innerWidth/1080, window.innerHeight/1920);
+  s.style.transform = `scale(${sc})`;
+  s.style.left = ((window.innerWidth  - 1080*sc)/2) + 'px';
+  s.style.top  = ((window.innerHeight - 1920*sc)/2) + 'px';
+}
+fit();
+window.addEventListener('resize', fit);
+
+/* ── Splitting ────────────────────────────────────────────────────────────── */
+Splitting({ target:'#hero-title', by:'chars' });
+
+/* ── Background slideshow ─────────────────────────────────────────────────── */
+const slides = Array.from(document.querySelectorAll('.bg-slide'));
+let currentSlide = 0;
+
+function activateSlide(idx, dur) {
+  const el = slides[idx];
+  gsap.killTweensOf(el);
+  gsap.set(el, { scale:1.0 });
+  gsap.to(el, { opacity:1, duration:0.9, ease:'power1.inOut' });
+  gsap.to(el, { scale:1.12, duration: dur || 3.2, ease:'none' });
+}
+function deactivateSlide(idx) {
+  gsap.to(slides[idx], { opacity:0, duration:0.8, ease:'power1.inOut' });
+}
+
+/* ── Main GSAP Timeline ───────────────────────────────────────────────────── */
+const tl = gsap.timeline({ repeat:-1 });
+
+// 0s — First bg slide appears
+tl.call(() => activateSlide(0, 3.2), [], 0);
+
+// 0s — Frame lines draw in
+tl.to('.fh', { scaleX:1, duration:0.9, ease:'power2.inOut', stagger:0.15 }, 0.1);
+tl.to('.fv', { scaleY:1, duration:0.9, ease:'power2.inOut', stagger:0.15 }, 0.2);
+tl.to('.ctk', { opacity:1, duration:0.4, stagger:0.08 }, 0.5);
+
+// 0.5s — Logo drops in
+tl.fromTo('#logo-top', { opacity:0, y:-20 }, { opacity:1, y:0, duration:0.65, ease:'power2.out' }, 0.5);
+
+// 0.8s — Top rule draws
+tl.to('#top-rule', { width:340, duration:0.6, ease:'power2.inOut' }, 0.8);
+
+// 1.1s — Eyebrow fades
+tl.to('#eyebrow', { opacity:1, duration:0.6, ease:'power1.out' }, 1.1);
+
+// 1.5s — GEORGIA title builds (chars stagger)
+tl.set('#hero-wrap', { opacity:1 }, 1.5);
+tl.from('#hero-title .char', {
+  opacity:0, y:30, rotateX:-55, duration:0.55,
+  stagger:{ each:0.06, from:'center' },
+  ease:'back.out(1.4)',
+  transformOrigin:'center bottom'
+}, 1.5);
+tl.fromTo('#hero-sub', { opacity:0, y:12 }, { opacity:1, y:0, duration:0.6, ease:'power2.out' }, 2.1);
+
+// 2.5s — slide 2
+tl.call(() => { deactivateSlide(0); activateSlide(1, 3.2); }, [], 2.5);
+
+// 2.6s — Gold divider 1 + intro
+tl.call(() => {
+  document.getElementById('gd1').style.opacity = '1';
+  anime({ targets:'#gd1', width:[0,380], duration:650, easing:'easeOutCubic' });
+}, [], 2.6);
+tl.fromTo('#intro', { opacity:0, y:16 }, { opacity:1, y:0, duration:0.85, ease:'power2.out' }, 2.8);
+
+// 3.2s — Features grid (2×2, stagger)
+tl.fromTo('#f1', { opacity:0, y:22 }, { opacity:1, y:0, duration:0.55, ease:'power2.out' }, 3.2);
+tl.fromTo('#f2', { opacity:0, y:22 }, { opacity:1, y:0, duration:0.55, ease:'power2.out' }, 3.42);
+tl.fromTo('#f3', { opacity:0, y:22 }, { opacity:1, y:0, duration:0.55, ease:'power2.out' }, 3.64);
+tl.fromTo('#f4', { opacity:0, y:22 }, { opacity:1, y:0, duration:0.55, ease:'power2.out' }, 3.86);
+
+// 4.1s — slide 3
+tl.call(() => { deactivateSlide(1); activateSlide(2, 3.2); }, [], 4.1);
+
+// 4.3s — Gold divider 2 + discover
+tl.call(() => {
+  document.getElementById('gd2').style.opacity = '1';
+  anime({ targets:'#gd2', width:[0,340], duration:600, easing:'easeOutCubic' });
+}, [], 4.3);
+tl.fromTo('#discover', { opacity:0, y:14 }, { opacity:1, y:0, duration:0.85, ease:'power2.out' }, 4.5);
+
+// 5.1s — CTA appears
+tl.fromTo('#cta-wrap', { opacity:0, y:18 }, { opacity:1, y:0, duration:0.8, ease:'power2.out' }, 5.1);
+
+// 5.7s — slide 4
+tl.call(() => { deactivateSlide(2); activateSlide(3, 3.2); }, [], 5.7);
+
+// 5.8s — Gold divider 3 + bottom
+tl.call(() => {
+  document.getElementById('gd3').style.opacity = '1';
+  anime({ targets:'#gd3', width:[0,300], duration:550, easing:'easeOutCubic' });
+}, [], 5.8);
+tl.fromTo('#bottom', { opacity:0 }, { opacity:1, duration:0.7, ease:'power1.out' }, 6.0);
+
+// 6.5s — Shimmer sweep
+tl.set('#shimmer',  { opacity:1, left:'-55%' }, 6.5);
+tl.to('#shimmer',   { left:'130%', duration:1.1, ease:'power2.inOut' }, 6.5);
+tl.set('#shimmer',  { opacity:0 }, 7.7);
+
+// 7.5s — logo breathe
+tl.call(() => {
+  gsap.to('#logo-top', { scale:1.05, duration:2.8, ease:'sine.inOut', yoyo:true, repeat:-1 });
+}, [], 7.5);
+
+// 8.3s — slide 5
+tl.call(() => { deactivateSlide(3); activateSlide(4, 3.5); }, [], 8.3);
+
+// 10.5s → fade out (reverse order)
+tl.to(['#bottom','#cta-wrap'],     { opacity:0, duration:0.45 }, 10.5);
+tl.to(['#gd3','#discover'],        { opacity:0, duration:0.40 }, 10.7);
+tl.to(['#f1','#f2','#f3','#f4'],   { opacity:0, duration:0.35, stagger:0.05 }, 10.9);
+tl.to(['#gd2','#intro'],           { opacity:0, duration:0.40 }, 11.0);
+tl.to(['#gd1','#hero-wrap'],       { opacity:0, duration:0.40 }, 11.2);
+tl.to(['#eyebrow','#top-rule'],    { opacity:0, duration:0.35 }, 11.35);
+tl.to('#logo-top',                 { opacity:0, duration:0.40 }, 11.5);
+tl.to(['.ctk','.fh','.fv'],       { opacity:0, duration:0.35 }, 11.6);
+tl.call(() => { deactivateSlide(4); }, [], 11.7);
+
+// 12.5s — full reset
+tl.call(() => {
+  gsap.killTweensOf('#logo-top');
+  // Reset all slides
+  slides.forEach(s => { gsap.killTweensOf(s); gsap.set(s, { opacity:0, scale:1.0 }); });
+  // Reset UI
+  gsap.set('#logo-top',   { opacity:0, y:-20, scale:1 });
+  gsap.set('#top-rule',   { width:0 });
+  gsap.set('#eyebrow',    { opacity:0 });
+  gsap.set('#hero-wrap',  { opacity:0 });
+  gsap.set('#intro',      { opacity:0, y:16 });
+  gsap.set(['#f1','#f2','#f3','#f4'], { opacity:0, y:22 });
+  gsap.set('#discover',   { opacity:0, y:14 });
+  gsap.set('#cta-wrap',   { opacity:0, y:18 });
+  gsap.set('#bottom',     { opacity:0 });
+  gsap.set('#shimmer',    { opacity:0, left:'-55%' });
+  gsap.set(['.ctk','.fh','.fv'], { opacity:0 });
+  gsap.set('.fh', { scaleX:0 }); gsap.set('.fv', { scaleY:0 });
+  // Reset dividers
+  ['gd1','gd2','gd3'].forEach(id => {
+    const el = document.getElementById(id);
+    gsap.set(el, { opacity:0 });
+    el.style.width = '0';
+  });
+}, [], 12.5);
+
+tl.to({}, { duration:0.5 }, 12.5); // total ~13s
+</script>
+</body>
+</html>
